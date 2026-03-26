@@ -8,6 +8,12 @@ export type RequestOptions = {
   tokenOverride?: string | null;
 };
 
+export type ApiEnvelope<T> = {
+  success?: boolean;
+  data?: T;
+  error?: string;
+};
+
 export class ApiError extends Error {
   status: number;
   data: unknown;
@@ -18,6 +24,16 @@ export class ApiError extends Error {
     this.status = status;
     this.data = data;
   }
+}
+
+export function unwrapApiData<T>(payload: T | ApiEnvelope<T>): T {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    const wrapped = payload as ApiEnvelope<T>;
+    if (wrapped.data !== undefined) {
+      return wrapped.data;
+    }
+  }
+  return payload as T;
 }
 
 function joinUrl(base: string, path: string) {

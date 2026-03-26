@@ -1,10 +1,14 @@
-import { api } from '../../lib/api';
+import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 import type { ClientCase } from './cases.types';
 
 export async function getMyCases() {
-  return api.get<ClientCase[]>('/api/cases');
+  const response = await api.get<ClientCase[] | ApiEnvelope<ClientCase[]>>('/api/cases');
+  return unwrapApiData<ClientCase[]>(response);
 }
 
 export async function getCaseById(id: string) {
-  return api.get<ClientCase & Record<string, unknown>>(`/api/cases/${encodeURIComponent(id)}`);
+  const response = await api.get<(ClientCase & Record<string, unknown>) | ApiEnvelope<ClientCase & Record<string, unknown>>>(
+    `/api/cases/${encodeURIComponent(id)}`,
+  );
+  return unwrapApiData<ClientCase & Record<string, unknown>>(response);
 }

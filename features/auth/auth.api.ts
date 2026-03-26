@@ -1,4 +1,4 @@
-import { ApiError, api } from '../../lib/api';
+import { ApiError, api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 import type { AuthUser } from '../../store/auth-store';
 
 export type LoginPayload = {
@@ -11,34 +11,85 @@ export type LoginResponse = {
   user: AuthUser;
 };
 
+export type SignUpPayload = {
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+};
+
 function isNotFound(error: unknown) {
   return error instanceof ApiError && error.status === 404;
 }
 
 export async function loginWithEmail(payload: LoginPayload) {
-  let data: LoginResponse | { accessToken: string; user: AuthUser };
+  let data: LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>;
   try {
-    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser }>('/api/auth/login', payload);
+    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>('/api/auth/login', payload);
   } catch (error) {
     if (!isNotFound(error)) {
       throw error;
     }
-    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser }>('/auth/login', payload);
+    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>('/auth/login', payload);
   }
+  const normalized = unwrapApiData<LoginResponse | { accessToken: string; user: AuthUser }>(data);
   // Support both {token} and legacy {accessToken}
-  if ('accessToken' in data) {
-    return { token: data.accessToken, user: data.user };
+  if ('accessToken' in normalized) {
+    return { token: normalized.accessToken, user: normalized.user };
   }
-  return data;
+  return normalized;
 }
 
 export async function getMe(accessToken?: string) {
   try {
-    return await api.get<AuthUser>('/api/auth/me', accessToken ? { tokenOverride: accessToken } : undefined);
+    const response = await api.get<AuthUser | ApiEnvelope<AuthUser>>('/api/auth/me', accessToken ? { tokenOverride: accessToken } : undefined);
+    return unwrapApiData<AuthUser>(response);
   } catch (error) {
     if (!isNotFound(error)) {
       throw error;
     }
-    return api.get<AuthUser>('/auth/me', accessToken ? { tokenOverride: accessToken } : undefined);
+    const response = await api.get<AuthUser | ApiEnvelope<AuthUser>>('/auth/me', accessToken ? { tokenOverride: accessToken } : undefined);
+    return unwrapApiData<AuthUser>(response);
+  }
+}
+
+export async function signUpWithEmail(payload: SignUpPayload) {
+  let data: LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>;
+  try {
+    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
+      '/api/auth/register',
+      payload,
+    );
+  } catch (error) {
+    if (!isNotFound(error)) {
+      throw error;
+    }
+    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
+      '/auth/register',
+      payload,
+    );
+  }
+
+  const normalized = unwrapApiData<LoginResponse | { accessToken: string; user: AuthUser }>(data);
+  if ('accessToken' in normalized) {
+    return { token: normalized.accessToken, user: normalized.user };
+  }
+  return normalized;
+}
+
+export async function attachGuestCasesToUser(email: string, userId: string) {
+  const payload = { email, userId, isGuest: false };
+  const candidatePaths = ['/api/cases/attach-guest', '/cases/attach-guest', '/api/auth/upgrade-guest-cases', '/auth/upgrade-guest-cases'];
+
+  for (const path of candidatePaths) {
+    try {
+      await api.post<unknown>(path, payload);
+      return;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        continue;
+      }
+      throw error;
+    }
   }
 }

@@ -1,6 +1,10 @@
 import { Tabs } from 'expo-router';
 
+import { useAuthStore } from '../../store/auth-store';
+
 export default function TabsLayout() {
+  const { isGuest } = useAuthStore();
+
   return (
     <Tabs
       screenOptions={{
@@ -9,10 +13,10 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: '#64748B',
       }}
     >
-      <Tabs.Screen name="home" options={{ title: 'Home' }} />
-      <Tabs.Screen name="cases" options={{ title: 'Cases' }} />
-      <Tabs.Screen name="book" options={{ title: 'Book' }} />
-      <Tabs.Screen name="documents" options={{ title: 'Documents' }} />
+      <Tabs.Screen name="home" options={{ title: 'Services' }} />
+      <Tabs.Screen name="cases" options={{ title: 'Cases', href: isGuest ? null : undefined }} />
+      <Tabs.Screen name="book" options={{ title: 'Book Service' }} />
+      <Tabs.Screen name="documents" options={{ title: 'Documents', href: isGuest ? null : undefined }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );

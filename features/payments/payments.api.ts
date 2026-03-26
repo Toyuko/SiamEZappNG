@@ -1,6 +1,7 @@
 import type { ClientInvoice } from './payments.types';
-import { api } from '../../lib/api';
+import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 
 export async function getMyInvoices() {
-  return api.get<ClientInvoice[]>('/api/invoices');
+  const response = await api.get<ClientInvoice[] | ApiEnvelope<ClientInvoice[]>>('/api/invoices');
+  return unwrapApiData<ClientInvoice[]>(response);
 }

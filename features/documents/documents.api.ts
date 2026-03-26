@@ -1,8 +1,9 @@
 import type { ClientDocument } from './documents.types';
-import { api } from '../../lib/api';
+import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 
 export async function getMyDocuments() {
-  return api.get<ClientDocument[]>('/api/documents');
+  const response = await api.get<ClientDocument[] | ApiEnvelope<ClientDocument[]>>('/api/documents');
+  return unwrapApiData<ClientDocument[]>(response);
 }
 
 export type UploadDocumentPayload = {
@@ -19,5 +20,6 @@ export async function uploadDocument(payload: UploadDocumentPayload) {
     type: payload.mimeType ?? 'application/octet-stream',
   } as any);
 
-  return api.post<ClientDocument>('/api/documents/upload', form);
+  const response = await api.post<ClientDocument | ApiEnvelope<ClientDocument>>('/api/documents/upload', form);
+  return unwrapApiData<ClientDocument>(response);
 }

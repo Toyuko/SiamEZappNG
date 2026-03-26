@@ -1,4 +1,4 @@
-import { api } from '../../lib/api';
+import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 
 export type DashboardOverview = {
   activeCases: number;
@@ -7,5 +7,6 @@ export type DashboardOverview = {
 };
 
 export async function getDashboardOverview() {
-  return api.get<DashboardOverview>('/api/dashboard/overview');
+  const response = await api.get<DashboardOverview | ApiEnvelope<DashboardOverview>>('/api/dashboard/overview');
+  return unwrapApiData<DashboardOverview>(response);
 }

@@ -10,7 +10,7 @@ function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
   const { bootstrapSession } = useAuth();
-  const { accessToken, isBootstrapping } = useAuthStore();
+  const { accessToken, isGuest, isBootstrapping } = useAuthStore();
 
   useEffect(() => {
     void bootstrapSession();
@@ -23,13 +23,24 @@ function RootNavigator() {
 
     const isProtectedRoute = segments[0] !== '(auth)';
     const inAuthGroup = segments[0] === '(auth)';
-    if (!accessToken && isProtectedRoute) {
+    const [topLevel, tabRoute] = segments as string[];
+    const isSensitiveRoute =
+      topLevel === 'cases' ||
+      topLevel === 'documents' ||
+      topLevel === 'dashboard' ||
+      topLevel === 'payments' ||
+      (topLevel === '(tabs)' && (tabRoute === 'cases' || tabRoute === 'documents'));
+
+    if (!accessToken && !isGuest && isProtectedRoute) {
+      router.replace('/(auth)/login');
+    }
+    if (isGuest && isSensitiveRoute) {
       router.replace('/(auth)/login');
     }
     if (accessToken && inAuthGroup) {
       router.replace('/(tabs)/home');
     }
-  }, [accessToken, isBootstrapping, router, segments]);
+  }, [accessToken, isBootstrapping, isGuest, router, segments]);
 
   if (isBootstrapping) {
     return <LoadingState label="Preparing your workspace..." />;

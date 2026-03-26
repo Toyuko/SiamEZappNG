@@ -9,7 +9,7 @@ import { appConfig } from '../../lib/config';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { loginMutation, loginWithProvider } = useAuth();
+  const { loginMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -18,11 +18,27 @@ export default function LoginScreen() {
       await loginMutation.mutateAsync({ email, password });
       router.replace('/(tabs)/home');
     } catch (error) {
-      const details =
+      const fallbackMessage = 'Please check your credentials and try again.';
+      const message =
         error instanceof ApiError
-          ? `\n\nStatus: ${error.status}\nAPI: ${appConfig.apiUrl}`
-          : '';
-      Alert.alert('Login failed', `Please check your credentials and try again.${details}`);
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : fallbackMessage;
+      const status =
+        error instanceof ApiError
+          ? error.status
+          : typeof error === 'object' && error && 'status' in error && typeof (error as any).status === 'number'
+            ? (error as any).status
+            : null;
+
+      const details = [`${message || fallbackMessage}`];
+      if (status !== null) {
+        details.push(`Status: ${status}`);
+      }
+      details.push(`API: ${appConfig.apiUrl}`);
+
+      Alert.alert('Login failed', details.join('\n\n'));
     }
   };
 
@@ -57,6 +73,15 @@ export default function LoginScreen() {
       </View>
 
       <View className="mt-8 gap-3">
+        <Pressable
+          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+          onPress={() => {
+            continueAsGuest();
+            router.replace('/(tabs)/home');
+          }}
+        >
+          <Text className="text-center font-semibold text-slate-700">Continue as Guest</Text>
+        </Pressable>
         <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={() => loginWithProvider('google')}>
           <Text className="text-center font-semibold text-slate-700">Continue with Google</Text>
         </Pressable>
@@ -65,6 +90,9 @@ export default function LoginScreen() {
         </Pressable>
         <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={() => loginWithProvider('line')}>
           <Text className="text-center font-semibold text-slate-700">Continue with LINE</Text>
+        </Pressable>
+        <Pressable className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-3" onPress={() => router.push('/(auth)/signup')}>
+          <Text className="text-center font-semibold text-blue-700">Sign Up</Text>
         </Pressable>
       </View>
     </SafeAreaView>

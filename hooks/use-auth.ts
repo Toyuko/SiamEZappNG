@@ -3,7 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
-import { getMe, loginWithEmail, type LoginPayload } from '../features/auth/auth.api';
+import { attachGuestCasesToUser, getMe, loginWithEmail, signUpWithEmail, type LoginPayload, type SignUpPayload } from '../features/auth/auth.api';
 import { appConfig } from '../lib/config';
 import { clearAccessToken, getAccessToken, saveAccessToken } from '../lib/storage/session-storage';
 import { useAuthStore } from '../store/auth-store';
@@ -11,10 +11,26 @@ import { useAuthStore } from '../store/auth-store';
 WebBrowser.maybeCompleteAuthSession();
 
 export function useAuth() {
-  const { setSession, clearSession, setBootstrapping } = useAuthStore();
+  const { setSession, enterGuestMode, clearSession, setBootstrapping } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => loginWithEmail(payload),
+    onSuccess: async ({ token, user }) => {
+      await saveAccessToken(token);
+      setSession({ accessToken: token, user });
+    },
+  });
+
+  const signUpMutation = useMutation({
+    mutationFn: async (payload: SignUpPayload) => {
+      const result = await signUpWithEmail(payload);
+      try {
+        await attachGuestCasesToUser(payload.email, result.user.id);
+      } catch {
+        // Keep registration successful even if optional guest-link endpoint is unavailable.
+      }
+      return result;
+    },
     onSuccess: async ({ token, user }) => {
       await saveAccessToken(token);
       setSession({ accessToken: token, user });
@@ -58,10 +74,16 @@ export function useAuth() {
     clearSession();
   }, [clearSession]);
 
+  const continueAsGuest = useCallback(() => {
+    enterGuestMode();
+  }, [enterGuestMode]);
+
   return {
     loginMutation,
+    signUpMutation,
     loginWithProvider,
     bootstrapSession,
     logout,
+    continueAsGuest,
   };
 }

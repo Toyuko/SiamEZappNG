@@ -1,14 +1,24 @@
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { useCase } from '../../hooks/use-case';
+import { useAuthStore } from '../../store/auth-store';
 
 export default function CaseDetailScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { isGuest, accessToken } = useAuthStore();
   const { data, isLoading, isError, refetch, error } = useCase(id);
+
+  useEffect(() => {
+    if (isGuest || !accessToken) {
+      router.replace('/(auth)/login');
+    }
+  }, [accessToken, isGuest, router]);
 
   if (isLoading) {
     return <LoadingState label="Loading case..." />;
