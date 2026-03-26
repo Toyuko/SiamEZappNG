@@ -15,9 +15,9 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => loginWithEmail(payload),
-    onSuccess: async ({ accessToken, user }) => {
-      await saveAccessToken(accessToken);
-      setSession({ accessToken, user });
+    onSuccess: async ({ token, user }) => {
+      await saveAccessToken(token);
+      setSession({ accessToken: token, user });
     },
   });
 

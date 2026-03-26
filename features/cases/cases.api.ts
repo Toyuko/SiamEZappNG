@@ -1,7 +1,10 @@
-import { apiClient } from '../../lib/api/client';
+import { api } from '../../lib/api';
 import type { ClientCase } from './cases.types';
 
 export async function getMyCases() {
-  const { data } = await apiClient.get<ClientCase[]>('/client/cases');
-  return data;
+  return api.get<ClientCase[]>('/api/cases');
+}
+
+export async function getCaseById(id: string) {
+  return api.get<ClientCase & Record<string, unknown>>(`/api/cases/${encodeURIComponent(id)}`);
 }

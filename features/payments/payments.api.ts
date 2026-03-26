@@ -1,8 +1,6 @@
-import { apiClient } from '../../lib/api/client';
-
 import type { ClientInvoice } from './payments.types';
+import { api } from '../../lib/api';
 
 export async function getMyInvoices() {
-  const { data } = await apiClient.get<ClientInvoice[]>('/client/invoices');
-  return data;
+  return api.get<ClientInvoice[]>('/api/invoices');
 }

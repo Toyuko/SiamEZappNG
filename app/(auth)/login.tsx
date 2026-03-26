@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { useAuth } from '../../hooks/use-auth';
+import { ApiError } from '../../lib/api';
+import { appConfig } from '../../lib/config';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -15,8 +17,12 @@ export default function LoginScreen() {
     try {
       await loginMutation.mutateAsync({ email, password });
       router.replace('/(tabs)/home');
-    } catch {
-      Alert.alert('Login failed', 'Please check your credentials and try again.');
+    } catch (error) {
+      const details =
+        error instanceof ApiError
+          ? `\n\nStatus: ${error.status}\nAPI: ${appConfig.apiUrl}`
+          : '';
+      Alert.alert('Login failed', `Please check your credentials and try again.${details}`);
     }
   };
 

@@ -5,7 +5,7 @@ import { clearAccessToken } from '../storage/session-storage';
 import { useAuthStore } from '../../store/auth-store';
 
 export const apiClient = axios.create({
-  baseURL: appConfig.apiBaseUrl,
+  baseURL: appConfig.apiUrl,
   timeout: 15000,
 });
 

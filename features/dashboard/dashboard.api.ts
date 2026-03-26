@@ -1,4 +1,4 @@
-import { apiClient } from '../../lib/api/client';
+import { api } from '../../lib/api';
 
 export type DashboardOverview = {
   activeCases: number;
@@ -7,6 +7,5 @@ export type DashboardOverview = {
 };
 
 export async function getDashboardOverview() {
-  const { data } = await apiClient.get<DashboardOverview>('/client/dashboard/overview');
-  return data;
+  return api.get<DashboardOverview>('/api/dashboard/overview');
 }

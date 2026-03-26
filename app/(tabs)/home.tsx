@@ -4,17 +4,34 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { MetricCard } from '../../components/ui/metric-card';
-import { useDashboard } from '../../hooks/use-dashboard';
+import { useCases } from '../../hooks/use-cases';
+import { useInvoices } from '../../hooks/use-invoices';
 
 export default function HomeScreen() {
-  const { data, isLoading, isError, refetch, error } = useDashboard();
+  const casesQuery = useCases();
+  const invoicesQuery = useInvoices();
+
+  const isLoading = casesQuery.isLoading || invoicesQuery.isLoading;
+  const isError = casesQuery.isError || invoicesQuery.isError;
+  const error = (casesQuery.error ?? invoicesQuery.error) as unknown;
+
+  const activeCases = (casesQuery.data ?? []).length;
+  const pendingInvoices = (invoicesQuery.data ?? []).filter((invoice) => invoice.status !== 'PAID').length;
 
   if (isLoading) {
     return <LoadingState label="Loading dashboard..." />;
   }
 
   if (isError) {
-    return <ErrorState label={error instanceof Error ? error.message : 'Unable to load dashboard.'} onRetry={() => void refetch()} />;
+    return (
+      <ErrorState
+        label={error instanceof Error ? error.message : 'Unable to load dashboard.'}
+        onRetry={() => {
+          void casesQuery.refetch();
+          void invoicesQuery.refetch();
+        }}
+      />
+    );
   }
 
   return (
@@ -26,13 +43,13 @@ export default function HomeScreen() {
         </View>
 
         <View className="flex-row gap-3">
-          <MetricCard title="Active Cases" value={data?.activeCases ?? 0} />
-          <MetricCard title="Pending Invoices" value={data?.pendingInvoices ?? 0} />
+          <MetricCard title="Active Cases" value={activeCases} />
+          <MetricCard title="Pending Invoices" value={pendingInvoices} />
         </View>
 
         <View className="rounded-2xl border border-slate-200 bg-white p-4">
           <Text className="text-sm text-slate-500">Recent updates</Text>
-          <Text className="mt-2 text-2xl font-bold text-slate-900">{data?.recentUpdates ?? 0}</Text>
+          <Text className="mt-2 text-2xl font-bold text-slate-900">{activeCases}</Text>
           <Text className="mt-2 text-slate-500">Open your case timeline for full details.</Text>
         </View>
       </ScrollView>

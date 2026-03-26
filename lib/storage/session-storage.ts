@@ -1,15 +1,14 @@
-import * as SecureStore from 'expo-secure-store';
+import { getToken, removeToken, setToken } from '../auth/token';
 
-const ACCESS_TOKEN_KEY = 'siamez_access_token';
-
+// Backwards-compatible wrappers (legacy name).
 export async function saveAccessToken(token: string) {
-  await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
+  await setToken(token);
 }
 
 export async function getAccessToken() {
-  return SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  return getToken();
 }
 
 export async function clearAccessToken() {
-  await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+  await removeToken();
 }

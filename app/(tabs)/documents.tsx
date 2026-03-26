@@ -7,14 +7,29 @@ import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { useDocuments } from '../../hooks/use-documents';
+import { useUploadDocument } from '../../hooks/use-upload-document';
 
 export default function DocumentsScreen() {
   const { data, isLoading, isError, refetch, error } = useDocuments();
+  const uploadMutation = useUploadDocument();
 
   const pickFile = async () => {
     const result = await DocumentPicker.getDocumentAsync({ multiple: false });
     if (!result.canceled) {
-      Alert.alert('Selected file', result.assets[0]?.name ?? 'Unknown');
+      const asset = result.assets[0];
+      if (!asset?.uri) {
+        return;
+      }
+      try {
+        await uploadMutation.mutateAsync({
+          uri: asset.uri,
+          name: asset.name ?? 'document',
+          mimeType: asset.mimeType ?? undefined,
+        });
+        Alert.alert('Uploaded', 'Your document has been uploaded.');
+      } catch {
+        Alert.alert('Upload failed', 'Please try again.');
+      }
     }
   };
 
@@ -27,7 +42,20 @@ export default function DocumentsScreen() {
 
     const result = await ImagePicker.launchCameraAsync();
     if (!result.canceled) {
-      Alert.alert('Photo captured', 'Ready to upload payment proof or case document.');
+      const asset = result.assets[0];
+      if (!asset?.uri) {
+        return;
+      }
+      try {
+        await uploadMutation.mutateAsync({
+          uri: asset.uri,
+          name: 'camera-upload.jpg',
+          mimeType: 'image/jpeg',
+        });
+        Alert.alert('Uploaded', 'Your photo has been uploaded.');
+      } catch {
+        Alert.alert('Upload failed', 'Please try again.');
+      }
     }
   };
 
@@ -45,10 +73,14 @@ export default function DocumentsScreen() {
       <Text className="mt-1 text-slate-500">Upload and attach documents to your active cases.</Text>
 
       <View className="mt-5 gap-3">
-        <Pressable className="rounded-xl bg-blue-700 px-4 py-3" onPress={pickFile}>
+        <Pressable className="rounded-xl bg-blue-700 px-4 py-3" onPress={pickFile} disabled={uploadMutation.isPending}>
           <Text className="text-center font-semibold text-white">Upload from Files</Text>
         </Pressable>
-        <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={capturePhoto}>
+        <Pressable
+          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+          onPress={capturePhoto}
+          disabled={uploadMutation.isPending}
+        >
           <Text className="text-center font-semibold text-slate-700">Capture with Camera</Text>
         </Pressable>
       </View>
