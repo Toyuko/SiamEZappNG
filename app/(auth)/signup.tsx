@@ -1,13 +1,20 @@
 import { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { ApiError } from '../../lib/api';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Header } from '../../components/ui/Header';
+import { Input } from '../../components/ui/Input';
 import { useAuth } from '../../hooks/use-auth';
+import { t } from '../../lib/i18n/i18n';
+import { useTheme } from '../../lib/theme/theme';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { signUpMutation } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,9 +22,12 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
 
   const handleSignUp = async () => {
+    if (signUpMutation.isPending) {
+      return;
+    }
+    Keyboard.dismiss();
     try {
       await signUpMutation.mutateAsync({ name, email, phone, password });
-      router.replace('/(tabs)/home');
     } catch (error) {
       const message = error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'Unable to create account.';
       Alert.alert('Sign up failed', message);
@@ -25,37 +35,37 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 p-6">
-      <View className="mt-10 gap-2">
-        <Text className="text-3xl font-bold text-slate-900">Create your account</Text>
-        <Text className="text-slate-500">Sign up to track cases, documents, and payments.</Text>
-      </View>
+    <SafeAreaView className="flex-1 p-6" style={{ backgroundColor: colors.background }}>
+      <Header title={t('auth.createAccount')} subtitle="Sign up to track cases, documents, and payments." gradient />
 
-      <View className="mt-8 gap-3">
-        <TextInput className="rounded-xl border border-slate-300 bg-white px-4 py-3" placeholder="Full name" value={name} onChangeText={setName} />
-        <TextInput
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput className="rounded-xl border border-slate-300 bg-white px-4 py-3" keyboardType="phone-pad" placeholder="Phone" value={phone} onChangeText={setPhone} />
-        <TextInput
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <Pressable className="rounded-xl bg-blue-700 px-4 py-3" onPress={handleSignUp}>
-          <Text className="text-center font-semibold text-white">{signUpMutation.isPending ? 'Creating account...' : 'Sign Up'}</Text>
-        </Pressable>
-        <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={() => router.replace('/(auth)/login')}>
-          <Text className="text-center font-semibold text-slate-700">Back to Login</Text>
-        </Pressable>
-      </View>
+      <Card className="mt-6">
+        <View className="gap-3">
+          <Input placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
+          <Input
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            placeholder={t('auth.email')}
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Input keyboardType="phone-pad" placeholder={t('auth.phone')} value={phone} onChangeText={setPhone} />
+          <Input
+            placeholder={t('auth.password')}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="newPassword"
+            textContentType="newPassword"
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Button label={signUpMutation.isPending ? t('auth.creatingAccount') : t('auth.signUp')} onPress={handleSignUp} />
+          <Button label={t('auth.backToLogin')} variant="secondary" onPress={() => router.replace('/(auth)/login')} />
+        </View>
+      </Card>
     </SafeAreaView>
   );
 }

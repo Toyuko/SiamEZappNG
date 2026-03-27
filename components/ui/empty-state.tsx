@@ -1,9 +1,16 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, View } from 'react-native';
 
+import { useTheme } from '../../lib/theme/theme';
+import { Card } from './Card';
+
 export function EmptyState({ label }: { label: string }) {
+  const { colors } = useTheme();
+
   return (
-    <View className="rounded-2xl border border-dashed border-slate-300 p-6">
-      <Text className="text-center text-slate-500">{label}</Text>
-    </View>
+    <Card className="items-center border border-dashed">
+      <MaterialCommunityIcons name="inbox-outline" size={26} color={colors.mutedText} />
+      <Text className="mt-2 text-center" style={{ color: colors.mutedText }}>{label}</Text>
+    </Card>
   );
 }

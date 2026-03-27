@@ -1,15 +1,21 @@
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
+import { Header } from '../../components/ui/Header';
 import { LoadingState } from '../../components/ui/loading-state';
 import { useDocuments } from '../../hooks/use-documents';
 import { useUploadDocument } from '../../hooks/use-upload-document';
+import { t } from '../../lib/i18n/i18n';
+import { useTheme } from '../../lib/theme/theme';
 
 export default function DocumentsScreen() {
+  const { colors } = useTheme();
   const { data, isLoading, isError, refetch, error } = useDocuments();
   const uploadMutation = useUploadDocument();
 
@@ -26,9 +32,9 @@ export default function DocumentsScreen() {
           name: asset.name ?? 'document',
           mimeType: asset.mimeType ?? undefined,
         });
-        Alert.alert('Uploaded', 'Your document has been uploaded.');
+        Alert.alert(t('documents.uploaded'), t('documents.uploadDocSuccess'));
       } catch {
-        Alert.alert('Upload failed', 'Please try again.');
+        Alert.alert(t('documents.uploadFailed'), t('documents.retryMessage'));
       }
     }
   };
@@ -36,7 +42,7 @@ export default function DocumentsScreen() {
   const capturePhoto = async () => {
     const permissions = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissions.granted) {
-      Alert.alert('Permission required', 'Camera access is needed to capture document photos.');
+      Alert.alert(t('documents.permissionRequired'), t('documents.cameraAccessRequired'));
       return;
     }
 
@@ -52,51 +58,42 @@ export default function DocumentsScreen() {
           name: 'camera-upload.jpg',
           mimeType: 'image/jpeg',
         });
-        Alert.alert('Uploaded', 'Your photo has been uploaded.');
+        Alert.alert(t('documents.uploaded'), t('documents.uploadPhotoSuccess'));
       } catch {
-        Alert.alert('Upload failed', 'Please try again.');
+        Alert.alert(t('documents.uploadFailed'), t('documents.retryMessage'));
       }
     }
   };
 
   if (isLoading) {
-    return <LoadingState label="Loading documents..." />;
+    return <LoadingState label={t('documents.loading')} />;
   }
 
   if (isError) {
-    return <ErrorState label={error instanceof Error ? error.message : 'Unable to load documents.'} onRetry={() => void refetch()} />;
+    return <ErrorState label={error instanceof Error ? error.message : t('documents.loadError')} onRetry={() => void refetch()} />;
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 p-4">
-      <Text className="text-2xl font-bold text-slate-900">Documents</Text>
-      <Text className="mt-1 text-slate-500">Upload and attach documents to your active cases.</Text>
+    <SafeAreaView className="flex-1 p-4" style={{ backgroundColor: colors.background }}>
+      <Header title={t('documents.title')} subtitle={t('documents.subtitle')} gradient />
 
       <View className="mt-5 gap-3">
-        <Pressable className="rounded-xl bg-blue-700 px-4 py-3" onPress={pickFile} disabled={uploadMutation.isPending}>
-          <Text className="text-center font-semibold text-white">Upload from Files</Text>
-        </Pressable>
-        <Pressable
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
-          onPress={capturePhoto}
-          disabled={uploadMutation.isPending}
-        >
-          <Text className="text-center font-semibold text-slate-700">Capture with Camera</Text>
-        </Pressable>
+        <Button label={t('documents.uploadFiles')} onPress={pickFile} disabled={uploadMutation.isPending} />
+        <Button label={t('documents.captureCamera')} variant="secondary" onPress={capturePhoto} disabled={uploadMutation.isPending} />
       </View>
 
       <View className="mt-5 gap-3">
         {(data ?? []).length === 0 ? (
-          <EmptyState label="No documents uploaded yet." />
+          <EmptyState label={t('documents.empty')} />
         ) : (
           data?.map((document) => (
-            <View key={document.id} className="rounded-2xl border border-slate-200 bg-white p-4">
-              <Text className="font-semibold text-slate-900">{document.name}</Text>
-              <Text className="mt-1 text-slate-500">{document.type}</Text>
-              <Text className="mt-2 text-xs text-slate-400">
+            <Card key={document.id}>
+              <Text className="font-semibold" style={{ color: colors.text }}>{document.name}</Text>
+              <Text className="mt-1" style={{ color: colors.mutedText }}>{document.type}</Text>
+              <Text className="mt-2 text-xs" style={{ color: colors.mutedText }}>
                 {new Date(document.uploadedAt).toLocaleDateString()} - {document.status}
               </Text>
-            </View>
+            </Card>
           ))
         )}
       </View>

@@ -1,10 +1,16 @@
+import '../global.css';
 import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import { enableScreens } from 'react-native-screens';
 
 import { AppProviders } from '../components/providers/app-providers';
 import { LoadingState } from '../components/ui/loading-state';
 import { useAuth } from '../hooks/use-auth';
+import { t } from '../lib/i18n/i18n';
 import { useAuthStore } from '../store/auth-store';
+
+// Work around Android Fabric mount race in some navigation transitions.
+enableScreens(false);
 
 function RootNavigator() {
   const router = useRouter();
@@ -29,21 +35,30 @@ function RootNavigator() {
       topLevel === 'documents' ||
       topLevel === 'dashboard' ||
       topLevel === 'payments' ||
-      (topLevel === '(tabs)' && (tabRoute === 'cases' || tabRoute === 'documents'));
+      (topLevel === '(tabs)' &&
+        (tabRoute === 'dashboard' || tabRoute === 'cases' || tabRoute === 'documents' || tabRoute === 'profile'));
+    const isGuestOnlyRoute = (topLevel === '(tabs)' && (tabRoute === 'home' || tabRoute === 'contact'));
+    const isAuthenticated = Boolean(accessToken) && !isGuest;
 
     if (!accessToken && !isGuest && isProtectedRoute) {
       router.replace('/(auth)/login');
+      return;
     }
     if (isGuest && isSensitiveRoute) {
       router.replace('/(auth)/login');
+      return;
     }
-    if (accessToken && inAuthGroup) {
-      router.replace('/(tabs)/home');
+    if (isAuthenticated && inAuthGroup) {
+      router.replace('/(tabs)/dashboard');
+      return;
+    }
+    if (isAuthenticated && isGuestOnlyRoute) {
+      router.replace('/(tabs)/dashboard');
     }
   }, [accessToken, isBootstrapping, isGuest, router, segments]);
 
   if (isBootstrapping) {
-    return <LoadingState label="Preparing your workspace..." />;
+    return <LoadingState label={t('common.loading')} />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;

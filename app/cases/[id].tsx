@@ -3,13 +3,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 
+import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
+import { Header } from '../../components/ui/Header';
 import { LoadingState } from '../../components/ui/loading-state';
 import { useCase } from '../../hooks/use-case';
+import { t } from '../../lib/i18n/i18n';
+import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
 
 export default function CaseDetailScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { isGuest, accessToken } = useAuthStore();
   const { data, isLoading, isError, refetch, error } = useCase(id);
@@ -21,23 +26,22 @@ export default function CaseDetailScreen() {
   }, [accessToken, isGuest, router]);
 
   if (isLoading) {
-    return <LoadingState label="Loading case..." />;
+    return <LoadingState label={t('caseDetail.loading')} />;
   }
 
   if (isError) {
-    return <ErrorState label={error instanceof Error ? error.message : 'Unable to load case.'} onRetry={() => void refetch()} />;
+    return <ErrorState label={error instanceof Error ? error.message : t('caseDetail.loadError')} onRetry={() => void refetch()} />;
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 p-4">
-      <Text className="text-2xl font-bold text-slate-900">Case Detail</Text>
-      <Text className="mt-2 text-slate-500">Case ID: {id}</Text>
+    <SafeAreaView className="flex-1 p-4" style={{ backgroundColor: colors.background }}>
+      <Header title={t('caseDetail.title')} subtitle={t('caseDetail.caseId', { id })} gradient />
 
-      <View className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-        <Text className="font-semibold text-slate-900">{data?.title ?? 'Untitled case'}</Text>
-        <Text className="mt-2 text-slate-500">{data?.serviceType ?? 'Service type unavailable'}</Text>
-        <Text className="mt-2 text-xs text-slate-400">Status: {String(data?.status ?? 'UNKNOWN')}</Text>
-      </View>
+      <Card className="mt-4">
+        <Text className="font-semibold" style={{ color: colors.text }}>{data?.title ?? t('caseDetail.untitled')}</Text>
+        <Text className="mt-2" style={{ color: colors.mutedText }}>{data?.serviceType ?? t('caseDetail.serviceTypeUnavailable')}</Text>
+        <Text className="mt-2 text-xs" style={{ color: colors.mutedText }}>{t('cases.status')}: {String(data?.status ?? 'UNKNOWN')}</Text>
+      </Card>
     </SafeAreaView>
   );
 }

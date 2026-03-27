@@ -18,19 +18,33 @@ export type SignUpPayload = {
   password: string;
 };
 
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
 function isNotFound(error: unknown) {
   return error instanceof ApiError && error.status === 404;
 }
 
 export async function loginWithEmail(payload: LoginPayload) {
+  const normalizedPayload: LoginPayload = {
+    ...payload,
+    email: normalizeEmail(payload.email),
+  };
   let data: LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>;
   try {
-    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>('/api/auth/login', payload);
+    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
+      '/api/auth/login',
+      normalizedPayload,
+    );
   } catch (error) {
     if (!isNotFound(error)) {
       throw error;
     }
-    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>('/auth/login', payload);
+    data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
+      '/auth/login',
+      normalizedPayload,
+    );
   }
   const normalized = unwrapApiData<LoginResponse | { accessToken: string; user: AuthUser }>(data);
   // Support both {token} and legacy {accessToken}
@@ -54,11 +68,15 @@ export async function getMe(accessToken?: string) {
 }
 
 export async function signUpWithEmail(payload: SignUpPayload) {
+  const normalizedPayload: SignUpPayload = {
+    ...payload,
+    email: normalizeEmail(payload.email),
+  };
   let data: LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>;
   try {
     data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
       '/api/auth/register',
-      payload,
+      normalizedPayload,
     );
   } catch (error) {
     if (!isNotFound(error)) {
@@ -66,7 +84,7 @@ export async function signUpWithEmail(payload: SignUpPayload) {
     }
     data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
       '/auth/register',
-      payload,
+      normalizedPayload,
     );
   }
 

@@ -1,4 +1,8 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+
+import { useTheme } from '../../lib/theme/theme';
+import { Button } from './Button';
+import { Card } from './Card';
 
 type ErrorStateProps = {
   label?: string;
@@ -6,14 +10,16 @@ type ErrorStateProps = {
 };
 
 export function ErrorState({ label = 'Something went wrong.', onRetry }: ErrorStateProps) {
+  const { colors } = useTheme();
+
   return (
-    <View className="rounded-2xl border border-red-200 bg-red-50 p-4">
-      <Text className="text-center text-red-700">{label}</Text>
+    <Card>
+      <Text className="text-center" style={{ color: colors.danger }}>{label}</Text>
       {onRetry ? (
-        <Pressable className="mt-3 self-center rounded-lg bg-red-600 px-4 py-2" onPress={onRetry}>
-          <Text className="font-semibold text-white">Try again</Text>
-        </Pressable>
+        <View className="mt-4">
+          <Button label="Try again" onPress={onRetry} />
+        </View>
       ) : null}
-    </View>
+    </Card>
   );
 }

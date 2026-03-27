@@ -1,22 +1,33 @@
 import { useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Header } from '../../components/ui/Header';
+import { Input } from '../../components/ui/Input';
 import { useAuth } from '../../hooks/use-auth';
 import { ApiError } from '../../lib/api';
 import { appConfig } from '../../lib/config';
+import { t } from '../../lib/i18n/i18n';
+import { useTheme } from '../../lib/theme/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { loginMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
+    if (loginMutation.isPending) {
+      return;
+    }
+    Keyboard.dismiss();
     try {
       await loginMutation.mutateAsync({ email, password });
-      router.replace('/(tabs)/home');
     } catch (error) {
       const fallbackMessage = 'Please check your credentials and try again.';
       const message =
@@ -43,57 +54,69 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 p-6">
-      <View className="mt-12 gap-2">
-        <Text className="text-3xl font-bold text-slate-900">Welcome to SiamEZ</Text>
-        <Text className="text-slate-500">Manage your cases, documents, and payments from one place.</Text>
-      </View>
+    <SafeAreaView className="flex-1 p-6" style={{ backgroundColor: colors.background }}>
+      <Header title={t('auth.welcome')} subtitle="Manage your cases, documents, and payments from one place." gradient />
 
-      <View className="mt-8 gap-3">
-        <TextInput
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <Pressable className="rounded-xl bg-blue-700 px-4 py-3" onPress={handleLogin}>
-          <Text className="text-center font-semibold text-white">
-            {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
-          </Text>
-        </Pressable>
-      </View>
+      <Card className="mt-6">
+        <View className="gap-3">
+          <Input
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            placeholder={t('auth.email')}
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Input
+            placeholder={t('auth.password')}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="password"
+            textContentType="password"
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Button
+            label={showPassword ? 'Hide password' : 'Show password'}
+            variant="secondary"
+            size="md"
+            onPress={() => setShowPassword((prev) => !prev)}
+          />
+          <Button label={loginMutation.isPending ? t('auth.signingIn') : t('auth.signIn')} onPress={handleLogin} />
+        </View>
+      </Card>
 
-      <View className="mt-8 gap-3">
-        <Pressable
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3"
+      <View className="mt-6 gap-3">
+        <Button
+          label={t('auth.continueAsGuest')}
+          variant="secondary"
           onPress={() => {
             continueAsGuest();
             router.replace('/(tabs)/home');
           }}
-        >
-          <Text className="text-center font-semibold text-slate-700">Continue as Guest</Text>
-        </Pressable>
-        <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={() => loginWithProvider('google')}>
-          <Text className="text-center font-semibold text-slate-700">Continue with Google</Text>
-        </Pressable>
-        <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={() => loginWithProvider('facebook')}>
-          <Text className="text-center font-semibold text-slate-700">Continue with Facebook</Text>
-        </Pressable>
-        <Pressable className="rounded-xl border border-slate-300 bg-white px-4 py-3" onPress={() => loginWithProvider('line')}>
-          <Text className="text-center font-semibold text-slate-700">Continue with LINE</Text>
-        </Pressable>
-        <Pressable className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-3" onPress={() => router.push('/(auth)/signup')}>
-          <Text className="text-center font-semibold text-blue-700">Sign Up</Text>
-        </Pressable>
+        />
+        <Button
+          label="G  Continue with Google"
+          backgroundColor="#DB4437"
+          textColor="#ffffff"
+          onPress={() => loginWithProvider('google')}
+        />
+        <Button
+          label="f  Continue with Facebook"
+          backgroundColor="#1877F2"
+          textColor="#ffffff"
+          onPress={() => loginWithProvider('facebook')}
+        />
+        <Button
+          label="LINE  Continue with LINE"
+          backgroundColor="#06C755"
+          textColor="#ffffff"
+          onPress={() => loginWithProvider('line')}
+        />
+        <Button label={t('auth.signUp')} onPress={() => router.push('/(auth)/signup')} />
       </View>
     </SafeAreaView>
   );
