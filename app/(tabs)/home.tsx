@@ -6,11 +6,13 @@ import { useMemo, useState } from 'react';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Header } from '../../components/ui/Header';
 import { Input } from '../../components/ui/Input';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
+import { TrustStats } from '../../components/ui/TrustStats';
 import { serviceCatalog } from '../../features/services/services.data';
 import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme, type ThemeMode } from '../../lib/theme/theme';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { useThemeStore } from '../../lib/theme/useThemeStore';
@@ -31,8 +33,27 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 24 }}>
-        <Header title={t('home.title')} subtitle={t('home.subtitle')} gradient />
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+        <PageHeader
+          badge={t('home.badge')}
+          title={t('home.title')}
+          subtitle={t('home.subtitle')}
+          primaryCta={{ label: t('cta.getStarted'), onPress: () => router.push('/(auth)/signup') }}
+          secondaryCta={{ label: t('cta.learnMore'), onPress: () => router.push('/(tabs)/services') }}
+        />
+
+        <TrustStats />
+
+        <Section title={t('trust.whatClientsSay')} subtitle={t('trust.testimonialSubtitle')}>
+          <Card>
+            <Text className="text-base leading-6 italic" style={{ color: colors.muted }}>
+              &ldquo;{t('trust.testimonialQuote')}&rdquo;
+            </Text>
+            <Text className="mt-3 text-sm font-semibold" style={{ color: colors.foreground }}>
+              {t('trust.testimonialAttribution')}
+            </Text>
+          </Card>
+        </Section>
 
         <Card>
           <Pressable
@@ -44,20 +65,20 @@ export default function HomeScreen() {
             style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
           >
             <View className="min-w-0 flex-1">
-              <Text className="text-lg font-semibold" style={{ color: colors.text }}>
+              <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
                 {t('home.preferences')}
               </Text>
               {!preferencesExpanded ? (
-                <Text className="mt-1 text-sm" numberOfLines={2} style={{ color: colors.mutedText }}>
+                <Text className="mt-1 text-sm leading-5" numberOfLines={2} style={{ color: colors.muted }}>
                   {t('home.preferencesSubtitle')}
                 </Text>
               ) : null}
             </View>
-            <Ionicons name={preferencesExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={colors.mutedText} />
+            <Ionicons name={preferencesExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={colors.muted} />
           </Pressable>
           {preferencesExpanded ? (
             <View className="mt-3 gap-0">
-              <Text className="text-sm font-medium" style={{ color: colors.mutedText }}>
+              <Text className="text-sm font-medium" style={{ color: colors.muted }}>
                 {t('settings.theme')}
               </Text>
               <View className="mt-2 flex-row flex-wrap gap-2">
@@ -72,11 +93,11 @@ export default function HomeScreen() {
                     }}
                     onPress={() => setTheme(mode)}
                   >
-                    <Text style={{ color: themeMode === mode ? '#ffffff' : colors.text }}>{t(`settings.${mode}`)}</Text>
+                    <Text style={{ color: themeMode === mode ? '#ffffff' : colors.foreground }}>{t(`settings.${mode}`)}</Text>
                   </Pressable>
                 ))}
               </View>
-              <Text className="mt-4 text-sm font-medium" style={{ color: colors.mutedText }}>
+              <Text className="mt-4 text-sm font-medium" style={{ color: colors.muted }}>
                 {t('settings.language')}
               </Text>
               <View className="mt-2 flex-row flex-wrap gap-2">
@@ -91,7 +112,7 @@ export default function HomeScreen() {
                     }}
                     onPress={() => setLanguage(lang)}
                   >
-                    <Text style={{ color: language === lang ? '#ffffff' : colors.text }}>
+                    <Text style={{ color: language === lang ? '#ffffff' : colors.foreground }}>
                       {lang === 'en' ? t('settings.english') : t('settings.thai')}
                     </Text>
                   </Pressable>
@@ -102,10 +123,15 @@ export default function HomeScreen() {
         </Card>
 
         <Card>
-          <Text className="text-lg font-semibold" style={{ color: colors.text }}>{t('home.findService')}</Text>
+          <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
+            {t('home.findService')}
+          </Text>
+          <Text className="mt-1 text-sm leading-5" style={{ color: colors.muted }}>
+            {t('home.searchServices')}
+          </Text>
           <Input placeholder={t('home.searchServices')} value={query} onChangeText={setQuery} className="mt-3" />
           <View className="mt-4">
-            <Button label={t('home.bookService')} onPress={() => router.push('/(tabs)/book')} />
+            <Button label={t('cta.bookNow')} onPress={() => router.push('/(tabs)/book')} />
           </View>
         </Card>
 
@@ -113,31 +139,28 @@ export default function HomeScreen() {
           {featuredServices.map((service) => (
             <Card key={service.slug}>
               <Text className="text-2xl">{service.icon}</Text>
-              <Text className="mt-2 text-base font-semibold text-slate-900">{service.title}</Text>
-              <Text className="mt-1 text-slate-500">{service.shortDescription}</Text>
-              <View className="mt-4">
-                <Button label={t('home.viewService')} variant="secondary" onPress={() => router.push(`/services/${service.slug}`)} />
+              <Text className="mt-2 text-base font-bold" style={{ color: colors.foreground }}>
+                {service.title}
+              </Text>
+              <Text className="mt-1 text-sm leading-5" style={{ color: colors.muted }}>
+                {service.shortDescription}
+              </Text>
+              <View className="mt-4 gap-3">
+                <Button
+                  label={t('cta.bookNow')}
+                  onPress={() =>
+                    router.push({ pathname: '/(tabs)/book', params: { serviceSlug: service.slug } })
+                  }
+                />
+                <Button
+                  label={t('home.details')}
+                  variant="secondary"
+                  onPress={() => router.push(`/services/${service.slug}`)}
+                />
               </View>
             </Card>
           ))}
           <Button label={t('home.viewAllServices')} variant="secondary" onPress={() => router.push('/(tabs)/services')} />
-        </Section>
-
-        <Section title="Trusted by clients" subtitle="Quality and reliability across every service touchpoint.">
-          <Card className="flex-row justify-between">
-            <View>
-              <Text className="text-3xl font-bold text-brand-600">1000+</Text>
-              <Text className="text-slate-500">Clients</Text>
-            </View>
-            <View>
-              <Text className="text-3xl font-bold text-brand-600">10+</Text>
-              <Text className="text-slate-500">Years</Text>
-            </View>
-            <View>
-              <Text className="text-3xl font-bold text-brand-600">100%</Text>
-              <Text className="text-slate-500">Care</Text>
-            </View>
-          </Card>
         </Section>
       </ScrollView>
     </SafeAreaView>

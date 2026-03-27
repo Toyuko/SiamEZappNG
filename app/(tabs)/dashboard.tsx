@@ -2,16 +2,17 @@ import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
-import { Header } from '../../components/ui/Header';
 import { LoadingState } from '../../components/ui/loading-state';
 import { MetricCard } from '../../components/ui/metric-card';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
+import { TrustStats } from '../../components/ui/TrustStats';
 import { useCases } from '../../hooks/use-cases';
 import { useInvoices } from '../../hooks/use-invoices';
 import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 function toArray<T>(value: unknown): T[] {
@@ -63,8 +64,14 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 24 }}>
-        <Header title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} gradient />
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+        <PageHeader
+          title={t('dashboard.title')}
+          subtitle={t('dashboard.subtitle')}
+          primaryCta={{ label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }}
+        />
+
+        <TrustStats />
 
         <View className="flex-row gap-3">
           <MetricCard title={t('dashboard.activeCases')} value={activeCases} />
@@ -73,16 +80,12 @@ export default function DashboardScreen() {
 
         <Section title={t('dashboard.recentActivity')} subtitle={t('dashboard.recentActivitySubtitle')}>
           <Card>
-            <Text style={{ color: colors.mutedText }}>
-              {activeCases > 0
-                ? t('dashboard.activityWithCases')
-                : t('dashboard.activityNoCases')}
+            <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+              {activeCases > 0 ? t('dashboard.activityWithCases') : t('dashboard.activityNoCases')}
             </Text>
           </Card>
-          <Button label={t('dashboard.startBooking')} onPress={() => router.push('/(tabs)/book')} />
         </Section>
       </ScrollView>
     </SafeAreaView>
   );
 }
-

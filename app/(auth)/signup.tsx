@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { Alert, Keyboard, View } from 'react-native';
+import { Alert, Keyboard, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { ApiError } from '../../lib/api';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Header } from '../../components/ui/Header';
 import { Input } from '../../components/ui/Input';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { useAuth } from '../../hooks/use-auth';
 import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function SignUpScreen() {
@@ -35,37 +36,39 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 p-6" style={{ backgroundColor: colors.background }}>
-      <Header title={t('auth.createAccount')} subtitle="Sign up to track cases, documents, and payments." gradient />
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+        <PageHeader title={t('auth.createAccount')} subtitle="Sign up to track cases, documents, and payments." />
 
-      <Card className="mt-6">
-        <View className="gap-3">
-          <Input placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
-          <Input
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="email"
-            textContentType="emailAddress"
-            placeholder={t('auth.email')}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Input keyboardType="phone-pad" placeholder={t('auth.phone')} value={phone} onChangeText={setPhone} />
-          <Input
-            placeholder={t('auth.password')}
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="newPassword"
-            textContentType="newPassword"
-            value={password}
-            onChangeText={setPassword}
-          />
-          <Button label={signUpMutation.isPending ? t('auth.creatingAccount') : t('auth.signUp')} onPress={handleSignUp} />
-          <Button label={t('auth.backToLogin')} variant="secondary" onPress={() => router.replace('/(auth)/login')} />
-        </View>
-      </Card>
+        <Card>
+          <View className="gap-3">
+            <Input placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
+            <Input
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              placeholder={t('auth.email')}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <Input keyboardType="phone-pad" placeholder={t('auth.phone')} value={phone} onChangeText={setPhone} />
+            <Input
+              placeholder={t('auth.password')}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="new-password"
+              textContentType="newPassword"
+              value={password}
+              onChangeText={setPassword}
+            />
+            <Button label={signUpMutation.isPending ? t('auth.creatingAccount') : t('cta.getStarted')} onPress={handleSignUp} />
+            <Button label={t('auth.backToLogin')} variant="secondary" onPress={() => router.replace('/(auth)/login')} />
+          </View>
+        </Card>
+      </ScrollView>
     </SafeAreaView>
   );
 }

@@ -1,6 +1,7 @@
 import { Pressable, Text } from 'react-native';
 import type { ReactNode } from 'react';
 
+import { radius } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 type ButtonVariant = 'primary' | 'secondary';
@@ -36,7 +37,7 @@ export function Button({
   const { colors } = useTheme();
   const sizeClass = size === 'lg' ? 'min-h-[52px] px-5 py-3.5' : 'min-h-[44px] px-4 py-2.5';
   const variantClass = disabled ? 'opacity-60' : '';
-  const radiusClass = rounded ? 'rounded-full' : 'rounded-2xl';
+  const borderRadius = rounded ? radius.button : radius.md;
   const resolvedBackgroundColor = backgroundColor ?? (variant === 'primary' ? colors.primary : colors.card);
   const resolvedBorderColor = borderColor ?? colors.primary;
   const resolvedTextColor = textColor ?? (variant === 'primary' ? '#ffffff' : colors.primary);
@@ -44,13 +45,14 @@ export function Button({
 
   return (
     <Pressable
-      className={`${fullWidth ? 'w-full' : 'self-start'} items-center justify-center ${sizeClass} ${variantClass} ${radiusClass}`}
+      className={`${fullWidth ? 'w-full' : 'self-start'} items-center justify-center ${sizeClass} ${variantClass}`}
       onPress={onPress}
       disabled={disabled}
       style={{
         backgroundColor: resolvedBackgroundColor,
         borderColor: resolvedBorderColor,
         borderWidth: resolvedBorderWidth,
+        borderRadius,
       }}
     >
       {children ?? (

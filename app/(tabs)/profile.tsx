@@ -6,10 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Header } from '../../components/ui/Header';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { TrustStats } from '../../components/ui/TrustStats';
 import { useAuth } from '../../hooks/use-auth';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme, type ThemeMode } from '../../lib/theme/theme';
 import { useThemeStore } from '../../lib/theme/useThemeStore';
 import { useAuthStore } from '../../store/auth-store';
@@ -40,17 +42,17 @@ function RowItem({ icon, label, subtitle, onPress, showChevron = true, rightSlot
         <Ionicons name={icon} size={18} color={colors.primary} />
       </View>
       <View className="flex-1">
-        <Text className="text-base font-medium" style={{ color: colors.text }}>
+        <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
           {label}
         </Text>
         {subtitle ? (
-          <Text className="mt-0.5 text-xs" style={{ color: colors.mutedText }}>
+          <Text className="mt-0.5 text-xs leading-4" style={{ color: colors.muted }}>
             {subtitle}
           </Text>
         ) : null}
       </View>
       {rightSlot}
-      {showChevron ? <Ionicons name="chevron-forward" size={18} color={colors.mutedText} /> : null}
+      {showChevron ? <Ionicons name="chevron-forward" size={18} color={colors.muted} /> : null}
     </Pressable>
   );
 }
@@ -83,34 +85,44 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <Header title={t('tabs.profile')} subtitle="Manage your account and access preferences." gradient />
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingTop: 16, paddingBottom: 28, gap: 12 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+        <PageHeader
+          title={t('tabs.profile')}
+          subtitle={isGuest ? t('profile.guestSubtitle') : t('profile.heroSubtitle')}
+          primaryCta={
+            isGuest
+              ? { label: t('cta.getStarted'), onPress: () => router.replace('/(auth)/signup') }
+              : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
+          }
+          secondaryCta={
+            isGuest ? { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') } : undefined
+          }
+        />
+
+        {!isGuest ? <TrustStats /> : null}
+
         {isGuest ? (
-          <View className="gap-3">
-            <Card>
-              <Text className="text-sm" style={{ color: colors.mutedText }}>
-                Guest mode
-              </Text>
-              <Text className="mt-1 text-base font-semibold" style={{ color: colors.text }}>
-                Log in or create an account to unlock your full control center.
-              </Text>
-            </Card>
-            <Button label="Login" onPress={() => router.replace('/(auth)/login')} />
-            <Button label="Sign Up" variant="secondary" onPress={() => router.replace('/(auth)/signup')} />
-          </View>
+          <Card>
+            <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+              {t('profile.signInLink')}
+            </Text>
+            <View className="mt-4">
+              <Button label={t('auth.signIn')} onPress={() => router.replace('/(auth)/login')} />
+            </View>
+          </Card>
         ) : (
           <>
             <Card>
-              <Text className="text-sm" style={{ color: colors.mutedText }}>
+              <Text className="text-sm font-medium" style={{ color: colors.muted }}>
                 Signed in as
               </Text>
-              <Text className="mt-1 text-base font-semibold" style={{ color: colors.text }}>
-                {user?.email ?? 'Unknown user'}
+              <Text className="mt-1 text-base font-bold" style={{ color: colors.foreground }}>
+                {user?.email ?? t('common.unknownUser')}
               </Text>
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 Account
               </Text>
               <View className="mt-2">
@@ -123,13 +135,13 @@ export default function ProfileScreen() {
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 Preferences
               </Text>
-              <Text className="mt-3 text-sm font-medium" style={{ color: colors.mutedText }}>
+              <Text className="mt-3 text-sm font-medium" style={{ color: colors.muted }}>
                 {t('settings.theme')}
               </Text>
-              <View className="mt-2 flex-row gap-2">
+              <View className="mt-2 flex-row flex-wrap gap-2">
                 {(['light', 'dark', 'system'] as ThemeMode[]).map((mode) => (
                   <Pressable
                     key={mode}
@@ -141,14 +153,14 @@ export default function ProfileScreen() {
                     }}
                     onPress={() => setTheme(mode)}
                   >
-                    <Text style={{ color: themeMode === mode ? '#ffffff' : colors.text }}>{t(`settings.${mode}`)}</Text>
+                    <Text style={{ color: themeMode === mode ? '#ffffff' : colors.foreground }}>{t(`settings.${mode}`)}</Text>
                   </Pressable>
                 ))}
               </View>
-              <Text className="mt-4 text-sm font-medium" style={{ color: colors.mutedText }}>
+              <Text className="mt-4 text-sm font-medium" style={{ color: colors.muted }}>
                 {t('settings.language')}
               </Text>
-              <View className="mt-2 flex-row gap-2">
+              <View className="mt-2 flex-row flex-wrap gap-2">
                 {(['en', 'th'] as const).map((lang) => (
                   <Pressable
                     key={lang}
@@ -160,14 +172,16 @@ export default function ProfileScreen() {
                     }}
                     onPress={() => setLanguage(lang)}
                   >
-                    <Text style={{ color: language === lang ? '#ffffff' : colors.text }}>{lang === 'en' ? t('settings.english') : t('settings.thai')}</Text>
+                    <Text style={{ color: language === lang ? '#ffffff' : colors.foreground }}>
+                      {lang === 'en' ? t('settings.english') : t('settings.thai')}
+                    </Text>
                   </Pressable>
                 ))}
               </View>
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 Notifications
               </Text>
               <View className="mt-2">
@@ -202,7 +216,7 @@ export default function ProfileScreen() {
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 Payments
               </Text>
               <View className="mt-2">
@@ -213,7 +227,7 @@ export default function ProfileScreen() {
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 My information
               </Text>
               <View className="mt-2">
@@ -228,7 +242,7 @@ export default function ProfileScreen() {
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 Support
               </Text>
               <View className="mt-2">
@@ -241,7 +255,7 @@ export default function ProfileScreen() {
             </Card>
 
             <Card>
-              <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
                 Security
               </Text>
               <View className="mt-2">

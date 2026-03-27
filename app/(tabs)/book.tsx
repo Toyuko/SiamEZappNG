@@ -7,8 +7,8 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Header } from '../../components/ui/Header';
 import { Input } from '../../components/ui/Input';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { useCreateBooking } from '../../hooks/use-create-booking';
 import { useUploadDocument } from '../../hooks/use-upload-document';
@@ -294,7 +294,7 @@ export default function BookScreen() {
         <Text className="mt-2" style={{ color: colors.text }}>{t('book.bookingSubmittedSubtitle')}</Text>
         <View className="mt-4 gap-3">
           {isGuest ? (
-            <Button label={t('book.createAccount')} onPress={() => router.replace('/(auth)/signup')} />
+            <Button label={t('cta.getStarted')} onPress={() => router.replace('/(auth)/signup')} />
           ) : (
             <Button label={t('book.viewDashboard')} onPress={() => router.replace('/(tabs)/dashboard')} />
           )}
@@ -306,10 +306,12 @@ export default function BookScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <Header title={t('book.title')} subtitle={t('book.stepOf', { step, label: stepLabels[step] })} gradient />
-        <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
-          <View className="h-2 rounded-full" style={{ width: progressWidth, backgroundColor: colors.primary }} />
-        </View>
+        <PageHeader title={t('book.title')} subtitle={t('book.stepOf', { step, label: stepLabels[step] })} />
+        <Card className="py-3">
+          <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
+            <View className="h-2 rounded-full" style={{ width: progressWidth, backgroundColor: colors.primary }} />
+          </View>
+        </Card>
 
         <Animated.View style={{ opacity: transition, transform: [{ translateY: transition.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
           {renderStepContent()}

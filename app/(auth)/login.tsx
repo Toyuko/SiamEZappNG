@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Alert, Keyboard, View } from 'react-native';
+import { Alert, Keyboard, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Header } from '../../components/ui/Header';
 import { Input } from '../../components/ui/Input';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { useAuth } from '../../hooks/use-auth';
 import { ApiError } from '../../lib/api';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function LoginScreen() {
@@ -54,70 +55,74 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 p-6" style={{ backgroundColor: colors.background }}>
-      <Header title={t('auth.welcome')} subtitle="Manage your cases, documents, and payments from one place." gradient />
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+        <PageHeader title={t('auth.welcome')} subtitle="Manage your cases, documents, and payments from one place." />
 
-      <Card className="mt-6">
-        <View className="gap-3">
-          <Input
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="email"
-            textContentType="emailAddress"
-            placeholder={t('auth.email')}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Input
-            placeholder={t('auth.password')}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="password"
-            textContentType="password"
-            value={password}
-            onChangeText={setPassword}
-          />
-          <Button
-            label={showPassword ? 'Hide password' : 'Show password'}
-            variant="secondary"
-            size="md"
-            onPress={() => setShowPassword((prev) => !prev)}
-          />
-          <Button label={loginMutation.isPending ? t('auth.signingIn') : t('auth.signIn')} onPress={handleLogin} />
-        </View>
-      </Card>
+        <Card>
+          <View className="gap-3">
+            <Input
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              placeholder={t('auth.email')}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <Input
+              placeholder={t('auth.password')}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="password"
+              textContentType="password"
+              value={password}
+              onChangeText={setPassword}
+            />
+            <Button
+              label={showPassword ? 'Hide password' : 'Show password'}
+              variant="secondary"
+              size="md"
+              onPress={() => setShowPassword((prev) => !prev)}
+            />
+            <Button label={loginMutation.isPending ? t('auth.signingIn') : t('auth.signIn')} onPress={handleLogin} />
+          </View>
+        </Card>
 
-      <View className="mt-6 gap-3">
-        <Button
-          label={t('auth.continueAsGuest')}
-          variant="secondary"
-          onPress={() => {
-            continueAsGuest();
-            router.replace('/(tabs)/home');
-          }}
-        />
-        <Button
-          label="G  Continue with Google"
-          backgroundColor="#DB4437"
-          textColor="#ffffff"
-          onPress={() => loginWithProvider('google')}
-        />
-        <Button
-          label="f  Continue with Facebook"
-          backgroundColor="#1877F2"
-          textColor="#ffffff"
-          onPress={() => loginWithProvider('facebook')}
-        />
-        <Button
-          label="LINE  Continue with LINE"
-          backgroundColor="#06C755"
-          textColor="#ffffff"
-          onPress={() => loginWithProvider('line')}
-        />
-        <Button label={t('auth.signUp')} onPress={() => router.push('/(auth)/signup')} />
-      </View>
+        <Card>
+          <View className="gap-3">
+            <Button
+              label={t('auth.continueAsGuest')}
+              variant="secondary"
+              onPress={() => {
+                continueAsGuest();
+                router.replace('/(tabs)/home');
+              }}
+            />
+            <Button
+              label="G  Continue with Google"
+              backgroundColor="#DB4437"
+              textColor="#ffffff"
+              onPress={() => loginWithProvider('google')}
+            />
+            <Button
+              label="f  Continue with Facebook"
+              backgroundColor="#1877F2"
+              textColor="#ffffff"
+              onPress={() => loginWithProvider('facebook')}
+            />
+            <Button
+              label="LINE  Continue with LINE"
+              backgroundColor="#06C755"
+              textColor="#ffffff"
+              onPress={() => loginWithProvider('line')}
+            />
+            <Button label={t('cta.getStarted')} onPress={() => router.push('/(auth)/signup')} />
+          </View>
+        </Card>
+      </ScrollView>
     </SafeAreaView>
   );
 }

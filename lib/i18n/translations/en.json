@@ -7,6 +7,25 @@
     "tryAgain": "Try again",
     "unknownUser": "Unknown user"
   },
+  "cta": {
+    "getStarted": "Get Started",
+    "bookNow": "Book Now",
+    "learnMore": "Learn More"
+  },
+  "trust": {
+    "happyClients": "Happy Clients",
+    "yearsExperience": "Years Experience",
+    "successRate": "Success Rate",
+    "whatClientsSay": "What clients say",
+    "testimonialSubtitle": "Feedback from people we have helped in Thailand.",
+    "testimonialQuote": "Professional, clear communication, and fast turnaround. We felt supported every step of the way.",
+    "testimonialAttribution": "— SiamEZ client"
+  },
+  "profile": {
+    "heroSubtitle": "Manage your account, notifications, and support.",
+    "guestSubtitle": "Create an account or book a service to unlock the full client portal.",
+    "signInLink": "Already have an account? Sign in"
+  },
   "tabs": {
     "home": "Home",
     "services": "Services",
@@ -44,11 +63,13 @@
     "phone": "Phone"
   },
   "home": {
-    "title": "SiamEZ Services",
-    "subtitle": "Premium administrative and concierge solutions in Thailand.",
+    "badge": "Professional Thai Services",
+    "title": "Expert Thai Services",
+    "subtitle": "Your trusted partner for marriage registration, translations, driver's licenses, police clearance, and more.",
     "findService": "Find your service",
     "searchServices": "Search services",
-    "bookService": "Book a Service",
+    "bookService": "Book Now",
+    "details": "Details",
     "preferences": "Preferences",
     "preferencesSubtitle": "Choose your theme and language for this device.",
     "popularServices": "Popular Services",
@@ -57,8 +78,8 @@
     "viewAllServices": "View all services"
   },
   "services": {
-    "title": "Services",
-    "subtitle": "Find the right service for your needs.",
+    "title": "Our Services",
+    "subtitle": "Comprehensive solutions for all your administrative needs in Thailand.",
     "searchPlaceholder": "Search services",
     "allCategory": "All"
   },
@@ -192,7 +213,7 @@
     "processingTime": "Processing time:",
     "customerRating": "Customer rating:",
     "consultation": "Consultation:",
-    "bookThisService": "Book this service",
+    "bookThisService": "Book Now",
     "contactUs": "Contact us",
     "viewWebsite": "View on website"
   },

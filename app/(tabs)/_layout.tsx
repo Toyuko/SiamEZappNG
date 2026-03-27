@@ -8,7 +8,7 @@ import { useAuthStore } from '../../store/auth-store';
 export default function TabsLayout() {
   const { colors } = useTheme();
   const { isGuest } = useAuthStore();
-  const hideWhenGuest = isGuest ? { href: null as const } : {};
+  const hideWhenGuest: { href: null } | Record<string, never> = isGuest ? { href: null } : {};
 
   return (
     <Tabs

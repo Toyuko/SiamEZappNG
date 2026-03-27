@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 type SectionProps = {
@@ -14,12 +15,18 @@ export function Section({ title, subtitle, children, className = '' }: SectionPr
   const { colors } = useTheme();
 
   return (
-    <View className={`space-y-3 ${className}`}>
-      <View>
-        <Text className="text-xl font-bold" style={{ color: colors.text }}>{title}</Text>
-        {subtitle ? <Text className="mt-1 text-sm" style={{ color: colors.mutedText }}>{subtitle}</Text> : null}
+    <View className={`${className}`} style={{ gap: spacing.stackLg }}>
+      <View style={{ gap: spacing.stackSm }}>
+        <Text className="text-xl font-bold" style={{ color: colors.foreground }}>
+          {title}
+        </Text>
+        {subtitle ? (
+          <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+            {subtitle}
+          </Text>
+        ) : null}
       </View>
-      <View className="space-y-3">{children}</View>
+      <View style={{ gap: spacing.stackMd }}>{children}</View>
     </View>
   );
 }

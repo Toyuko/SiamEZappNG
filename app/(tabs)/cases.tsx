@@ -5,11 +5,13 @@ import { useRouter } from 'expo-router';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
-import { Header } from '../../components/ui/Header';
 import { LoadingState } from '../../components/ui/loading-state';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/status-badge';
+import { TrustStats } from '../../components/ui/TrustStats';
 import { useCases } from '../../hooks/use-cases';
 import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function CasesScreen() {
@@ -25,23 +27,35 @@ export default function CasesScreen() {
     return <ErrorState label={error instanceof Error ? error.message : t('cases.loadError')} onRetry={() => void refetch()} />;
   }
 
-  return (
-    <SafeAreaView className="flex-1 p-4" style={{ backgroundColor: colors.background }}>
-      <Header title={t('cases.title')} subtitle={t('cases.subtitle')} gradient />
+  const listHeader = (
+    <View style={{ gap: spacing.sectionGap, marginBottom: spacing.stackMd }}>
+      <PageHeader title={t('cases.title')} subtitle={t('cases.subtitle')} />
+      <TrustStats />
+    </View>
+  );
 
+  return (
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <FlatList
-        className="mt-5"
         data={data ?? []}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={listHeader}
         ListEmptyComponent={<EmptyState label={t('cases.empty')} />}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32, gap: spacing.stackMd }}
         renderItem={({ item }) => (
-          <Card className="mb-3">
+          <Card>
             <Pressable onPress={() => router.push(`/cases/${item.id}`)}>
-              <Text className="text-base font-semibold" style={{ color: colors.text }}>{item.title}</Text>
-              <Text className="mt-1" style={{ color: colors.mutedText }}>{item.serviceType}</Text>
+              <Text className="text-base font-bold" style={{ color: colors.foreground }}>
+                {item.title}
+              </Text>
+              <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
+                {item.serviceType}
+              </Text>
               <View className="mt-3 flex-row items-center justify-between">
                 <StatusBadge status={item.status} />
-                <Text className="text-xs" style={{ color: colors.mutedText }}>{new Date(item.updatedAt).toLocaleDateString()}</Text>
+                <Text className="text-xs" style={{ color: colors.muted }}>
+                  {new Date(item.updatedAt).toLocaleDateString()}
+                </Text>
               </View>
             </Pressable>
           </Card>

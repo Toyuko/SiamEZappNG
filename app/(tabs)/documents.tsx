@@ -1,4 +1,4 @@
-import { Alert, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,11 +7,12 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
-import { Header } from '../../components/ui/Header';
 import { LoadingState } from '../../components/ui/loading-state';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { useDocuments } from '../../hooks/use-documents';
 import { useUploadDocument } from '../../hooks/use-upload-document';
 import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function DocumentsScreen() {
@@ -74,29 +75,37 @@ export default function DocumentsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 p-4" style={{ backgroundColor: colors.background }}>
-      <Header title={t('documents.title')} subtitle={t('documents.subtitle')} gradient />
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+        <PageHeader title={t('documents.title')} subtitle={t('documents.subtitle')} />
 
-      <View className="mt-5 gap-3">
-        <Button label={t('documents.uploadFiles')} onPress={pickFile} disabled={uploadMutation.isPending} />
-        <Button label={t('documents.captureCamera')} variant="secondary" onPress={capturePhoto} disabled={uploadMutation.isPending} />
-      </View>
+        <Card>
+          <View className="gap-3">
+            <Button label={t('documents.uploadFiles')} onPress={pickFile} disabled={uploadMutation.isPending} />
+            <Button label={t('documents.captureCamera')} variant="secondary" onPress={capturePhoto} disabled={uploadMutation.isPending} />
+          </View>
+        </Card>
 
-      <View className="mt-5 gap-3">
         {(data ?? []).length === 0 ? (
           <EmptyState label={t('documents.empty')} />
         ) : (
-          data?.map((document) => (
-            <Card key={document.id}>
-              <Text className="font-semibold" style={{ color: colors.text }}>{document.name}</Text>
-              <Text className="mt-1" style={{ color: colors.mutedText }}>{document.type}</Text>
-              <Text className="mt-2 text-xs" style={{ color: colors.mutedText }}>
-                {new Date(document.uploadedAt).toLocaleDateString()} - {document.status}
-              </Text>
-            </Card>
-          ))
+          <View style={{ gap: spacing.stackMd }}>
+            {data?.map((document) => (
+              <Card key={document.id}>
+                <Text className="font-bold" style={{ color: colors.foreground }}>
+                  {document.name}
+                </Text>
+                <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
+                  {document.type}
+                </Text>
+                <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
+                  {new Date(document.uploadedAt).toLocaleDateString()} - {document.status}
+                </Text>
+              </Card>
+            ))}
+          </View>
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
