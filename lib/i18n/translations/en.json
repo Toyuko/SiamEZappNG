@@ -17,9 +17,66 @@
     "yearsExperience": "Years Experience",
     "successRate": "Success Rate",
     "whatClientsSay": "What clients say",
-    "testimonialSubtitle": "Feedback from people we have helped in Thailand.",
-    "testimonialQuote": "Professional, clear communication, and fast turnaround. We felt supported every step of the way.",
-    "testimonialAttribution": "— SiamEZ client"
+    "testimonialSubtitle": "Real experiences from clients who trusted SiamEZ in Thailand.",
+    "ratingOutOf": "%{count} out of 5",
+    "testimonials": [
+      {
+        "service": "Marriage registration",
+        "quote": "SiamEZ made our marriage registration process incredibly smooth. They handled all the paperwork and guided us through every step. We couldn't have done it without their help!",
+        "name": "Sarah & Michael",
+        "role": "Married in Bangkok",
+        "stars": 5
+      },
+      {
+        "service": "Translation services",
+        "quote": "Fast, accurate, and professional translation services. I needed urgent document translation for my visa application, and they delivered within 24 hours. Highly recommended!",
+        "name": "James Davis",
+        "role": "Business professional",
+        "stars": 5
+      },
+      {
+        "service": "Driver's license",
+        "quote": "Converting my international license to a Thai license was much easier than I expected thanks to SiamEZ. The team was knowledgeable and helped me navigate all the requirements.",
+        "name": "Emma Wilson",
+        "role": "Expat resident",
+        "stars": 4
+      },
+      {
+        "service": "Visa services",
+        "quote": "Outstanding service! They helped me extend my visa without any hassle. The staff was professional, responsive, and made sure everything was done correctly. Worth every baht!",
+        "name": "Robert Kim",
+        "role": "Long-term resident",
+        "stars": 5
+      },
+      {
+        "service": "Vehicle registration",
+        "quote": "I was dreading the vehicle registration process, but SiamEZ made it stress-free. They handled everything from start to finish, and I got my registration done quickly. Excellent service!",
+        "name": "Lisa Thompson",
+        "role": "Car owner",
+        "stars": 5
+      },
+      {
+        "service": "Police clearance",
+        "quote": "Needed a police clearance certificate for my work permit. SiamEZ handled the entire process efficiently and kept me updated throughout. Got my certificate faster than expected!",
+        "name": "Alex Nguyen",
+        "role": "Software developer",
+        "stars": 5
+      },
+      {
+        "service": "Transportation",
+        "quote": "Used their airport transfer service multiple times. Always on time, clean vehicles, and friendly drivers. They make traveling in Thailand so much easier. Highly recommend!",
+        "name": "David Lee",
+        "role": "Frequent traveler",
+        "stars": 5
+      },
+      {
+        "service": "Construction & handyman",
+        "quote": "Had some home repairs needed and SiamEZ connected me with skilled professionals. The work was done on time and to a high standard. Very satisfied with the quality!",
+        "name": "Patricia Brown",
+        "role": "Homeowner",
+        "stars": 4
+      }
+    ]
   },
   "profile": {
     "heroSubtitle": "Manage your account, notifications, and support.",
@@ -78,10 +135,20 @@
     "viewAllServices": "View all services"
   },
   "services": {
-    "title": "Our Services",
-    "subtitle": "Comprehensive solutions for all your administrative needs in Thailand.",
-    "searchPlaceholder": "Search services",
-    "allCategory": "All"
+    "title": "Services",
+    "subtitle": "Find the right service for your needs",
+    "searchPlaceholder": "Search visa, marriage, translation...",
+    "allCategory": "All",
+    "filterVisa": "Visa",
+    "filterMarriage": "Marriage",
+    "filterTranslation": "Translation",
+    "filterBusiness": "Business",
+    "priceFromBaht": "From ฿%{amount}",
+    "badgePopular": "Popular",
+    "badgeFast": "Fast",
+    "emptyTitle": "No services found",
+    "emptyHint": "Try a different search or clear filters to see all services.",
+    "viewDetails": "View Details"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -137,6 +204,14 @@
     "requestSubmittedMessage": "Thank you for contacting SiamEZ. Our team will get back to you soon.",
     "preferOnline": "Prefer to book online?",
     "goPortal": "Go to Client Portal",
+    "followUs": "Follow us",
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "youtube": "YouTube",
+      "tiktok": "TikTok"
+    },
     "message": "Message",
     "fullName": "Full Name *",
     "emailAddress": "Email Address *",
@@ -156,27 +231,38 @@
     }
   },
   "book": {
-    "title": "Booking Flow",
-    "stepOf": "Step %{step} of 5 - %{label}",
+    "title": "Book a service",
+    "stepOf": "Step %{step} of 3 — %{label}",
+    "stepProgress": "Step %{step} of %{total}",
     "serviceInfo": "Service Info",
-    "clientDetails": "Client Details",
+    "clientDetails": "Client details",
+    "serviceRequirements": "Service requirements",
     "requirements": "Requirements",
     "review": "Review",
+    "reviewConfirm": "Review & confirm",
     "confirmation": "Confirmation",
     "serviceSummary": "Service summary",
-    "quoteNote": "Quote-based — we'll send you a quote after review",
+    "quoteNote": "Final price confirmed after we review your case.",
+    "pricingQuote": "Starting from a custom quote — we’ll confirm after review",
     "changeService": "Change service",
-    "documents": "Documents",
-    "uploadFromFilesOrCamera": "Upload from files or camera.",
+    "documents": "Documents (optional)",
+    "uploadFromFilesOrCamera": "Add files now if you have them handy.",
+    "uploadLaterHint": "You can upload documents later. It won’t block your booking.",
     "uploadFile": "Upload file",
-    "camera": "Camera",
+    "camera": "Take photo",
     "editDetails": "Edit details",
-    "submitBooking": "Submit Booking",
+    "editContact": "Edit contact",
+    "editRequirements": "Edit requirements",
+    "submitBooking": "Confirm & submit",
+    "continue": "Continue",
+    "reviewBooking": "Review booking",
+    "confirmSubmit": "Confirm & submit",
     "submitting": "Submitting...",
-    "bookingSubmitted": "Your booking has been submitted",
-    "bookingSubmittedSubtitle": "We will review your details and send you a quote.",
-    "createAccount": "Create Account",
-    "viewDashboard": "View Dashboard",
+    "bookingSubmitted": "You’re all set",
+    "bookingSubmittedSubtitle": "We’ve received your booking and will follow up shortly with next steps.",
+    "createAccount": "Create account",
+    "viewDashboard": "View dashboard",
+    "trackCase": "Track case",
     "bookingFailed": "Booking failed",
     "uploadFailed": "Upload failed",
     "permissionRequired": "Permission required",
@@ -185,16 +271,117 @@
     "requiredFullName": "Full name is required.",
     "requiredEmail": "Email is required.",
     "requiredPhone": "Phone is required.",
+    "requiredSelection": "Please choose an option.",
     "requiredDocumentType": "Document type is required.",
     "requiredTargetLanguage": "Target language is required.",
     "requiredVisaType": "Visa type is required.",
-    "targetLanguage": "Target Language",
-    "visaType": "Visa Type",
+    "targetLanguage": "Target language",
+    "visaType": "Visa type",
+    "visaStatus": "Current visa situation",
+    "nationality": "Nationality",
+    "maritalStatus": "Marital status",
+    "licenseType": "License type",
+    "licenseStatus": "Current license status",
+    "clearancePurpose": "Purpose of certificate",
+    "destinationCountry": "Destination / use country",
+    "optionalNote": "Anything else? (optional)",
     "notes": "Notes",
     "service": "Service",
     "client": "Client",
-    "documentType": "Document Type",
-    "documentsCount": "Documents: %{count}"
+    "documentType": "Document type",
+    "documentsCount": "Documents attached: %{count}",
+    "trustClients": "1000+ clients",
+    "trustSuccess": "100% success rate",
+    "trustSupport": "Expert support",
+    "needHelp": "Need help?",
+    "chatWhatsApp": "Message on WhatsApp",
+    "contactTeam": "Contact us",
+    "opt": {
+      "doc": {
+        "passport": "Passport / ID",
+        "birth": "Birth certificate",
+        "marriage": "Marriage certificate",
+        "legal": "Legal / contract",
+        "academic": "Academic record",
+        "other": "Other"
+      },
+      "lang": {
+        "en": "English",
+        "th": "Thai",
+        "zh": "Chinese",
+        "ja": "Japanese",
+        "ko": "Korean",
+        "fr": "French",
+        "de": "German",
+        "es": "Spanish",
+        "other": "Other"
+      },
+      "visa": {
+        "tourist": "Tourist / visa exemption",
+        "nonb": "Non-Immigrant B (work)",
+        "ed": "Education (ED)",
+        "marriage": "Marriage / dependent",
+        "retirement": "Retirement (O-A / O-X)",
+        "dependent": "Dependent / guardian",
+        "elite": "Thailand Elite",
+        "extension": "Extension / conversion",
+        "other": "Other / not sure"
+      },
+      "visaStat": {
+        "first": "First application in Thailand",
+        "extend": "Extension / renewal",
+        "overstay": "Overstay or stamp concern",
+        "stamp": "Stamp correction / re-entry",
+        "other": "Other"
+      },
+      "nat": {
+        "th": "Thai",
+        "us": "United States",
+        "uk": "United Kingdom",
+        "eu": "European Union",
+        "au": "Australia / NZ",
+        "cn": "China",
+        "jp": "Japan",
+        "other": "Other"
+      },
+      "marital": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed",
+        "other": "Other / prefer not to say"
+      },
+      "lic": {
+        "car": "Car (private)",
+        "moto": "Motorcycle",
+        "idp": "International Driving Permit",
+        "renew": "Renewal / tax disc",
+        "other": "Other"
+      },
+      "licStat": {
+        "valid": "Valid Thai license",
+        "expired": "Expired",
+        "lost": "Lost / replacement",
+        "convert": "Converting foreign license",
+        "other": "Other"
+      },
+      "clear": {
+        "visa": "Visa / immigration",
+        "work": "Employment / work permit",
+        "immigration": "Residency / long stay",
+        "personal": "Personal records",
+        "other": "Other"
+      },
+      "dest": {
+        "th": "Thailand",
+        "us": "United States",
+        "uk": "United Kingdom",
+        "eu": "Schengen / EU",
+        "au": "Australia / NZ",
+        "jp": "Japan",
+        "other": "Other"
+      }
+    }
   },
   "serviceDetail": {
     "notFound": "Service not found",

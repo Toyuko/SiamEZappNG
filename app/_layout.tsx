@@ -1,6 +1,8 @@
 import '../global.css';
 import { useEffect } from 'react';
+import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { enableScreens } from 'react-native-screens';
 
 import { AppProviders } from '../components/providers/app-providers';
@@ -17,10 +19,20 @@ function RootNavigator() {
   const segments = useSegments();
   const { bootstrapSession } = useAuth();
   const { accessToken, isGuest, isBootstrapping } = useAuthStore();
+  const [fontsLoaded, fontError] = useFonts({
+    ...Ionicons.font,
+    ...MaterialCommunityIcons.font,
+  });
 
   useEffect(() => {
     void bootstrapSession();
   }, [bootstrapSession]);
+
+  useEffect(() => {
+    if (fontError && __DEV__) {
+      console.warn('[fonts] Icon fonts failed to load', fontError);
+    }
+  }, [fontError]);
 
   useEffect(() => {
     if (isBootstrapping) {
@@ -57,7 +69,7 @@ function RootNavigator() {
     }
   }, [accessToken, isBootstrapping, isGuest, router, segments]);
 
-  if (isBootstrapping) {
+  if (isBootstrapping || !fontsLoaded) {
     return <LoadingState label={t('common.loading')} />;
   }
 

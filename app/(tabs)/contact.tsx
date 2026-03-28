@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -11,6 +12,14 @@ import { Section } from '../../components/ui/Section';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+
+const SOCIAL_LINKS = [
+  { url: 'https://www.facebook.com/siamezofficial', icon: 'logo-facebook' as const, labelKey: 'contact.social.facebook' },
+  { url: 'https://www.instagram.com/siam_ez/', icon: 'logo-instagram' as const, labelKey: 'contact.social.instagram' },
+  { url: 'https://www.linkedin.com/company/siam-ez/', icon: 'logo-linkedin' as const, labelKey: 'contact.social.linkedin' },
+  { url: 'https://www.youtube.com/@siamezofficial/', icon: 'logo-youtube' as const, labelKey: 'contact.social.youtube' },
+  { url: 'https://www.tiktok.com/@siam_ez', icon: 'logo-tiktok' as const, labelKey: 'contact.social.tiktok' },
+];
 
 export default function ContactScreen() {
   const router = useRouter();
@@ -57,6 +66,15 @@ export default function ContactScreen() {
     return Object.keys(nextErrors).length === 0;
   };
 
+  const openSocialUrl = async (url: string) => {
+    const canOpen = await Linking.canOpenURL(url);
+    if (!canOpen) {
+      Alert.alert(t('serviceDetail.cannotOpenLink'), t('serviceDetail.tryAgainLater'));
+      return;
+    }
+    await Linking.openURL(url);
+  };
+
   const submitRequest = async () => {
     if (!validate()) {
       return;
@@ -99,6 +117,26 @@ export default function ContactScreen() {
             <Text className="text-sm leading-5" style={{ color: colors.foreground }}>
               LINE Official: @siamez
             </Text>
+          </View>
+
+          <View className="mt-5 border-t pt-4" style={{ borderTopColor: colors.border }}>
+            <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+              {t('contact.followUs')}
+            </Text>
+            <View className="mt-3 flex-row flex-wrap" style={{ gap: 10 }}>
+              {SOCIAL_LINKS.map((item) => (
+                <Pressable
+                  key={item.url}
+                  accessibilityRole="link"
+                  accessibilityLabel={t(item.labelKey)}
+                  className="h-11 w-11 items-center justify-center rounded-full"
+                  style={{ backgroundColor: colors.primary }}
+                  onPress={() => void openSocialUrl(item.url)}
+                >
+                  <Ionicons name={item.icon} size={22} color="#ffffff" />
+                </Pressable>
+              ))}
+            </View>
           </View>
         </Card>
 

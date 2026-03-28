@@ -23,10 +23,16 @@ export const siam = {
 } as const;
 
 export const spacing = {
-  /** Between major sections (ScrollView gap) */
+  /** Between major sections (default) */
   sectionGap: 24,
+  /** Between major sections — home & marketing screens */
+  sectionGapLg: 32,
+  /** Screen horizontal inset */
+  screenPaddingX: 20,
   /** Default card body padding */
   cardPadding: 20,
+  /** Dense cards (e.g. testimonial carousel) */
+  cardPaddingCompact: 14,
   /** Inline stacks (title → body) */
   stackSm: 8,
   stackMd: 12,
@@ -60,6 +66,22 @@ export const shadows = {
     shadowRadius: 12,
     elevation: 4,
   } satisfies ShadowStyle,
+  /** Stats / metrics — medium depth */
+  cardMedium: {
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 7,
+  } satisfies ShadowStyle,
+  /** Featured quote / testimonial — stronger depth */
+  cardStrong: {
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.14,
+    shadowRadius: 22,
+    elevation: 12,
+  } satisfies ShadowStyle,
   /** Dark / night surfaces */
   cardDark: {
     shadowColor: '#000000',
@@ -68,7 +90,23 @@ export const shadows = {
     shadowRadius: 10,
     elevation: 6,
   } satisfies ShadowStyle,
+  cardDarkMedium: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    elevation: 8,
+  } satisfies ShadowStyle,
+  cardDarkStrong: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 14,
+  } satisfies ShadowStyle,
 } as const;
+
+export type CardShadowLevel = 'default' | 'medium' | 'strong';
 
 /** Hero gradient — matches web HeroSection `from-siam-blue via-siam-blue-light to-siam-blue` */
 export const heroGradient = {

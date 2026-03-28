@@ -17,12 +17,22 @@ type PageHeaderProps = {
   /** Optional pill label (web: “Professional Thai Services”) */
   badge?: string;
   rightSlot?: ReactNode;
-  /** Primary — full-width blue CTA; secondary — outline on gradient */
+  /** Primary — full-width CTA on gradient (white pill) */
   primaryCta?: PageHeaderCta;
   secondaryCta?: PageHeaderCta;
 };
 
+const ctaShadow = {
+  shadowColor: '#0f172a',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.22,
+  shadowRadius: 14,
+  elevation: 8,
+} as const;
+
 export function PageHeader({ title, subtitle, badge, rightSlot, primaryCta, secondaryCta }: PageHeaderProps) {
+  const singlePrimary = Boolean(primaryCta && !secondaryCta);
+
   return (
     <LinearGradient
       colors={[...heroGradient.colors]}
@@ -50,11 +60,11 @@ export function PageHeader({ title, subtitle, badge, rightSlot, primaryCta, seco
 
       <View className="flex-row items-start justify-between gap-3" style={{ marginTop: badge ? spacing.stackMd : 0 }}>
         <View className="min-w-0 flex-1">
-          <Text className="text-3xl font-bold" style={{ color: '#ffffff' }}>
+          <Text className="text-3xl font-bold tracking-tight" style={{ color: '#ffffff' }}>
             {title}
           </Text>
           {subtitle ? (
-            <Text className="mt-2 text-base leading-6" style={{ color: 'rgba(255,255,255,0.9)' }}>
+            <Text className="mt-2.5 text-base leading-6" style={{ color: 'rgba(255,255,255,0.92)' }}>
               {subtitle}
             </Text>
           ) : null}
@@ -63,18 +73,20 @@ export function PageHeader({ title, subtitle, badge, rightSlot, primaryCta, seco
       </View>
 
       {primaryCta || secondaryCta ? (
-        <View style={{ marginTop: spacing.stackLg, gap: spacing.stackSm }}>
+        <View style={{ marginTop: spacing.stackLg + 4, gap: spacing.stackMd }}>
           {primaryCta ? (
-            <Button
-              label={primaryCta.label}
-              onPress={primaryCta.onPress}
-              variant={primaryCta.variant ?? 'primary'}
-              rounded
-              fullWidth
-              backgroundColor="#ffffff"
-              textColor={siam.blue.dark}
-              borderColor="transparent"
-            />
+            <View style={singlePrimary ? { borderRadius: radius.button, ...ctaShadow } : undefined}>
+              <Button
+                label={primaryCta.label}
+                onPress={primaryCta.onPress}
+                variant={primaryCta.variant ?? 'primary'}
+                rounded
+                fullWidth
+                backgroundColor="#ffffff"
+                textColor={siam.blue.dark}
+                borderColor="transparent"
+              />
+            </View>
           ) : null}
           {secondaryCta ? (
             <Button

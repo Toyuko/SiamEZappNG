@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import type { TextInputProps } from 'react-native';
 
@@ -7,10 +8,19 @@ import { useTheme } from '../../lib/theme/theme';
 type InputProps = TextInputProps & {
   label?: string;
   error?: string;
+  /** Renders inside the field on the left (e.g. search icon) */
+  leftIcon?: ReactNode;
 };
 
-export function Input({ label, error, className, ...props }: InputProps) {
+export function Input({ label, error, className, leftIcon, ...props }: InputProps) {
   const { colors } = useTheme();
+
+  const fieldBorder = {
+    borderColor: error ? colors.danger : colors.border,
+    backgroundColor: colors.card,
+    borderRadius: radius.button,
+    borderWidth: 1,
+  } as const;
 
   return (
     <View className="space-y-1.5">
@@ -19,18 +29,29 @@ export function Input({ label, error, className, ...props }: InputProps) {
           {label}
         </Text>
       ) : null}
-      <TextInput
-        className={`border px-4 py-3.5 text-base ${className ?? ''}`}
-        placeholderTextColor={colors.muted}
-        style={{
-          borderColor: error ? colors.danger : colors.border,
-          backgroundColor: colors.card,
-          color: colors.foreground,
-          borderRadius: radius.button,
-          borderWidth: 1,
-        }}
-        {...props}
-      />
+      {leftIcon ? (
+        <View className="flex-row items-center" style={fieldBorder}>
+          <View className="pl-3.5">{leftIcon}</View>
+          <TextInput
+            className={`min-h-[52px] flex-1 py-3.5 pr-4 pl-2 text-base ${className ?? ''}`}
+            placeholderTextColor={colors.muted}
+            style={{
+              color: colors.foreground,
+            }}
+            {...props}
+          />
+        </View>
+      ) : (
+        <TextInput
+          className={`border px-4 py-3.5 text-base ${className ?? ''}`}
+          placeholderTextColor={colors.muted}
+          style={{
+            ...fieldBorder,
+            color: colors.foreground,
+          }}
+          {...props}
+        />
+      )}
       {error ? <Text className="text-sm" style={{ color: colors.danger }}>{error}</Text> : null}
     </View>
   );

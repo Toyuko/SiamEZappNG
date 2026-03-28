@@ -22,6 +22,9 @@ export type ServiceItem = {
   consultationNote?: string;
   disclaimer?: string;
   category: 'Legal' | 'Translation' | 'Mobility' | 'Business' | 'Concierge';
+  /** Optional catalog card — formatted as “From ฿{amount}” via i18n */
+  cardPriceBaht?: string;
+  cardBadge?: 'popular' | 'fast';
 };
 
 export const serviceCatalog: ServiceItem[] = [
@@ -132,6 +135,8 @@ export const serviceCatalog: ServiceItem[] = [
     disclaimer:
       'SiamEZ offers professional assistance and consultancy services as an independent company and is not connected to or endorsed by the Thai government.',
     category: 'Legal',
+    cardPriceBaht: '8,500',
+    cardBadge: 'popular',
   },
   {
     slug: 'translation-services',
@@ -166,6 +171,7 @@ export const serviceCatalog: ServiceItem[] = [
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
     category: 'Translation',
+    cardBadge: 'fast',
   },
   {
     slug: 'driver-license',
@@ -268,6 +274,8 @@ export const serviceCatalog: ServiceItem[] = [
     disclaimer:
       'SiamEZ offers professional assistance as an independent company and is not connected to or endorsed by the Thai government or the DLT.',
     category: 'Mobility',
+    cardPriceBaht: '3,500',
+    cardBadge: 'popular',
   },
   {
     slug: 'visa-services',
@@ -310,6 +318,7 @@ export const serviceCatalog: ServiceItem[] = [
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our visa experts.',
     category: 'Legal',
+    cardBadge: 'fast',
   },
   {
     slug: 'police-clearance',
@@ -428,6 +437,7 @@ export const serviceCatalog: ServiceItem[] = [
     disclaimer:
       'SiamEZ offers professional assistance and consultancy services as an independent company and is not connected to or endorsed by the Thai government.',
     category: 'Mobility',
+    cardPriceBaht: '2,000',
   },
   {
     slug: 'construction-handyman',
