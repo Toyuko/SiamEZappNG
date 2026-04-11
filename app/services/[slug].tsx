@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Alert, Linking, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -64,7 +65,7 @@ export default function ServiceDetailScreen() {
         <PageHeader
           title={service.title}
           subtitle={service.shortDescription}
-          rightSlot={<Text className="text-3xl">{service.icon}</Text>}
+          rightSlot={<Ionicons name={service.icon} size={32} color="#ffffff" accessibilityIgnoresInvertColors />}
         />
 
         <TrustStats />

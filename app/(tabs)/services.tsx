@@ -186,7 +186,7 @@ export default function ServicesScreen() {
                     className="h-14 w-14 items-center justify-center rounded-2xl"
                     style={{ backgroundColor: tint }}
                   >
-                    <Text className="text-2xl">{item.icon}</Text>
+                    <Ionicons name={item.icon} size={26} color={colors.primary} accessibilityIgnoresInvertColors />
                   </View>
                   <View className="min-w-0 flex-1">
                     <Text className="text-base font-bold leading-6" style={{ color: colors.foreground }} numberOfLines={2}>

@@ -1,6 +1,12 @@
+import type { ComponentProps } from 'react';
+import type Ionicons from '@expo/vector-icons/Ionicons';
+
+/** Vector icon name — avoids emoji font gaps on iOS */
+export type ServiceCatalogIconName = ComponentProps<typeof Ionicons>['name'];
+
 export type ServiceItem = {
   slug: string;
-  icon: string;
+  icon: ServiceCatalogIconName;
   title: string;
   shortDescription: string;
   fullDescription: string;
@@ -30,7 +36,7 @@ export type ServiceItem = {
 export const serviceCatalog: ServiceItem[] = [
   {
     slug: 'marriage-registration',
-    icon: '💍',
+    icon: 'heart-outline',
     title: 'Marriage Registration',
     shortDescription: 'Complete support for Thai marriage registration and legal paperwork.',
     fullDescription:
@@ -140,7 +146,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'translation-services',
-    icon: '📄',
+    icon: 'document-text-outline',
     title: 'Translation Services',
     shortDescription: 'Certified translations for official documents, legal paperwork, and government submissions with accuracy and speed.',
     fullDescription:
@@ -175,7 +181,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'driver-license',
-    icon: '🚗',
+    icon: 'car-outline',
     title: "Driver's License",
     shortDescription:
       'Fast-track appointments, group packages, and exam preparation handled by our bilingual team.',
@@ -279,7 +285,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'visa-services',
-    icon: '🛂',
+    icon: 'airplane-outline',
     title: 'Visa Services',
     shortDescription: 'Comprehensive visa assistance including applications, extensions, and conversions for all visa types in Thailand.',
     fullDescription:
@@ -322,7 +328,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'police-clearance',
-    icon: '🛡️',
+    icon: 'shield-checkmark-outline',
     title: 'Police Clearance',
     shortDescription: 'Professional assistance obtaining police clearance certificates and background checks required for visas and work permits.',
     fullDescription:
@@ -364,7 +370,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'vehicle-registration',
-    icon: '🏍️',
+    icon: 'bicycle-outline',
     title: 'Vehicle Registration',
     shortDescription: 'Professional car and motorcycle registration in Bangkok with one-day processing for qualifying BKK-plated vehicles.',
     fullDescription:
@@ -441,7 +447,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'construction-handyman',
-    icon: '🛠️',
+    icon: 'construct-outline',
     title: 'Construction & Handyman',
     shortDescription:
       'Professional home repairs, renovations, and construction services for residential and commercial properties in Thailand.',
@@ -484,7 +490,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'private-driver-service',
-    icon: '🧑‍✈️',
+    icon: 'person-circle-outline',
     title: 'Private Driver Service',
     shortDescription: 'Professional private drivers for daily use, business trips, or special occasions with flexible packages.',
     fullDescription:
@@ -521,7 +527,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'transportation-services',
-    icon: '🚐',
+    icon: 'bus-outline',
     title: 'Transportation Services',
     shortDescription: 'Reliable airport transfers, city tours, and inter-city transportation with comfortable, well-maintained vehicles.',
     fullDescription:
@@ -558,7 +564,7 @@ export const serviceCatalog: ServiceItem[] = [
   },
   {
     slug: 'event-planning-venue-services',
-    icon: '🎉',
+    icon: 'sparkles-outline',
     title: 'Bespoke Event Planning & Exclusive Venue Hire',
     shortDescription:
       "Elevate your celebrations at Bangkok's premier speakeasy with curated event experiences.",

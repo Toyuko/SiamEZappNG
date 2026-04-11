@@ -270,7 +270,7 @@ export default function HomeScreen() {
         <Section title={t('home.popularServices')} subtitle={t('home.popularServicesSubtitle')}>
           {featuredServices.map((service) => (
             <Card key={service.slug}>
-              <Text className="text-2xl">{service.icon}</Text>
+              <Ionicons name={service.icon} size={28} color={colors.primary} accessibilityIgnoresInvertColors />
               <Text className="mt-2 text-base font-bold" style={{ color: colors.foreground }}>
                 {service.title}
               </Text>
