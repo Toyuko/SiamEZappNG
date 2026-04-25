@@ -91,7 +91,9 @@
     "dashboard": "Dashboard",
     "cases": "Cases",
     "documents": "Documents",
-    "profile": "Profile"
+    "profile": "Profile",
+    "more": "More",
+    "account": "Account"
   },
   "settings": {
     "title": "Preferences",

@@ -2,11 +2,13 @@ import { Tabs } from 'expo-router';
 import {
   Briefcase,
   Calendar,
+  CircleUserRound,
   FileText,
   Gauge,
   Home,
   LayoutGrid,
   Mail,
+  Menu,
   User,
   type LucideIcon,
 } from 'lucide-react-native';
@@ -55,6 +57,7 @@ export default function TabsLayout() {
   const { colors } = useTheme();
   const { isGuest } = useAuthStore();
   const hideWhenGuest: { href: null } | Record<string, never> = isGuest ? { href: null } : {};
+  const hideWhenMember: { href: null } | Record<string, never> = isGuest ? {} : { href: null };
 
   return (
     <Tabs
@@ -104,6 +107,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
+          ...hideWhenMember,
         }}
       />
       <Tabs.Screen
@@ -118,6 +122,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
+          ...hideWhenGuest,
         }}
       />
       <Tabs.Screen
@@ -132,6 +137,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
+          ...hideWhenMember,
         }}
       />
       <Tabs.Screen
@@ -146,7 +152,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
-          ...hideWhenGuest,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -176,7 +182,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
-          ...hideWhenGuest,
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -191,7 +197,37 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: t('tabs.more'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Menu}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
           ...hideWhenGuest,
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: t('tabs.account'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={CircleUserRound}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...hideWhenMember,
         }}
       />
     </Tabs>

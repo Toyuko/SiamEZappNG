@@ -23,6 +23,7 @@ function RootNavigator() {
     ...Ionicons.font,
     ...MaterialCommunityIcons.font,
   });
+  const isE2E = process.env.EXPO_PUBLIC_E2E === 'true';
 
   useEffect(() => {
     void bootstrapSession();
@@ -49,7 +50,6 @@ function RootNavigator() {
       topLevel === 'payments' ||
       (topLevel === '(tabs)' &&
         (tabRoute === 'dashboard' || tabRoute === 'cases' || tabRoute === 'documents' || tabRoute === 'profile'));
-    const isGuestOnlyRoute = (topLevel === '(tabs)' && (tabRoute === 'home' || tabRoute === 'contact'));
     const isAuthenticated = Boolean(accessToken) && !isGuest;
 
     if (!accessToken && !isGuest && isProtectedRoute) {
@@ -61,15 +61,12 @@ function RootNavigator() {
       return;
     }
     if (isAuthenticated && inAuthGroup) {
-      router.replace('/(tabs)/dashboard');
+      router.replace('/(tabs)/home');
       return;
-    }
-    if (isAuthenticated && isGuestOnlyRoute) {
-      router.replace('/(tabs)/dashboard');
     }
   }, [accessToken, isBootstrapping, isGuest, router, segments]);
 
-  if (isBootstrapping || !fontsLoaded) {
+  if (isBootstrapping || (!fontsLoaded && !isE2E)) {
     return <LoadingState label={t('common.loading')} />;
   }
 

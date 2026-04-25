@@ -91,7 +91,9 @@
     "dashboard": "แดชบอร์ด",
     "cases": "เคส",
     "documents": "เอกสาร",
-    "profile": "โปรไฟล์"
+    "profile": "โปรไฟล์",
+    "more": "เพิ่มเติม",
+    "account": "บัญชี"
   },
   "settings": {
     "title": "การตั้งค่า",
