@@ -70,6 +70,39 @@ async function parseResponseBody(response: Response) {
   }
 }
 
+function getErrorMessage(data: unknown, status: number) {
+  if (typeof data === 'string' && data.trim().length > 0) {
+    return data;
+  }
+
+  if (data && typeof data === 'object') {
+    const body = data as Record<string, unknown>;
+    const directKeys = ['message', 'error', 'detail'];
+    for (const key of directKeys) {
+      const value = body[key];
+      if (typeof value === 'string' && value.trim().length > 0) {
+        return value;
+      }
+    }
+
+    const errors = body.errors;
+    if (Array.isArray(errors) && errors.length > 0) {
+      const first = errors[0];
+      if (typeof first === 'string' && first.trim().length > 0) {
+        return first;
+      }
+      if (first && typeof first === 'object') {
+        const nested = first as Record<string, unknown>;
+        if (typeof nested.message === 'string' && nested.message.trim().length > 0) {
+          return nested.message;
+        }
+      }
+    }
+  }
+
+  return `Request failed (${status})`;
+}
+
 async function request<T>(method: HttpMethod, path: string, body?: unknown, options?: RequestOptions): Promise<T> {
   const token = options?.tokenOverride !== undefined ? options.tokenOverride : await getToken();
   const url = joinUrl(appConfig.apiUrl, path);
@@ -112,10 +145,7 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown, opti
   }
 
   if (!response.ok) {
-    const message =
-      typeof data === 'object' && data && 'message' in (data as any) && typeof (data as any).message === 'string'
-        ? (data as any).message
-        : `Request failed (${response.status})`;
+    const message = getErrorMessage(data, response.status);
     throw new ApiError(message, response.status, data);
   }
 

@@ -22,6 +22,16 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+function normalizeSignUpPayload(payload: SignUpPayload): SignUpPayload {
+  const normalizedPhone = payload.phone?.trim();
+  return {
+    ...payload,
+    name: payload.name.trim(),
+    email: normalizeEmail(payload.email),
+    phone: normalizedPhone ? normalizedPhone : undefined,
+  };
+}
+
 function isNotFound(error: unknown) {
   return error instanceof ApiError && error.status === 404;
 }
@@ -68,10 +78,7 @@ export async function getMe(accessToken?: string) {
 }
 
 export async function signUpWithEmail(payload: SignUpPayload) {
-  const normalizedPayload: SignUpPayload = {
-    ...payload,
-    email: normalizeEmail(payload.email),
-  };
+  const normalizedPayload = normalizeSignUpPayload(payload);
   let data: LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>;
   try {
     data = await api.post<LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>>(
