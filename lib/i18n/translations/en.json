@@ -104,7 +104,7 @@
     "thai": "Thai"
   },
   "auth": {
-    "welcome": "Welcome back",
+    "welcome": "Welcome back to SiamEZ",
     "createAccount": "Create account",
     "loginFailed": "Login failed",
     "signupFailed": "Sign up failed",
