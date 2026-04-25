@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Keyboard, ScrollView, View } from 'react-native';
+import { Alert, Image, Keyboard, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -57,7 +57,20 @@ export default function LoginScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader title={t('auth.welcome')} subtitle="Manage your cases, documents, and payments from one place." />
+        <PageHeader
+          title={t('auth.welcome')}
+          subtitle="Manage your cases, documents, and payments from one place."
+          rightSlot={
+            <View className="rounded-2xl bg-white/15 p-2">
+              <Image
+                source={require('../../assets/siamez-logo.png')}
+                style={{ width: 68, height: 68, borderRadius: 34 }}
+                resizeMode="contain"
+                accessibilityLabel="SiamEZ logo"
+              />
+            </View>
+          }
+        />
 
         <Card>
           <View className="gap-3">
