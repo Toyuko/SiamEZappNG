@@ -398,6 +398,8 @@
     "minYear": "Min year",
     "maxYear": "Max year",
     "empty": "No listings found for these filters.",
+    "syncing": "Syncing listings with website inventory...",
+    "syncFailed": "Could not sync live website listings. Showing local data.",
     "manageTitle": "Manage Your Listings",
     "manageSubtitle": "Add new inventory or edit current listings.",
     "loginRequired": "Sign in to create, edit, or delete listings.",

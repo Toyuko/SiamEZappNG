@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -13,6 +13,7 @@ import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
 import { useSalesStore } from '../../store/sales-store';
 import type { ListingStatus, SalesListing, VehicleCategory } from '../../features/sales/sales.types';
+import { fetchWebsiteSalesListings } from '../../features/sales/sales.api';
 
 type FormState = {
   title: string;
@@ -69,6 +70,7 @@ export default function SalesScreen() {
   const { colors, isDark } = useTheme();
   const user = useAuthStore((state) => state.user);
   const listings = useSalesStore((state) => state.listings);
+  const hydrateListings = useSalesStore((state) => state.hydrateListings);
   const createListing = useSalesStore((state) => state.createListing);
   const updateListing = useSalesStore((state) => state.updateListing);
   const deleteListing = useSalesStore((state) => state.deleteListing);
@@ -83,9 +85,36 @@ export default function SalesScreen() {
 
   const [formState, setFormState] = useState<FormState>(defaultForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loadingRemote, setLoadingRemote] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const isEditing = editingId !== null;
   const currentUserId = user?.id ?? 'guest';
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setLoadingRemote(true);
+      setLoadError(null);
+      try {
+        const remoteListings = await fetchWebsiteSalesListings();
+        if (!active) return;
+        if (remoteListings.length > 0) {
+          hydrateListings(remoteListings);
+        }
+      } catch (error) {
+        if (!active) return;
+        setLoadError(error instanceof Error ? error.message : 'Unable to sync website inventory.');
+      } finally {
+        if (active) {
+          setLoadingRemote(false);
+        }
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [hydrateListings]);
 
   const filteredListings = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -157,6 +186,20 @@ export default function SalesScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.screenPaddingX, paddingTop: spacing.stackMd, paddingBottom: 40, gap: spacing.sectionGap }}>
         <PageHeader title={t('sales.title')} subtitle={t('sales.subtitle')} />
+        {loadingRemote ? (
+          <Card compact>
+            <Text className="text-sm" style={{ color: colors.muted }}>
+              {t('sales.syncing')}
+            </Text>
+          </Card>
+        ) : null}
+        {loadError ? (
+          <Card compact>
+            <Text className="text-sm" style={{ color: colors.muted }}>
+              {t('sales.syncFailed')}
+            </Text>
+          </Card>
+        ) : null}
 
         <Card>
           <View className="gap-3">

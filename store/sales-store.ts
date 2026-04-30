@@ -5,6 +5,7 @@ import type { CreateSalesListingInput, SalesListing, UpdateSalesListingInput } f
 
 type SalesState = {
   listings: SalesListing[];
+  hydrateListings: (items: SalesListing[]) => void;
   createListing: (input: CreateSalesListingInput) => void;
   updateListing: (id: string, input: UpdateSalesListingInput) => void;
   deleteListing: (id: string) => void;
@@ -20,6 +21,13 @@ function safeSlug(value: string) {
 
 export const useSalesStore = create<SalesState>((set) => ({
   listings: seedSalesListings,
+  hydrateListings: (items) =>
+    set((state) => {
+      if (state.listings.length > 0 && state.listings.some((item) => item.ownerId !== 'seed-admin')) {
+        return state;
+      }
+      return { listings: items };
+    }),
   createListing: (input) =>
     set((state) => ({
       listings: [
