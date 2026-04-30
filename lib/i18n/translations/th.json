@@ -86,6 +86,7 @@
   "tabs": {
     "home": "หน้าแรก",
     "services": "บริการ",
+    "sales": "ขายรถ",
     "book": "จอง",
     "contact": "ติดต่อ",
     "dashboard": "แดชบอร์ด",
@@ -383,6 +384,54 @@
         "jp": "ญี่ปุ่น",
         "other": "อื่น ๆ"
       }
+    }
+  },
+  "sales": {
+    "title": "สินค้าขาย",
+    "subtitle": "เลือกดูรถยนต์และมอเตอร์ไซค์จากผู้ขายที่เชื่อถือได้ของ SiamEZ",
+    "searchPlaceholder": "ค้นหา ยี่ห้อ รุ่น หรือชื่อรายการ...",
+    "categoryAll": "ทั้งหมด",
+    "categoryCars": "รถยนต์",
+    "categoryMotorcycles": "มอเตอร์ไซค์",
+    "minPrice": "ราคาต่ำสุด",
+    "maxPrice": "ราคาสูงสุด",
+    "minYear": "ปีต่ำสุด",
+    "maxYear": "ปีสูงสุด",
+    "empty": "ไม่พบรายการที่ตรงกับตัวกรอง",
+    "manageTitle": "จัดการรายการของคุณ",
+    "manageSubtitle": "เพิ่มรายการใหม่ หรือแก้ไขรายการปัจจุบัน",
+    "loginRequired": "กรุณาเข้าสู่ระบบเพื่อเพิ่ม แก้ไข หรือลบรายการ",
+    "myListings": "รายการของฉัน",
+    "noOwnedListings": "คุณยังไม่มีรายการที่สร้างไว้",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "notFound": "ไม่พบรายการ",
+    "status": {
+      "available": "พร้อมขาย",
+      "reserved": "จองแล้ว",
+      "sold": "ขายแล้ว"
+    },
+    "sort": {
+      "latest": "ล่าสุด",
+      "priceAsc": "ราคา: น้อยไปมาก",
+      "priceDesc": "ราคา: มากไปน้อย",
+      "yearDesc": "ปี: ใหม่ไปเก่า",
+      "yearAsc": "ปี: เก่าไปใหม่"
+    },
+    "form": {
+      "title": "ชื่อประกาศ",
+      "make": "ยี่ห้อ",
+      "model": "รุ่น",
+      "year": "ปี",
+      "mileageKm": "เลขไมล์ (กม.)",
+      "priceAmount": "ราคา (บาท)",
+      "heroImageUrl": "ลิงก์รูปหลัก",
+      "description": "รายละเอียด",
+      "categoryCar": "รถยนต์",
+      "categoryMotorcycle": "มอเตอร์ไซค์",
+      "addListing": "เพิ่มรายการ",
+      "saveChanges": "บันทึกการแก้ไข",
+      "cancelEdit": "ยกเลิก"
     }
   },
   "serviceDetail": {

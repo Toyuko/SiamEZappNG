@@ -13,7 +13,7 @@ type MoreLink = {
   label: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
-  path: '/(tabs)/dashboard' | '/(tabs)/documents' | '/(tabs)/services' | '/(tabs)/contact' | '/(tabs)/profile';
+  path: '/(tabs)/dashboard' | '/(tabs)/documents' | '/(tabs)/services' | '/(tabs)/sales' | '/(tabs)/contact' | '/(tabs)/profile';
 };
 
 const MORE_LINKS: MoreLink[] = [
@@ -34,6 +34,12 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'Browse available services',
     icon: 'grid-outline',
     path: '/(tabs)/services',
+  },
+  {
+    label: 'Sales Inventory',
+    subtitle: 'Browse, add, and manage listings',
+    icon: 'car-sport-outline',
+    path: '/(tabs)/sales',
   },
   {
     label: 'Contact',

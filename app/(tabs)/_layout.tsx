@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import {
   Briefcase,
   Calendar,
+  Car,
   CircleUserRound,
   FileText,
   Gauge,
@@ -108,6 +109,20 @@ export default function TabsLayout() {
             />
           ),
           ...hideWhenMember,
+        }}
+      />
+      <Tabs.Screen
+        name="sales"
+        options={{
+          title: t('tabs.sales'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Car}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
         }}
       />
       <Tabs.Screen
