@@ -19,52 +19,33 @@ type ParsedInventory = {
   }>;
 };
 
+function extractByRegex(html: string, pattern: RegExp) {
+  const match = html.match(pattern);
+  if (!match?.[1]) return null;
+  return match[1];
+}
+
 function parseVehiclesFromHtml(html: string): ParsedInventory['vehicles'] {
-  const marker = '"vehicles":[';
-  const start = html.indexOf(marker);
-  if (start < 0) return [];
-
-  const arrayStart = html.indexOf('[', start);
-  if (arrayStart < 0) return [];
-
-  let depth = 0;
-  let inString = false;
-  let escape = false;
-  let arrayEnd = -1;
-
-  for (let i = arrayStart; i < html.length; i += 1) {
-    const ch = html[i];
-    if (inString) {
-      if (escape) {
-        escape = false;
-      } else if (ch === '\\') {
-        escape = true;
-      } else if (ch === '"') {
-        inString = false;
-      }
-      continue;
-    }
-
-    if (ch === '"') {
-      inString = true;
-      continue;
-    }
-    if (ch === '[') {
-      depth += 1;
-    } else if (ch === ']') {
-      depth -= 1;
-      if (depth === 0) {
-        arrayEnd = i;
-        break;
-      }
+  // 1) Prefer raw JSON shape if present.
+  const rawJsonArray = extractByRegex(html, /"vehicles":(\[[\s\S]*?\]),"bounds":/);
+  if (rawJsonArray) {
+    try {
+      const parsed = JSON.parse(rawJsonArray.replace(/\$D/g, '')) as ParsedInventory['vehicles'];
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // Fall through to escaped payload parsing.
     }
   }
 
-  if (arrayEnd < 0) return [];
+  // 2) Next.js flight payload often escapes quotes like \"vehicles\": ...
+  const escapedJsonArray = extractByRegex(html, /\\"vehicles\\":(\[[\s\S]*?\]),\\"bounds\\":/);
+  if (!escapedJsonArray) return [];
 
-  const rawArray = html.slice(arrayStart, arrayEnd + 1).replace(/\$D/g, '');
   try {
-    const parsed = JSON.parse(rawArray) as ParsedInventory['vehicles'];
+    const unescaped = escapedJsonArray
+      .replace(/\$D/g, '')
+      .replace(/\\"/g, '"');
+    const parsed = JSON.parse(unescaped) as ParsedInventory['vehicles'];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
