@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 
+export type UserRole = 'client' | 'freelancer';
+
 type AuthUser = {
   id: string;
   email: string;
   name?: string;
+  /** From SiamEZ web API: `customer` | `freelancer` */
+  role?: string;
 };
 
 type GuestProfile = {
@@ -15,10 +19,12 @@ type GuestProfile = {
 type AuthState = {
   accessToken: string | null;
   user: AuthUser | null;
+  userRole: UserRole | null;
   isGuest: boolean;
   guestProfile: GuestProfile | null;
   isBootstrapping: boolean;
-  setSession: (params: { accessToken: string; user: AuthUser }) => void;
+  setSession: (params: { accessToken: string; user: AuthUser; userRole?: UserRole | null }) => void;
+  setUserRole: (role: UserRole) => void;
   enterGuestMode: (profile?: GuestProfile) => void;
   updateGuestProfile: (profile: GuestProfile) => void;
   clearSession: () => void;
@@ -28,13 +34,22 @@ type AuthState = {
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
+  userRole: null,
   isGuest: false,
   guestProfile: null,
   isBootstrapping: true,
-  setSession: ({ accessToken, user }) => set({ accessToken, user, isGuest: false, guestProfile: null }),
-  enterGuestMode: (profile) => set({ accessToken: null, user: null, isGuest: true, guestProfile: profile ?? null }),
+  setSession: ({ accessToken, user, userRole }) =>
+    set({
+      accessToken,
+      user,
+      userRole: userRole ?? null,
+      isGuest: false,
+      guestProfile: null,
+    }),
+  setUserRole: (role) => set({ userRole: role }),
+  enterGuestMode: (profile) => set({ accessToken: null, user: null, userRole: null, isGuest: true, guestProfile: profile ?? null }),
   updateGuestProfile: (profile) => set({ guestProfile: profile, isGuest: true }),
-  clearSession: () => set({ accessToken: null, user: null, isGuest: false, guestProfile: null }),
+  clearSession: () => set({ accessToken: null, user: null, userRole: null, isGuest: false, guestProfile: null }),
   setBootstrapping: (value) => set({ isBootstrapping: value }),
 }));
 

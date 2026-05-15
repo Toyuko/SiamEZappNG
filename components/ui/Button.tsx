@@ -35,7 +35,7 @@ export function Button({
   children,
 }: ButtonProps) {
   const { colors } = useTheme();
-  const sizeClass = size === 'lg' ? 'min-h-[52px] px-5 py-3.5' : 'min-h-[44px] px-4 py-2.5';
+  const sizeClass = size === 'lg' ? 'min-h-[52px] min-w-[48px] px-5 py-3.5' : 'min-h-[48px] min-w-[48px] px-4 py-3';
   const variantClass = disabled ? 'opacity-60' : '';
   const borderRadius = rounded ? radius.button : radius.md;
   const resolvedBackgroundColor = backgroundColor ?? (variant === 'primary' ? colors.primary : colors.card);

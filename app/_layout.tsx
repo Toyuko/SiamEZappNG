@@ -18,7 +18,7 @@ function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
   const { bootstrapSession } = useAuth();
-  const { accessToken, isGuest, isBootstrapping } = useAuthStore();
+  const { accessToken, isGuest, isBootstrapping, userRole } = useAuthStore();
   const [fontsLoaded, fontError] = useFonts({
     ...Ionicons.font,
     ...MaterialCommunityIcons.font,
@@ -48,8 +48,13 @@ function RootNavigator() {
       topLevel === 'documents' ||
       topLevel === 'dashboard' ||
       topLevel === 'payments' ||
+      topLevel === 'freelancer' ||
       (topLevel === '(tabs)' &&
-        (tabRoute === 'dashboard' || tabRoute === 'cases' || tabRoute === 'documents' || tabRoute === 'profile'));
+        (tabRoute === 'dashboard' ||
+          tabRoute === 'cases' ||
+          tabRoute === 'documents' ||
+          tabRoute === 'profile' ||
+          tabRoute === 'freelancer'));
     const isAuthenticated = Boolean(accessToken) && !isGuest;
 
     if (!accessToken && !isGuest && isProtectedRoute) {
@@ -60,11 +65,15 @@ function RootNavigator() {
       router.replace('/(auth)/login');
       return;
     }
-    if (isAuthenticated && inAuthGroup) {
-      router.replace('/(tabs)/home');
+    if (isAuthenticated && userRole === 'client' && (topLevel === 'freelancer' || tabRoute === 'freelancer')) {
+      router.replace('/(tabs)/dashboard');
       return;
     }
-  }, [accessToken, isBootstrapping, isGuest, router, segments]);
+    if (isAuthenticated && inAuthGroup) {
+      router.replace(userRole === 'freelancer' ? '/(tabs)/freelancer' : '/(tabs)/dashboard');
+      return;
+    }
+  }, [accessToken, isBootstrapping, isGuest, router, segments, userRole]);
 
   if (isBootstrapping || (!fontsLoaded && !isE2E)) {
     return <LoadingState label={t('common.loading')} />;

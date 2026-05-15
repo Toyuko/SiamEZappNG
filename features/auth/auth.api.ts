@@ -16,6 +16,8 @@ export type SignUpPayload = {
   email: string;
   phone?: string;
   password: string;
+  /** Matches SiamEZ web `accountType` on POST /api/auth/register */
+  accountType?: 'customer' | 'freelancer';
 };
 
 function normalizeEmail(email: string) {
@@ -29,6 +31,7 @@ function normalizeSignUpPayload(payload: SignUpPayload): SignUpPayload {
     name: payload.name.trim(),
     email: normalizeEmail(payload.email),
     phone: normalizedPhone ? normalizedPhone : undefined,
+    accountType: payload.accountType ?? 'customer',
   };
 }
 

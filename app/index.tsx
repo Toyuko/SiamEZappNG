@@ -5,11 +5,14 @@ import { t } from '../lib/i18n/i18n';
 import { useAuthStore } from '../store/auth-store';
 
 export default function Index() {
-  const { accessToken, isGuest, isBootstrapping } = useAuthStore();
+  const { accessToken, isGuest, isBootstrapping, userRole } = useAuthStore();
   if (isBootstrapping) {
     return <LoadingState label={t('common.loading')} />;
   }
   if (accessToken && !isGuest) {
+    if (userRole === 'freelancer') {
+      return <Redirect href="/(tabs)/freelancer" />;
+    }
     return <Redirect href="/(tabs)/dashboard" />;
   }
   return <Redirect href={isGuest ? '/(tabs)/home' : '/(auth)/login'} />;

@@ -35,7 +35,14 @@
       "expo-router",
       "expo-document-picker",
       "expo-image-picker",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#2C54C6"
+        }
+      ]
     ]
   }
 }

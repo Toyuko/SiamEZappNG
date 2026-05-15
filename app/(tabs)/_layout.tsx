@@ -6,6 +6,7 @@ import {
   CircleUserRound,
   FileText,
   Gauge,
+  HardHat,
   Home,
   LayoutGrid,
   Mail,
@@ -56,9 +57,11 @@ function TabBarIcon({
 
 export default function TabsLayout() {
   const { colors } = useTheme();
-  const { isGuest } = useAuthStore();
+  const { isGuest, userRole } = useAuthStore();
   const hideWhenGuest: { href: null } | Record<string, never> = isGuest ? { href: null } : {};
   const hideWhenMember: { href: null } | Record<string, never> = isGuest ? {} : { href: null };
+  const hideFreelancerTabForClient: { href: null } | Record<string, never> =
+    userRole === 'freelancer' ? {} : { href: null };
 
   return (
     <Tabs
@@ -138,6 +141,22 @@ export default function TabsLayout() {
             />
           ),
           ...hideWhenGuest,
+        }}
+      />
+      <Tabs.Screen
+        name="freelancer"
+        options={{
+          title: t('tabs.freelancer'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={HardHat}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...hideWhenGuest,
+          ...hideFreelancerTabForClient,
         }}
       />
       <Tabs.Screen

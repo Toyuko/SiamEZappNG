@@ -94,7 +94,8 @@
     "documents": "เอกสาร",
     "profile": "โปรไฟล์",
     "more": "เพิ่มเติม",
-    "account": "บัญชี"
+    "account": "บัญชี",
+    "freelancer": "ฟรีแลนซ์"
   },
   "settings": {
     "title": "การตั้งค่า",
@@ -120,7 +121,10 @@
     "email": "อีเมล",
     "password": "รหัสผ่าน",
     "fullName": "ชื่อ-นามสกุล",
-    "phone": "โทรศัพท์"
+    "phone": "โทรศัพท์",
+    "accountType": "ประเภทบัญชี",
+    "accountTypeCustomer": "ลูกค้า",
+    "accountTypeFreelancer": "ฟรีแลนซ์"
   },
   "home": {
     "badge": "บริการมืออาชีพในประเทศไทย",
@@ -473,5 +477,62 @@
     "loadError": "ไม่สามารถโหลดเคสได้",
     "untitled": "เคสไม่มีชื่อ",
     "serviceTypeUnavailable": "ไม่มีข้อมูลประเภทบริการ"
+  },
+  "freelancer": {
+    "dashboardTitle": "พอร์ทัลฟรีแลนซ์",
+    "dashboardSubtitle": "ค้นหางาน ติดตามงานที่กำลังทำ และจัดการรายได้บน SiamEZ",
+    "verified": "ยืนยันแล้ว",
+    "verificationPending": "รอการยืนยัน",
+    "verificationRejected": "การยืนยันถูกปฏิเสธ",
+    "jobFeed": "ฟีดงาน",
+    "jobFeedSubtitle": "งานที่เปิดรับจากบริษัทบน SiamEZ",
+    "noOpenJobs": "ยังไม่มีงานเปิดรับ กรุณาตรวจสอบอีกครั้ง",
+    "acceptJob": "รับงาน",
+    "acceptErrorTitle": "รับงานไม่สำเร็จ",
+    "acceptErrorMessage": "งานนี้อาจไม่พร้อมรับแล้ว",
+    "revenueTracker": "ติดตามรายได้",
+    "totalEarned": "รายได้รวม",
+    "pendingClearance": "รอเคลียร์",
+    "pendingClearanceHint": "เงินถูกพักไว้จนกว่าลูกค้าจะอนุมัติ",
+    "activeTrackTrace": "ติดตามงานที่กำลังทำ",
+    "activeTrackTraceSubtitle": "งานที่คุณกำลังดำเนินการ",
+    "noActiveJobs": "ไม่มีงานที่กำลังทำ รับงานจากฟีด",
+    "markAsDone": "ทำเสร็จแล้ว",
+    "markDoneSuccessTitle": "ส่งงานแล้ว",
+    "markDoneSuccessMessage": "รอลูกค้าอนุมัติ (อนุมัติอัตโนมัติภายใน 1 ชั่วโมง)",
+    "markDoneErrorTitle": "ทำเสร็จไม่สำเร็จ",
+    "markDoneErrorMessage": "เฉพาะงานที่กำลังทำเท่านั้นที่ทำเสร็จได้",
+    "awaitingClientApproval": "รอลูกค้าอนุมัติ (อนุมัติอัตโนมัติภายใน 1 ชั่วโมง)",
+    "subscriptionTitle": "สมาชิกพิเศษ",
+    "subscriptionDescription": "อัปเกรดเพื่อจับคู่งานก่อน ค่าธรรมเนียมต่ำลง และป้ายยืนยันตัวตน",
+    "subscriptionBenefit1": "แสดงงานก่อนในฟีด",
+    "subscriptionBenefit2": "ค่าคอมมิชชั่นแพลตฟอร์มลดลง",
+    "subscriptionBenefit3": "ป้ายฟรีแลนซ์ยืนยันแล้ว",
+    "upgradeSubscription": "อัปเกรดบัญชี",
+    "autoApprovalCountdown": "อนุมัติอัตโนมัติใน",
+    "autoApprovalHint": "ระบบจะปล่อยเงินอัตโนมัติหากลูกค้าไม่ตรวจสอบก่อน",
+    "autoApprovalImminent": "กำลังดำเนินการอนุมัติอัตโนมัติ…",
+    "progress": "ความคืบหน้า",
+    "jobApproved": "งานได้รับการอนุมัติและปล่อยเงินแล้ว",
+    "dashboard": {
+      "loading": "กำลังโหลดแดชบอร์ดฟรีแลนซ์...",
+      "loadError": "ไม่สามารถโหลดแดชบอร์ดฟรีแลนซ์ได้"
+    },
+    "jobDetail": {
+      "loading": "กำลังโหลดงาน...",
+      "loadError": "ไม่สามารถโหลดงานได้",
+      "untitled": "งานไม่มีชื่อ"
+    },
+    "status": {
+      "open": "เปิดรับ",
+      "in_progress": "กำลังทำ",
+      "completed": "รออนุมัติ",
+      "approved": "อนุมัติแล้ว"
+    },
+    "notifications": {
+      "channelName": "อัปเดตฟรีแลนซ์",
+      "jobApprovedTitle": "อนุมัติงานแล้ว",
+      "jobApprovedMessage": "อนุมัติงานแล้ว — ปล่อยเงินแล้ว"
+    }
   }
 }

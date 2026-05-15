@@ -6,6 +6,7 @@ describe('auth store', () => {
     useAuthStore.setState({
       accessToken: null,
       user: null,
+      userRole: null,
       isGuest: false,
       guestProfile: null,
       isBootstrapping: true,
@@ -40,11 +41,18 @@ describe('auth store', () => {
       accessToken: 'token',
       user: { id: 'u1', email: 'u@example.com' },
     });
+    useAuthStore.getState().setUserRole('freelancer');
     useAuthStore.getState().clearSession();
 
     const state = useAuthStore.getState();
     expect(state.accessToken).toBeNull();
     expect(state.user).toBeNull();
+    expect(state.userRole).toBeNull();
     expect(state.isGuest).toBe(false);
+  });
+
+  it('persists user role in store', () => {
+    useAuthStore.getState().setUserRole('client');
+    expect(useAuthStore.getState().userRole).toBe('client');
   });
 });
