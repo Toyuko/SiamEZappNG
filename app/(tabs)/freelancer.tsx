@@ -46,7 +46,8 @@ export default function FreelancerScreen() {
       router.replace('/(auth)/login');
       return;
     }
-    if (userRole !== 'freelancer') {
+    // Only redirect confirmed clients — avoid racing bootstrap before role is hydrated.
+    if (userRole === 'client') {
       router.replace('/(tabs)/dashboard');
     }
   }, [accessToken, isGuest, router, userRole]);

@@ -32,7 +32,7 @@ export default function FreelancerJobDetailScreen() {
       router.replace('/(auth)/login');
       return;
     }
-    if (userRole !== 'freelancer') {
+    if (userRole === 'client') {
       router.replace('/(tabs)/dashboard');
     }
   }, [accessToken, isGuest, router, userRole]);
@@ -110,6 +110,12 @@ export default function FreelancerJobDetailScreen() {
             onPress={() => void handleMarkDone()}
           />
         ) : null}
+
+        <Button
+          label={t('freelancer.viewTracking')}
+          variant="secondary"
+          onPress={() => router.push(`/freelancer/tracking/${id}`)}
+        />
 
         {data?.status === 'completed' ? (
           <Text className="text-center text-sm" style={{ color: '#d97706' }}>

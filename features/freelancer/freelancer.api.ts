@@ -1,15 +1,17 @@
 import { ApiError, api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 
-import { getMockJobById, mockFreelancerDashboard } from './freelancer.mock';
+import { shouldFallbackToFreelancerMock } from './freelancer-dev';
+import {
+  getFreelancerMockDashboard,
+  getFreelancerMockJobById,
+  mockAcceptFreelancerJob,
+  mockCompleteFreelancerJob,
+} from './freelancer-mock-runtime';
 import type {
   FreelancerDashboard,
   FreelancerJob,
   MarkJobCompleteResponse,
 } from './freelancer.types';
-
-function isNotFound(error: unknown) {
-  return error instanceof ApiError && error.status === 404;
-}
 
 export async function getFreelancerDashboard() {
   try {
@@ -18,10 +20,10 @@ export async function getFreelancerDashboard() {
     );
     return unwrapApiData<FreelancerDashboard>(response);
   } catch (error) {
-    if (!isNotFound(error)) {
+    if (!shouldFallbackToFreelancerMock(error)) {
       throw error;
     }
-    return mockFreelancerDashboard;
+    return getFreelancerMockDashboard();
   }
 }
 
@@ -32,10 +34,10 @@ export async function getFreelancerJobById(id: string) {
     );
     return unwrapApiData<FreelancerJob>(response);
   } catch (error) {
-    if (!isNotFound(error)) {
+    if (!shouldFallbackToFreelancerMock(error)) {
       throw error;
     }
-    const mock = getMockJobById(id);
+    const mock = getFreelancerMockJobById(id);
     if (!mock) {
       throw new ApiError('Job not found.', 404, null);
     }
@@ -50,8 +52,11 @@ export async function acceptFreelancerJob(jobId: string) {
     );
     return unwrapApiData<{ ok: boolean }>(response);
   } catch (error) {
-    if (!isNotFound(error)) {
+    if (!shouldFallbackToFreelancerMock(error)) {
       throw error;
+    }
+    if (!mockAcceptFreelancerJob(jobId)) {
+      throw new ApiError('Job is no longer available.', 400, null);
     }
     return { ok: true };
   }
@@ -64,12 +69,13 @@ export async function markFreelancerJobComplete(jobId: string) {
     );
     return unwrapApiData<MarkJobCompleteResponse>(response);
   } catch (error) {
-    if (!isNotFound(error)) {
+    if (!shouldFallbackToFreelancerMock(error)) {
       throw error;
     }
-    return {
-      ok: true,
-      completionSubmittedAt: new Date().toISOString(),
-    };
+    const result = mockCompleteFreelancerJob(jobId);
+    if (!result) {
+      throw new ApiError('Only active jobs can be marked complete.', 400, null);
+    }
+    return result;
   }
 }

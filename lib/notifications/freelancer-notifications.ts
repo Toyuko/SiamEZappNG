@@ -31,48 +31,72 @@ function isJobApprovedPayload(data: Record<string, unknown> | undefined) {
   return type === JOB_APPROVED_NOTIFICATION_TYPE || type === 'job.approved';
 }
 
-export function handleFreelancerNotification(
-  notification: Notifications.Notification,
-) {
+export function handleFreelancerNotification(notification: Notifications.Notification) {
   const data = notification.request.content.data as Record<string, unknown> | undefined;
   if (isJobApprovedPayload(data)) {
     showJobApprovedAlert();
   }
 }
 
-export async function registerForFreelancerPushNotifications() {
+/** Push tokens are unreliable on Android emulators (no FCM). Skip token fetch there. */
+function canRegisterPushToken() {
   if (Platform.OS === 'web') {
+    return false;
+  }
+  const isDevBuild = typeof __DEV__ !== 'undefined' && __DEV__;
+  if (Platform.OS === 'android' && isDevBuild) {
+    return false;
+  }
+  return true;
+}
+
+export async function registerForFreelancerPushNotifications() {
+  if (!canRegisterPushToken()) {
     return null;
   }
 
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== 'granted') {
-    return null;
-  }
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('freelancer', {
-      name: t('freelancer.notifications.channelName'),
-      importance: Notifications.AndroidImportance.HIGH,
-    });
-  }
-
-  const pushToken = await Notifications.getExpoPushTokenAsync();
   try {
-    await api.post('/api/push/register-device', {
-      token: pushToken.data,
-      platform: Platform.OS,
-      appVersion: Constants.expoConfig?.version,
-    });
-  } catch {
-    // Device registration is optional when backend is unavailable.
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      return null;
+    }
+
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('freelancer', {
+        name: t('freelancer.notifications.channelName'),
+        importance: Notifications.AndroidImportance.HIGH,
+      });
+    }
+
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ??
+      Constants.easConfig?.projectId;
+    const pushToken = projectId
+      ? await Notifications.getExpoPushTokenAsync({ projectId })
+      : await Notifications.getExpoPushTokenAsync();
+
+    try {
+      await api.post('/api/push/register-device', {
+        token: pushToken.data,
+        platform: Platform.OS,
+        appVersion: Constants.expoConfig?.version,
+      });
+    } catch {
+      // Optional when backend is unavailable.
+    }
+
+    return pushToken;
+  } catch (error) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      console.warn('[freelancer-notifications] Push registration skipped:', error);
+    }
+    return null;
   }
-  return pushToken;
 }

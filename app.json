@@ -14,7 +14,10 @@
     },
     "ios": {
       "bundleIdentifier": "com.anonymous.SiamEZappNG",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "SiamEZ uses your location while the app is open to verify task progress and share live transit updates with your client."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,8 +26,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.INTERNET",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ],
       "package": "com.anonymous.SiamEZappNG"
     },
@@ -41,6 +46,12 @@
         {
           "icon": "./assets/icon.png",
           "color": "#2C54C6"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "SiamEZ uses your location while the app is open to verify task progress and share live transit updates with your client."
         }
       ]
     ]

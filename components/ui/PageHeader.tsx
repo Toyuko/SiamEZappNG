@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
+import { ChevronLeft } from 'lucide-react-native';
 
 import { heroGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 import { Button } from './Button';
@@ -16,6 +17,8 @@ type PageHeaderProps = {
   subtitle?: string;
   /** Optional pill label (web: “Professional Thai Services”) */
   badge?: string;
+  onBack?: () => void;
+  backLabel?: string;
   rightSlot?: ReactNode;
   /** Primary — full-width CTA on gradient (white pill) */
   primaryCta?: PageHeaderCta;
@@ -30,7 +33,7 @@ const ctaShadow = {
   elevation: 8,
 } as const;
 
-export function PageHeader({ title, subtitle, badge, rightSlot, primaryCta, secondaryCta }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlot, primaryCta, secondaryCta }: PageHeaderProps) {
   const singlePrimary = Boolean(primaryCta && !secondaryCta);
 
   return (
@@ -44,6 +47,30 @@ export function PageHeader({ title, subtitle, badge, rightSlot, primaryCta, seco
         overflow: 'hidden',
       }}
     >
+      {onBack ? (
+        <Pressable
+          onPress={onBack}
+          accessibilityRole="button"
+          accessibilityLabel={backLabel ?? 'Back'}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            alignSelf: 'flex-start',
+            minHeight: 48,
+            minWidth: 48,
+            marginBottom: spacing.stackSm,
+            gap: 4,
+          }}
+        >
+          <ChevronLeft size={22} color="#ffffff" strokeWidth={2.5} />
+          {backLabel ? (
+            <Text className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.95)' }}>
+              {backLabel}
+            </Text>
+          ) : null}
+        </Pressable>
+      ) : null}
+
       {badge ? (
         <View
           style={{

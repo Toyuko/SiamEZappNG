@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 
+import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
@@ -49,6 +50,12 @@ export default function CaseDetailScreen() {
           <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
             {t('cases.status')}: {String(data?.status ?? 'UNKNOWN')}
           </Text>
+          <View className="mt-4">
+            <Button
+              label={t('tracking.pageTitle')}
+              onPress={() => router.push(`/client/tracking/${id}`)}
+            />
+          </View>
         </Card>
       </View>
     </SafeAreaView>

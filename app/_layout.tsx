@@ -18,7 +18,8 @@ function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
   const { bootstrapSession } = useAuth();
-  const { accessToken, isGuest, isBootstrapping, userRole } = useAuthStore();
+  const { accessToken, isGuest, isBootstrapping, userRole, user } = useAuthStore();
+  const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
   const [fontsLoaded, fontError] = useFonts({
     ...Ionicons.font,
     ...MaterialCommunityIcons.font,
@@ -45,6 +46,7 @@ function RootNavigator() {
     const [topLevel, tabRoute] = segments as string[];
     const isSensitiveRoute =
       topLevel === 'cases' ||
+      topLevel === 'client' ||
       topLevel === 'documents' ||
       topLevel === 'dashboard' ||
       topLevel === 'payments' ||
@@ -70,10 +72,10 @@ function RootNavigator() {
       return;
     }
     if (isAuthenticated && inAuthGroup) {
-      router.replace(userRole === 'freelancer' ? '/(tabs)/freelancer' : '/(tabs)/dashboard');
+      router.replace(isFreelancer ? '/(tabs)/freelancer' : '/(tabs)/dashboard');
       return;
     }
-  }, [accessToken, isBootstrapping, isGuest, router, segments, userRole]);
+  }, [accessToken, isBootstrapping, isFreelancer, isGuest, router, segments, userRole]);
 
   if (isBootstrapping || (!fontsLoaded && !isE2E)) {
     return <LoadingState label={t('common.loading')} />;

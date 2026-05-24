@@ -2,6 +2,8 @@ import type { JobStatus } from '../../features/freelancer/freelancer.types';
 
 import { JOB_AUTO_APPROVE_MS } from './constants';
 
+const AWAITING_REVIEW_STATUSES: JobStatus[] = ['completed_awaiting_review', 'completed'];
+
 export function getAutoApprovalDeadline(completionSubmittedAt: string | Date): Date {
   const submitted =
     completionSubmittedAt instanceof Date
@@ -12,6 +14,10 @@ export function getAutoApprovalDeadline(completionSubmittedAt: string | Date): D
 
 export function getAutoApprovalRemainingMs(completionSubmittedAt: string | Date): number {
   return Math.max(0, getAutoApprovalDeadline(completionSubmittedAt).getTime() - Date.now());
+}
+
+export function isAwaitingReviewStatus(status: JobStatus | string): boolean {
+  return (AWAITING_REVIEW_STATUSES as string[]).includes(status);
 }
 
 export function jobProgressPercent(status: JobStatus): number {

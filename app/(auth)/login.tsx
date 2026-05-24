@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Image, Keyboard, ScrollView, View } from 'react-native';
+import { Alert, Image, Keyboard, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -135,6 +135,12 @@ export default function LoginScreen() {
             <Button label={t('cta.getStarted')} onPress={() => router.push('/(auth)/signup')} />
           </View>
         </Card>
+
+        {typeof __DEV__ !== 'undefined' && __DEV__ ? (
+          <Text className="text-center text-xs leading-5" style={{ color: colors.muted }}>
+            Freelancer portal demo: freelancer@example.com / Freelancer123!
+          </Text>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

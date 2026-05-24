@@ -57,11 +57,12 @@ function TabBarIcon({
 
 export default function TabsLayout() {
   const { colors } = useTheme();
-  const { isGuest, userRole } = useAuthStore();
+  const { isGuest, userRole, user } = useAuthStore();
+  const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
   const hideWhenGuest: { href: null } | Record<string, never> = isGuest ? { href: null } : {};
   const hideWhenMember: { href: null } | Record<string, never> = isGuest ? {} : { href: null };
   const hideFreelancerTabForClient: { href: null } | Record<string, never> =
-    userRole === 'freelancer' ? {} : { href: null };
+    isFreelancer ? {} : { href: null };
 
   return (
     <Tabs

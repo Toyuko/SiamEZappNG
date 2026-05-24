@@ -61,7 +61,7 @@ export function ActiveJobsTrack({ jobs, completingJobId, onMarkDone }: ActiveJob
                 }}
               >
                 <Pressable
-                  onPress={() => router.push(`/freelancer/${job.id}`)}
+                  onPress={() => router.push(`/freelancer/tracking/${job.id}`)}
                   style={{ minHeight: 48, justifyContent: 'center' }}
                   accessibilityRole="button"
                 >
@@ -108,7 +108,7 @@ export function ActiveJobsTrack({ jobs, completingJobId, onMarkDone }: ActiveJob
                   </View>
                 </View>
 
-                {canMarkDone && onMarkDone ? (
+        {canMarkDone && onMarkDone ? (
                   completingJobId === job.id ? (
                     <View className="mt-3" style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
                       <ActivityIndicator color={colors.primary} />

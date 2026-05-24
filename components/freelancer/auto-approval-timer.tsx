@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 import type { JobStatus } from '../../features/freelancer/freelancer.types';
 import { t } from '../../lib/i18n/i18n';
-import { getAutoApprovalRemainingMs } from '../../lib/jobs/auto-approve';
+import { getAutoApprovalRemainingMs, isAwaitingReviewStatus } from '../../lib/jobs/auto-approve';
 import { siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
@@ -25,7 +25,7 @@ export function AutoApprovalTimer({ status, completionSubmittedAt }: AutoApprova
   const [remainingMs, setRemainingMs] = useState(0);
 
   useEffect(() => {
-    if (!completionSubmittedAt || status !== 'completed') {
+    if (!completionSubmittedAt || !isAwaitingReviewStatus(status)) {
       return;
     }
 
@@ -53,7 +53,7 @@ export function AutoApprovalTimer({ status, completionSubmittedAt }: AutoApprova
     );
   }
 
-  if (status !== 'completed' || !completionSubmittedAt) {
+  if (!isAwaitingReviewStatus(status) || !completionSubmittedAt) {
     return null;
   }
 

@@ -1,5 +1,6 @@
-/** Matches Prisma `JobStatus` on SiamEZ web. */
-export type JobStatus = 'open' | 'in_progress' | 'completed' | 'approved';
+import type { JobStatus, TrackingStatus } from '../../types/tracking';
+
+export type { JobStatus, TrackingStatus };
 
 export type FreelancerVerificationStatus = 'pending' | 'verified' | 'rejected';
 
@@ -16,9 +17,13 @@ export type FreelancerJob = {
   amount: number;
   currency: string;
   status: JobStatus;
+  trackingStatus?: TrackingStatus | null;
+  trackingNotes?: string | null;
+  isCurrentlyInTransit?: boolean;
   completionSubmittedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  service?: { id: string; slug: string; name: string } | null;
   postedBy: JobPostedBy;
   freelancer?: { id: string; name: string | null; email: string } | null;
 };
