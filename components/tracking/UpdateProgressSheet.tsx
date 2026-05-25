@@ -141,8 +141,19 @@ export function UpdateProgressSheet({
     try {
       let attachmentPayload: { url: string; name: string } | null = null;
       if (attachment) {
-        const uploaded = await uploadTrackingAttachment(jobId, attachment);
-        attachmentPayload = { url: uploaded.url, name: uploaded.name ?? attachment.name };
+        try {
+          const uploaded = await uploadTrackingAttachment(jobId, attachment);
+          if (!uploaded.url) {
+            throw new Error(t('tracking.uploadFailed'));
+          }
+          attachmentPayload = { url: uploaded.url, name: uploaded.name ?? attachment.name };
+        } catch (uploadErr) {
+          const uploadMessage =
+            uploadErr instanceof Error ? uploadErr.message : t('tracking.uploadFailed');
+          Alert.alert(t('tracking.uploadFailed'), uploadMessage);
+          setMessage(uploadMessage);
+          return;
+        }
       }
 
       const coordinatesPromise = captureCurrentPositionAsync();

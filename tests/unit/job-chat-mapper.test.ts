@@ -5,7 +5,7 @@ import { jobChatChannel } from '../../types/chat';
 
 describe('job chat helpers', () => {
   it('builds the private job chat channel name', () => {
-    expect(jobChatChannel('job-42')).toBe('private-job-job-42-chat');
+    expect(jobChatChannel('job-42')).toBe('private-job-job-42');
   });
 
   it('parses nested Pusher payloads', () => {
@@ -14,7 +14,7 @@ describe('job chat helpers', () => {
         message: {
           id: 'm2',
           senderId: 'user-b',
-          text: 'Hello',
+          content: 'Hello',
           createdAt: '2026-05-25T10:01:00.000Z',
         },
       },

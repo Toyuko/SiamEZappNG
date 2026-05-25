@@ -77,7 +77,7 @@ export function subscribeToJobBoard(
 }
 
 function defaultPusherAuthEndpoint() {
-  return `${appConfig.apiUrl.replace(/\/+$/, '')}/api/pusher/auth`;
+  return `${appConfig.apiUrl.replace(/\/+$/, '')}/api/chat/pusher-auth`;
 }
 
 function resolvePusherCredentials(realtime?: JobChatRealtimeConfig | null) {
@@ -173,10 +173,6 @@ export function subscribeToJobChannel(
     },
   };
 }
-
-export type JobChatSubscription = {
-  unsubscribe: () => void;
-};
 
 /**
  * Subscribes to `private-job-{jobId}-chat` and listens for `new-message` events.

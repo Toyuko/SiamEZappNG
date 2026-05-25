@@ -34,7 +34,7 @@ import {
 import { useJobTrackingRealtime } from '../../hooks/use-job-tracking-realtime';
 import { fetchClientJobTracking } from '../../services/trackingApi';
 import { useAuthStore } from '../../store/auth-store';
-import type { JobChatMeta, JobChatRealtimeConfig } from '../../types/chat';
+import type { JobChatMeta, JobChatRealtimeConfig, WebChatParticipant } from '../../types/chat';
 import { CHAT_ATTACHMENT_MAX_BYTES } from '../../types/chat';
 
 type JobChatScreenProps = {
@@ -88,6 +88,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [meta, setMeta] = useState<JobChatMeta | null>(null);
+  const [webParticipant, setWebParticipant] = useState<WebChatParticipant | null>(null);
   const [realtime, setRealtime] = useState<JobChatRealtimeConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
     setLoading(true);
     setLoadError(null);
     try {
-      const history = await fetchJobChatHistory(jobId);
+      const history = await fetchJobChatHistory(jobId, currentUserId);
       const fallbackMeta = history.meta ?? (await resolveChatMetaFallback(jobId, role));
       const resolvedMeta: JobChatMeta = {
         jobId,
@@ -130,6 +131,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
       };
 
       setMeta(resolvedMeta);
+      setWebParticipant(history.participant ?? null);
       setRealtime(history.realtime ?? null);
 
       const gifted = toGiftedChatMessages(history.messages ?? [], currentUserId);
@@ -237,12 +239,18 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
           setPendingAttachment(null);
         }
 
-        const { message } = await postJobChatMessage({
+        if (!webParticipant) {
+          throw new Error(t('chat.loadError'));
+        }
+
+        const { message } = await postJobChatMessage(
           jobId,
-          text: text || (attachmentName ? `📎 ${attachmentName}` : ''),
-          attachmentUrl,
-          attachmentName,
-        });
+          {
+            content: text || (attachmentName ? `📎 ${attachmentName}` : ''),
+            attachmentUrl,
+          },
+          webParticipant,
+        );
 
         const mapped = toGiftedChatMessage(message, currentUserId);
         appendUnique([mapped]);
@@ -252,7 +260,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
         setSending(false);
       }
     },
-    [appendUnique, currentUserId, jobId, pendingAttachment, sending, uploadPendingAttachment, uploading],
+    [appendUnique, currentUserId, jobId, pendingAttachment, sending, uploadPendingAttachment, uploading, webParticipant],
   );
 
   const pickImage = useCallback(async (source: 'camera' | 'gallery') => {

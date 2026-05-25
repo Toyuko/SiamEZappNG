@@ -43,6 +43,7 @@ export async function loginWithEmail(payload: LoginPayload) {
   const normalizedPayload: LoginPayload = {
     ...payload,
     email: normalizeEmail(payload.email),
+    password: payload.password.trim(),
   };
   let data: LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>;
   try {

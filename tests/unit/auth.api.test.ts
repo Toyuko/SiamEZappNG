@@ -25,6 +25,14 @@ describe('features/auth/auth.api', () => {
     vi.clearAllMocks();
   });
 
+  it('trims password whitespace before login', async () => {
+    const { loginWithEmail } = await import('../../features/auth/auth.api');
+    postMock.mockResolvedValueOnce({ token: 'abc', user: { id: 'u1', email: 'me@example.com' } });
+
+    await loginWithEmail({ email: 'me@example.com', password: '  secret  ' });
+    expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
+  });
+
   it('normalizes email and falls back login path on 404', async () => {
     const { loginWithEmail } = await import('../../features/auth/auth.api');
     postMock

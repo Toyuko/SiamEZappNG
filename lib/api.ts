@@ -72,7 +72,17 @@ async function parseResponseBody(response: Response) {
 
 function getErrorMessage(data: unknown, status: number) {
   if (typeof data === 'string' && data.trim().length > 0) {
-    return data;
+    const trimmed = data.trim();
+    if (trimmed.startsWith('<!') || trimmed.includes('<html')) {
+      if (status === 404) {
+        return 'This page could not be found. The server may need an update.';
+      }
+      return `Request failed (${status})`;
+    }
+    if (trimmed.length > 240) {
+      return `${trimmed.slice(0, 240)}…`;
+    }
+    return trimmed;
   }
 
   if (data && typeof data === 'object') {

@@ -14,6 +14,9 @@ import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
+const DEMO_FREELANCER_EMAIL = 'freelancer@example.com';
+const DEMO_FREELANCER_PASSWORD = 'Freelancer123!';
+
 export default function LoginScreen() {
   const router = useRouter();
   const { colors } = useTheme();
@@ -21,6 +24,11 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const fillDemoFreelancer = () => {
+    setEmail(DEMO_FREELANCER_EMAIL);
+    setPassword(DEMO_FREELANCER_PASSWORD);
+  };
 
   const handleLogin = async () => {
     if (loginMutation.isPending) {
@@ -137,9 +145,12 @@ export default function LoginScreen() {
         </Card>
 
         {typeof __DEV__ !== 'undefined' && __DEV__ ? (
-          <Text className="text-center text-xs leading-5" style={{ color: colors.muted }}>
-            Freelancer portal demo: freelancer@example.com / Freelancer123!
-          </Text>
+          <View className="gap-2">
+            <Text className="text-center text-xs leading-5" style={{ color: colors.muted }}>
+              Freelancer portal demo: {DEMO_FREELANCER_EMAIL} / {DEMO_FREELANCER_PASSWORD}
+            </Text>
+            <Button label="Use demo freelancer account" variant="secondary" size="md" onPress={fillDemoFreelancer} />
+          </View>
         ) : null}
       </ScrollView>
     </SafeAreaView>

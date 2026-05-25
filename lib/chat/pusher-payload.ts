@@ -17,7 +17,7 @@ export function pusherPayloadToDto(payload: unknown, jobId: string): JobChatMess
   return {
     id,
     jobId: String(nested.jobId ?? jobId),
-    text: String(nested.text ?? nested.body ?? ''),
+    text: String(nested.content ?? nested.text ?? nested.body ?? ''),
     senderId,
     senderName:
       typeof nested.senderName === 'string'

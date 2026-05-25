@@ -1,6 +1,7 @@
 import { api, type ApiEnvelope, unwrapApiData } from '../lib/api';
 import { getFreelancerJobById } from '../features/freelancer/freelancer.api';
 import { getTrackingStepsForServiceSlug } from '../lib/jobs/tracking-steps';
+import { reactNativeFormDataFile } from '../lib/uploads/form-data-file';
 
 import type {
   ApproveJobResponse,
@@ -115,24 +116,32 @@ export async function updateJobTracking(jobId: string, payload: UpdateTrackingPa
 /** Multipart upload for DLT receipts / vehicle photos (POST /api/upload). */
 export async function uploadTrackingAttachment(jobId: string, file: UploadTrackingAttachmentPayload) {
   const form = new FormData();
-  form.append('file', {
-    uri: file.uri,
-    name: file.name,
-    type: file.mimeType ?? 'application/octet-stream',
-  } as unknown as Blob);
+  const part = reactNativeFormDataFile(file.uri, file.name, file.mimeType);
+  form.append('file', part as any);
   form.append('jobId', jobId);
   form.append('purpose', 'tracking');
 
-  const response = await api.post<UploadTrackingAttachmentResponse>(
+  const response = await api.post<UploadTrackingAttachmentResponse | ApiEnvelope<UploadTrackingAttachmentResponse>>(
     '/api/upload',
     form,
   );
 
-  if (response && typeof response === 'object' && 'error' in response && !('url' in response)) {
-    throw new Error(String((response as { error?: string }).error ?? 'Upload failed'));
+  const unwrapped = unwrapApiData<UploadTrackingAttachmentResponse>(response);
+
+  if (unwrapped && typeof unwrapped === 'object' && 'url' in unwrapped && typeof unwrapped.url === 'string') {
+    return unwrapped;
   }
 
-  return response as UploadTrackingAttachmentResponse;
+  if (response && typeof response === 'object' && 'url' in response && typeof (response as UploadTrackingAttachmentResponse).url === 'string') {
+    return response as UploadTrackingAttachmentResponse;
+  }
+
+  const errorMessage =
+    response && typeof response === 'object' && 'error' in response
+      ? String((response as { error?: string }).error ?? 'Upload failed')
+      : 'Upload failed';
+
+  throw new Error(errorMessage);
 }
 
 /** Client manual approval — releases escrow (POST /api/client/jobs/[id]/approve). */

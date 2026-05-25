@@ -1,12 +1,12 @@
 /**
- * Job-scoped chat — mirrors SiamEZ web `/api/chat` and Pusher `private-job-{id}-chat`.
+ * Job-scoped chat — mirrors SiamEZ web `/api/chat/[jobId]` and Pusher `private-job-{jobId}`.
  */
 
 export const JOB_CHAT_PUSHER_EVENT = 'new-message' as const;
 
-/** Channel pattern: `private-job-{jobId}-chat` */
+/** Unified private job channel (chat + tracking), same as web `jobChannel()`. */
 export function jobChatChannel(jobId: string): string {
-  return `private-job-${jobId}-chat`;
+  return `private-job-${jobId}`;
 }
 
 export type JobChatRealtimeConfig = {
@@ -23,9 +23,20 @@ export type JobChatParticipant = {
   role: 'client' | 'freelancer';
 };
 
+/** Web `getJobMessages` participant payload. */
+export type WebChatParticipant = {
+  jobId: string;
+  jobTitle: string;
+  clientId: string;
+  freelancerId: string;
+  clientName: string | null;
+  freelancerName: string | null;
+};
+
 export type JobChatMessageDto = {
   id: string;
   jobId: string;
+  /** Message body (`content` on web API). */
   text: string;
   senderId: string;
   senderName: string | null;
@@ -44,14 +55,14 @@ export type JobChatMeta = {
 export type JobChatHistoryResponse = {
   messages: JobChatMessageDto[];
   meta?: JobChatMeta;
+  /** Raw web participant — used when posting new messages. */
+  participant?: WebChatParticipant;
   realtime?: JobChatRealtimeConfig | null;
 };
 
 export type PostJobChatMessagePayload = {
-  jobId: string;
-  text: string;
+  content: string;
   attachmentUrl?: string | null;
-  attachmentName?: string | null;
 };
 
 export type PostJobChatMessageResponse = {
@@ -66,8 +77,8 @@ export type UploadChatAttachmentPayload = {
 
 export type UploadChatAttachmentResponse = {
   url: string;
-  key: string;
   name?: string;
+  mimeType?: string | null;
 };
 
-export const CHAT_ATTACHMENT_MAX_BYTES = 5 * 1024 * 1024;
+export const CHAT_ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
