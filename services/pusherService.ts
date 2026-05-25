@@ -15,6 +15,7 @@ import {
 
 let pusherClient: Pusher | null = null;
 let privatePusherClient: Pusher | null = null;
+let privatePusherSignature: string | null = null;
 
 export function getPusherClient(): Pusher | null {
   const key = process.env.EXPO_PUBLIC_PUSHER_KEY?.trim();
@@ -94,10 +95,17 @@ export function getPrivatePusherClient(realtime?: JobChatRealtimeConfig | null):
   }
 
   const authEndpoint = realtime?.authEndpoint?.trim() || defaultPusherAuthEndpoint();
+  const signature = `${credentials.key}:${credentials.cluster}:${authEndpoint}`;
+
+  if (privatePusherClient && privatePusherSignature !== signature) {
+    privatePusherClient.disconnect();
+    privatePusherClient = null;
+  }
 
   if (!privatePusherClient) {
     privatePusherClient = new Pusher(credentials.key, {
       cluster: credentials.cluster,
+      forceTLS: true,
       channelAuthorization: {
         endpoint: authEndpoint,
         transport: 'ajax',
@@ -107,6 +115,11 @@ export function getPrivatePusherClient(realtime?: JobChatRealtimeConfig | null):
         },
       },
     });
+    privatePusherSignature = signature;
+  }
+
+  if (privatePusherClient.connection.state === 'disconnected') {
+    privatePusherClient.connect();
   }
 
   return privatePusherClient;

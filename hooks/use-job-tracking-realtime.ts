@@ -90,12 +90,12 @@ export function useJobTrackingRealtime({
 
   const handleNewMessage = useCallback(
     (message: JobChatMessageDto) => {
-      if (message.senderId === user?.id) {
+      if (isChatFocused) {
+        onNewMessageWhileChatFocused?.(message);
         return;
       }
 
-      if (isChatFocused) {
-        onNewMessageWhileChatFocused?.(message);
+      if (message.senderId === user?.id) {
         return;
       }
 

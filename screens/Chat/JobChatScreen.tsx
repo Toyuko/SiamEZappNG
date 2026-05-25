@@ -13,7 +13,7 @@ import {
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { Camera, Paperclip } from 'lucide-react-native';
+import { Camera, Paperclip, Send as SendIcon } from 'lucide-react-native';
 import { Bubble, GiftedChat, type IMessage } from 'react-native-gifted-chat';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -31,7 +31,7 @@ import {
   postJobChatMessage,
   uploadChatAttachment,
 } from '../../services/jobChatApi';
-import { useJobTrackingRealtime } from '../../hooks/use-job-tracking-realtime';
+import { useJobChatRealtime } from '../../hooks/use-job-chat-realtime';
 import { fetchClientJobTracking } from '../../services/trackingApi';
 import { useAuthStore } from '../../store/auth-store';
 import type { JobChatMeta, JobChatRealtimeConfig, WebChatParticipant } from '../../types/chat';
@@ -173,16 +173,26 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
     [appendUnique, currentUserId],
   );
 
-  useJobTrackingRealtime({
+  const syncMessages = useCallback(async () => {
+    if (!currentUserId) {
+      return;
+    }
+    try {
+      const history = await fetchJobChatHistory(jobId, currentUserId);
+      const gifted = toGiftedChatMessages(history.messages ?? [], currentUserId);
+      appendUnique(gifted);
+    } catch {
+      // Background poll — ignore transient failures.
+    }
+  }, [appendUnique, currentUserId, jobId]);
+
+  const { isLive } = useJobChatRealtime({
     jobId,
-    role,
     enabled: isFocused && !loading && Boolean(currentUserId),
-    isChatFocused: true,
     realtime,
-    onNewMessageWhileChatFocused: handleRealtimeMessage,
-    onAppForeground: () => {
-      void loadChat();
-    },
+    participant: webParticipant,
+    onMessage: handleRealtimeMessage,
+    onSync: syncMessages,
   });
 
   const handleBack = useCallback(() => {
@@ -429,14 +439,29 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
             </Pressable>
           </View>
         ) : null}
-        {(sending || uploading) && (
-          <View className="mt-2 flex-row items-center gap-2">
-            <ActivityIndicator size="small" color={colors.primary} />
-            <Text className="text-xs" style={{ color: colors.muted }}>
-              {uploading ? t('chat.uploading') : t('chat.sending')}
+        <View className="mt-2 flex-row items-center justify-between">
+          <View className="flex-row items-center gap-2">
+            <View
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: isLive ? '#22c55e' : colors.muted,
+              }}
+            />
+            <Text className="text-xs font-medium" style={{ color: colors.muted }}>
+              {isLive ? t('chat.live') : t('chat.connecting')}
             </Text>
           </View>
-        )}
+          {(sending || uploading) && (
+            <View className="flex-row items-center gap-2">
+              <ActivityIndicator size="small" color={colors.primary} />
+              <Text className="text-xs" style={{ color: colors.muted }}>
+                {uploading ? t('chat.uploading') : t('chat.sending')}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
 
       <KeyboardAvoidingView
@@ -475,6 +500,45 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
               </Pressable>
             </View>
           )}
+          renderSend={(props) => {
+            const canSend = Boolean(props.text?.trim()) || Boolean(pendingAttachment);
+            const disabled = !canSend || sending || uploading;
+
+            return (
+              <Pressable
+                onPress={() => {
+                  if (disabled || !props.onSend) {
+                    return;
+                  }
+                  props.onSend({ text: props.text?.trim() || ' ' }, true);
+                }}
+                disabled={disabled}
+                accessibilityRole="button"
+                accessibilityLabel={t('chat.send')}
+                style={{
+                  marginRight: 8,
+                  marginBottom: 6,
+                  backgroundColor: disabled ? (isDark ? '#475569' : '#94a3b8') : siam.blue.DEFAULT,
+                  borderRadius: 22,
+                  paddingHorizontal: 16,
+                  paddingVertical: 11,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  minWidth: 92,
+                  justifyContent: 'center',
+                  shadowColor: siam.blue.dark,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: disabled ? 0 : 0.28,
+                  shadowRadius: 4,
+                  elevation: disabled ? 0 : 3,
+                }}
+              >
+                <SendIcon size={18} color="#ffffff" strokeWidth={2.5} />
+                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 15 }}>{t('chat.send')}</Text>
+              </Pressable>
+            );
+          }}
           renderBubble={(props) => (
             <Bubble
               {...props}

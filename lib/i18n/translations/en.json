@@ -600,6 +600,9 @@
     "liveConnected": "Connected to live updates",
     "newMessageToast": "New message from %{name}"
   },
+  "notifications": {
+    "channelName": "SiamEZ alerts"
+  },
   "chat": {
     "loading": "Loading conversation…",
     "loadError": "We could not load this chat.",
@@ -614,6 +617,9 @@
     "uploadFailedTitle": "Upload failed",
     "uploadFailed": "Could not upload this file. Please try again.",
     "sendFailedTitle": "Message not sent",
-    "sendFailed": "Could not send your message. Please try again."
+    "sendFailed": "Could not send your message. Please try again.",
+    "send": "Send",
+    "live": "Live",
+    "connecting": "Connecting…"
   }
 }

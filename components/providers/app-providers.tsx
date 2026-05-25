@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
-import { useFreelancerNotifications } from '../../hooks/use-freelancer-notifications';
+import { usePushNotifications } from '../../hooks/use-push-notifications';
 import { setI18nLanguage } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { useTheme } from '../../lib/theme/theme';
@@ -12,7 +12,7 @@ function AppEnvironment() {
   const language = useLanguageStore((state) => state.language);
   const { isDark } = useTheme();
 
-  useFreelancerNotifications();
+  usePushNotifications();
 
   useEffect(() => {
     setI18nLanguage(language);
