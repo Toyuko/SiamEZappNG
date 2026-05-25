@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { ClientApprovalBanner } from '../../components/tracking/ClientApprovalBanner';
+import { LiveIndicator } from '../../components/tracking/LiveIndicator';
+import { TrackingMessageToastBanner } from '../../components/tracking/TrackingMessageToast';
 import { TrackingStepper } from '../../components/tracking/TrackingStepper';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useClientJobTracking } from '../../hooks/use-client-job-tracking';
+import { useJobTrackingRealtime } from '../../hooks/use-job-tracking-realtime';
 import { t } from '../../lib/i18n/i18n';
 import { isAwaitingReviewStatus } from '../../lib/jobs/auto-approve';
 import { spacing } from '../../lib/theme/tokens';
@@ -23,9 +27,22 @@ type ClientTrackingScreenProps = {
 
 export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
   const router = useRouter();
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(tabs)/cases');
+  }, [router]);
   const { colors } = useTheme();
   const { isGuest, accessToken } = useAuthStore();
+  const isFocused = useIsFocused();
   const { data, isLoading, isError, refetch, error, isRefetching } = useClientJobTracking(jobId);
+  const { isLive, toasts, dismissToast } = useJobTrackingRealtime({
+    jobId,
+    role: 'client',
+    enabled: isFocused && !isLoading && !isError && Boolean(data),
+  });
   const [confirming, setConfirming] = useState(false);
   const [approveError, setApproveError] = useState<string | null>(null);
 
@@ -73,6 +90,28 @@ export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      {toasts.length > 0 ? (
+        <View
+          pointerEvents="box-none"
+          style={{
+            position: 'absolute',
+            top: showApprovalBanner ? 72 : 8,
+            left: 16,
+            right: 16,
+            zIndex: 20,
+            gap: 8,
+          }}
+        >
+          {toasts.map((toast) => (
+            <TrackingMessageToastBanner
+              key={toast.id}
+              toast={toast}
+              onDismiss={() => dismissToast(toast.id)}
+            />
+          ))}
+        </View>
+      ) : null}
+
       {showApprovalBanner && job.completionSubmittedAt ? (
         <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 }}>
           <ClientApprovalBanner
@@ -88,7 +127,37 @@ export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
         contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
-        <PageHeader title={job.title} subtitle={t('tracking.pageTitle')} />
+        <PageHeader
+          title={job.title}
+          subtitle={
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+              <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 16, lineHeight: 24 }}>
+                {t('tracking.pageTitle')}
+              </Text>
+              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>#{job.id}</Text>
+              <LiveIndicator active={isLive} />
+            </View>
+          }
+          onBack={handleBack}
+          backLabel={t('tracking.backToPortal')}
+          rightSlot={
+            <Pressable
+              onPress={() => router.push(`/client/chat/${jobId}`)}
+              accessibilityRole="button"
+              accessibilityLabel={t('tracking.openChat')}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.35)',
+              }}
+            >
+              <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '700' }}>{t('tracking.openChat')}</Text>
+            </Pressable>
+          }
+        />
 
         <Card>
           {job.service ? (

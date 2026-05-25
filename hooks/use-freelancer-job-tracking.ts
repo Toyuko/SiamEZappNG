@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchFreelancerJobTracking } from '../services/trackingApi';
+import { jobTrackingQueryKey } from './use-job-tracking-realtime';
+import { fetchJobTracking } from '../services/trackingApi';
 
 export function useFreelancerJobTracking(jobId: string | undefined) {
   return useQuery({
-    queryKey: ['freelancer-job-tracking', jobId],
-    queryFn: () => fetchFreelancerJobTracking(jobId!),
+    queryKey: jobTrackingQueryKey(jobId ?? '', 'freelancer'),
+    queryFn: () => fetchJobTracking(jobId!, 'freelancer'),
     enabled: Boolean(jobId),
   });
 }

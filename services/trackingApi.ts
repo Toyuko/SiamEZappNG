@@ -8,6 +8,7 @@ import type {
   FreelancerJobTrackingView,
   JobLocationPayload,
   JobStatus,
+  JobTrackingPayload,
   TrackingStatus,
   UpdateTrackingPayload,
   UpdateTrackingResponse,
@@ -51,6 +52,27 @@ export async function fetchClientJobTracking(jobId: string) {
 }
 
 /**
+ * Unified job tracking (GET /api/jobs/[id]/tracking).
+ * Falls back to role-specific routes when the unified endpoint is unavailable.
+ */
+export async function fetchJobTracking(
+  jobId: string,
+  role: 'client' | 'freelancer',
+): Promise<JobTrackingPayload> {
+  try {
+    const response = await api.get<JobTrackingPayload | ApiEnvelope<JobTrackingPayload>>(
+      `/api/jobs/${encodeURIComponent(jobId)}/tracking`,
+    );
+    return unwrapApiData<JobTrackingPayload>(response);
+  } catch {
+    if (role === 'client') {
+      return fetchClientJobTracking(jobId);
+    }
+    return fetchFreelancerJobTracking(jobId);
+  }
+}
+
+/**
  * Freelancer tracking view — built from job detail + local step config
  * (web portal uses the same job payload for the freelancer timeline).
  */
@@ -72,6 +94,7 @@ export async function fetchFreelancerJobTracking(jobId: string): Promise<Freelan
       updatedAt: job.updatedAt,
       service: job.service ?? null,
     },
+    trackingHistory: [],
     steps,
     isTrackable: steps != null,
   };

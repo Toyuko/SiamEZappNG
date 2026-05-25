@@ -486,6 +486,10 @@
     "verificationRejected": "Verification declined",
     "jobFeed": "Job Feed",
     "jobFeedSubtitle": "Open jobs posted by companies on SiamEZ.",
+    "jobFeedLoadError": "Could not refresh the job feed. Live updates may still work.",
+    "newJobToast": "⚡ New job posted in %{category}!",
+    "dismissNotification": "Dismiss",
+    "specialMemberOnly": "Special members only",
     "noOpenJobs": "No open jobs right now. Check back soon.",
     "acceptJob": "Accept job",
     "acceptErrorTitle": "Could not accept job",
@@ -590,6 +594,26 @@
     "liveTransitTitle": "Begin Live Transit",
     "liveTransitHint": "Share your location every 15 seconds while traveling. Updates are sent only when you move more than 50 meters.",
     "liveTransitActiveHint": "Live transit is on. Your client receives location updates when you move significantly.",
-    "liveTransitActive": "Sharing live location"
+    "liveTransitActive": "Sharing live location",
+    "openChat": "Message",
+    "liveLabel": "Live",
+    "liveConnected": "Connected to live updates",
+    "newMessageToast": "New message from %{name}"
+  },
+  "chat": {
+    "loading": "Loading conversation…",
+    "loadError": "We could not load this chat.",
+    "placeholder": "Type a message…",
+    "defaultSubtitle": "Job chat",
+    "viewJobDetails": "View Job Details",
+    "attachTitle": "Attach file",
+    "pendingAttachment": "Attached: %{name}",
+    "removeAttachment": "Remove",
+    "uploading": "Uploading attachment…",
+    "sending": "Sending…",
+    "uploadFailedTitle": "Upload failed",
+    "uploadFailed": "Could not upload this file. Please try again.",
+    "sendFailedTitle": "Message not sent",
+    "sendFailed": "Could not send your message. Please try again."
   }
 }

@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { AutoApprovalTimer } from '../../components/freelancer/auto-approval-timer';
+import { LiveIndicator } from '../../components/tracking/LiveIndicator';
 import { LiveTransitToggle } from '../../components/tracking/LiveTransitToggle';
+import { TrackingMessageToastBanner } from '../../components/tracking/TrackingMessageToast';
 import { TrackingStepper } from '../../components/tracking/TrackingStepper';
 import { UpdateProgressSheet } from '../../components/tracking/UpdateProgressSheet';
 import { Button } from '../../components/ui/Button';
@@ -13,6 +16,7 @@ import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useFreelancerJobTracking } from '../../hooks/use-freelancer-job-tracking';
+import { useJobTrackingRealtime } from '../../hooks/use-job-tracking-realtime';
 import { useLiveTransitTracking } from '../../hooks/use-live-transit-tracking';
 import { t } from '../../lib/i18n/i18n';
 import { isAwaitingReviewStatus } from '../../lib/jobs/auto-approve';
@@ -29,7 +33,13 @@ export function JobTrackingScreen({ jobId }: JobTrackingScreenProps) {
   const router = useRouter();
   const { colors } = useTheme();
   const { userRole, isGuest, accessToken } = useAuthStore();
+  const isFocused = useIsFocused();
   const { data, isLoading, isError, refetch, error, isRefetching } = useFreelancerJobTracking(jobId);
+  const { isLive, toasts, dismissToast } = useJobTrackingRealtime({
+    jobId,
+    role: 'freelancer',
+    enabled: isFocused && !isLoading && !isError && Boolean(data),
+  });
   const [sheetOpen, setSheetOpen] = useState(false);
   const { liveTransitActive, liveTransitBusy, setLiveTransitActive } = useLiveTransitTracking(jobId);
 
@@ -68,7 +78,7 @@ export function JobTrackingScreen({ jobId }: JobTrackingScreenProps) {
     );
   }
 
-  const { job, steps, isTrackable } = data;
+  const { job, steps, trackingHistory, isTrackable } = data;
   const progress =
     isTrackable && steps && job.trackingStatus
       ? trackingProgressPercent(steps, job.trackingStatus)
@@ -78,6 +88,28 @@ export function JobTrackingScreen({ jobId }: JobTrackingScreenProps) {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      {toasts.length > 0 ? (
+        <View
+          pointerEvents="box-none"
+          style={{
+            position: 'absolute',
+            top: 8,
+            left: 16,
+            right: 16,
+            zIndex: 20,
+            gap: 8,
+          }}
+        >
+          {toasts.map((toast) => (
+            <TrackingMessageToastBanner
+              key={toast.id}
+              toast={toast}
+              onDismiss={() => dismissToast(toast.id)}
+            />
+          ))}
+        </View>
+      ) : null}
+
       <ScrollView
         contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}
         keyboardShouldPersistTaps="handled"
@@ -85,9 +117,34 @@ export function JobTrackingScreen({ jobId }: JobTrackingScreenProps) {
       >
         <PageHeader
           title={job.title}
-          subtitle={t('tracking.trackTraceTitle')}
+          subtitle={
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+              <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 16, lineHeight: 24 }}>
+                {t('tracking.trackTraceTitle')}
+              </Text>
+              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>#{job.id}</Text>
+              <LiveIndicator active={isLive} />
+            </View>
+          }
           onBack={handleBack}
           backLabel={t('tracking.backToPortal')}
+          rightSlot={
+            <Pressable
+              onPress={() => router.push(`/freelancer/chat/${jobId}`)}
+              accessibilityRole="button"
+              accessibilityLabel={t('tracking.openChat')}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.35)',
+              }}
+            >
+              <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '700' }}>{t('tracking.openChat')}</Text>
+            </Pressable>
+          }
         />
 
         {awaitingReview && job.completionSubmittedAt ? (
@@ -139,6 +196,7 @@ export function JobTrackingScreen({ jobId }: JobTrackingScreenProps) {
             <TrackingStepper
               steps={steps}
               currentStatus={job.trackingStatus}
+              trackingHistory={trackingHistory}
               notes={job.trackingNotes}
               emptyMessage={t('tracking.noHistoryYet')}
             />

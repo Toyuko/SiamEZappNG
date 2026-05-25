@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
 import { ActiveJobsTrack } from '../../components/freelancer/active-jobs-track';
-import { JobFeedSection } from '../../components/freelancer/job-feed-section';
+import { JobBoardScreen } from '../../screens/Freelancer/JobBoardScreen';
 import { RevenueTracker } from '../../components/freelancer/revenue-tracker';
 import { SubscriptionCard } from '../../components/freelancer/subscription-card';
 import { Badge } from '../../components/ui/Badge';
@@ -61,6 +61,7 @@ export default function FreelancerScreen() {
         t('freelancer.acceptErrorTitle'),
         error instanceof Error ? error.message : t('freelancer.acceptErrorMessage'),
       );
+      throw error;
     } finally {
       setAcceptingJobId(null);
     }
@@ -117,10 +118,10 @@ export default function FreelancerScreen() {
 
         <SubscriptionCard />
 
-        <JobFeedSection
-          jobs={data?.openJobs ?? []}
+        <JobBoardScreen
+          nestedInScrollView
           acceptingJobId={acceptingJobId}
-          onAcceptJob={(jobId) => void handleAcceptJob(jobId)}
+          onAcceptJob={handleAcceptJob}
         />
 
         <ActiveJobsTrack

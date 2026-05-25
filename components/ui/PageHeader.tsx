@@ -14,7 +14,7 @@ export type PageHeaderCta = {
 
 type PageHeaderProps = {
   title: string;
-  subtitle?: string;
+  subtitle?: string | ReactNode;
   /** Optional pill label (web: “Professional Thai Services”) */
   badge?: string;
   onBack?: () => void;

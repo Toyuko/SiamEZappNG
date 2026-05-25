@@ -63,6 +63,14 @@ export type TrackingStep = {
   en: string;
 };
 
+/** Pusher event on `private-job-{jobId}` — full tracking snapshot / delta */
+export const JOB_TRACKING_UPDATED_EVENT = 'tracking-updated' as const;
+
+/** Unified job channel: `private-job-{jobId}` (tracking + chat) */
+export function jobTrackingChannel(jobId: string): string {
+  return `private-job-${jobId}`;
+}
+
 /** Pusher event name consumed by web `TrackingMapInner.tsx` */
 export const LIVE_LOCATION_PUSHER_EVENT = 'location-update' as const;
 
@@ -134,39 +142,41 @@ export type JobLocationPayload = {
   realtime: JobLocationRealtimeConfig | null;
 };
 
-export type ClientJobTrackingPayload = {
-  job: {
-    id: string;
-    title: string;
-    status: JobStatus;
-    trackingStatus: TrackingStatus | null;
-    isCurrentlyInTransit?: boolean;
-    completionSubmittedAt: string | null;
-    enableAutoApproval: boolean;
-    updatedAt: string;
-    service: { id: string; slug: string; name: string } | null;
-    freelancer: { displayName: string } | null;
-  };
+export type JobTrackingJob = {
+  id: string;
+  title: string;
+  status: JobStatus;
+  trackingStatus: TrackingStatus | null;
+  trackingNotes?: string | null;
+  description?: string;
+  isCurrentlyInTransit?: boolean;
+  completionSubmittedAt: string | null;
+  enableAutoApproval?: boolean;
+  updatedAt: string;
+  service: { id: string; slug: string; name: string } | null;
+  freelancer?: { displayName: string } | null;
+};
+
+/** GET /api/jobs/[id]/tracking — shared client + freelancer payload */
+export type JobTrackingPayload = {
+  job: JobTrackingJob;
   trackingHistory: TrackingHistoryEntry[];
   steps: TrackingStep[] | null;
   isTrackable: boolean;
 };
 
-export type FreelancerJobTrackingView = {
-  job: {
-    id: string;
-    title: string;
-    description: string;
-    status: JobStatus;
-    trackingStatus: TrackingStatus | null;
-    trackingNotes: string | null;
-    isCurrentlyInTransit?: boolean;
-    completionSubmittedAt: string | null;
-    updatedAt: string;
-    service: { id: string; slug: string; name: string } | null;
+export type ClientJobTrackingPayload = JobTrackingPayload & {
+  job: JobTrackingJob & {
+    enableAutoApproval: boolean;
+    freelancer: { displayName: string } | null;
   };
-  steps: TrackingStep[] | null;
-  isTrackable: boolean;
+};
+
+export type FreelancerJobTrackingView = JobTrackingPayload & {
+  job: JobTrackingJob & {
+    description: string;
+    trackingNotes: string | null;
+  };
 };
 
 export type UpdateTrackingPayload = {

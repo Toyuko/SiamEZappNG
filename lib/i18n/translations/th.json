@@ -486,6 +486,10 @@
     "verificationRejected": "การยืนยันถูกปฏิเสธ",
     "jobFeed": "ฟีดงาน",
     "jobFeedSubtitle": "งานที่เปิดรับจากบริษัทบน SiamEZ",
+    "jobFeedLoadError": "ไม่สามารถโหลดงานใหม่ได้ การอัปเดตแบบเรียลไทม์อาจยังทำงานอยู่",
+    "newJobToast": "⚡ มีงาน %{category} ใหม่!",
+    "dismissNotification": "ปิด",
+    "specialMemberOnly": "สมาชิกพิเศษเท่านั้น",
     "noOpenJobs": "ยังไม่มีงานเปิดรับ กรุณาตรวจสอบอีกครั้ง",
     "acceptJob": "รับงาน",
     "acceptErrorTitle": "รับงานไม่สำเร็จ",
@@ -590,6 +594,26 @@
     "liveTransitTitle": "เริ่มการเดินทางแบบสด",
     "liveTransitHint": "แชร์ตำแหน่งทุก 15 วินาทีขณะเดินทาง ระบบจะส่งอัปเดตเมื่อคุณเคลื่อนที่มากกว่า 50 เมตร",
     "liveTransitActiveHint": "เปิดการเดินทางแบบสดแล้ว ลูกค้าจะได้รับอัปเดตตำแหน่งเมื่อคุณเคลื่อนที่อย่างมีนัยสำคัญ",
-    "liveTransitActive": "กำลังแชร์ตำแหน่งแบบสด"
+    "liveTransitActive": "กำลังแชร์ตำแหน่งแบบสด",
+    "openChat": "ข้อความ",
+    "liveLabel": "สด",
+    "liveConnected": "เชื่อมต่ออัปเดตแบบเรียลไทม์แล้ว",
+    "newMessageToast": "ข้อความใหม่จาก %{name}"
+  },
+  "chat": {
+    "loading": "กำลังโหลดการสนทนา…",
+    "loadError": "ไม่สามารถโหลดแชทนี้ได้",
+    "placeholder": "พิมพ์ข้อความ…",
+    "defaultSubtitle": "แชทงาน",
+    "viewJobDetails": "ดูรายละเอียดงาน",
+    "attachTitle": "แนบไฟล์",
+    "pendingAttachment": "แนบแล้ว: %{name}",
+    "removeAttachment": "ลบ",
+    "uploading": "กำลังอัปโหลดไฟล์แนบ…",
+    "sending": "กำลังส่ง…",
+    "uploadFailedTitle": "อัปโหลดไม่สำเร็จ",
+    "uploadFailed": "ไม่สามารถอัปโหลดไฟล์นี้ได้ กรุณาลองอีกครั้ง",
+    "sendFailedTitle": "ส่งข้อความไม่สำเร็จ",
+    "sendFailed": "ไม่สามารถส่งข้อความได้ กรุณาลองอีกครั้ง"
   }
 }

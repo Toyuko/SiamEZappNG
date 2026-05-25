@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchClientJobTracking } from '../services/trackingApi';
+import { jobTrackingQueryKey } from './use-job-tracking-realtime';
+import { fetchJobTracking } from '../services/trackingApi';
 
 export function useClientJobTracking(jobId: string | undefined) {
   return useQuery({
-    queryKey: ['client-job-tracking', jobId],
-    queryFn: () => fetchClientJobTracking(jobId!),
+    queryKey: jobTrackingQueryKey(jobId ?? '', 'client'),
+    queryFn: () => fetchJobTracking(jobId!, 'client'),
     enabled: Boolean(jobId),
   });
 }
