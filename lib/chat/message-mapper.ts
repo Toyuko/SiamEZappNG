@@ -1,20 +1,36 @@
 import type { IMessage } from 'react-native-gifted-chat';
 
+import {
+  isAttachmentPlaceholderContent,
+  looksLikeAttachmentFilename,
+  resolveAttachmentName,
+} from './attachment-meta';
 import { isPdfAttachment, isTrackingAttachmentImage } from '../uploads/tracking-image';
 import type { JobChatMessageDto } from '../../types/chat';
 
 export function toGiftedChatMessage(dto: JobChatMessageDto, currentUserId: string): IMessage {
-  const isImage =
-    dto.attachmentUrl != null && isTrackingAttachmentImage(dto.attachmentUrl, dto.attachmentName);
-  const isPdf =
-    dto.attachmentUrl != null && isPdfAttachment(dto.attachmentUrl, dto.attachmentName);
+  const attachmentUrl = dto.attachmentUrl?.trim() || null;
+  const attachmentName = resolveAttachmentName(attachmentUrl, dto.attachmentName, dto.text);
+
+  const isImage = attachmentUrl != null && isTrackingAttachmentImage(attachmentUrl, attachmentName);
+  const isPdf = attachmentUrl != null && isPdfAttachment(attachmentUrl, attachmentName);
 
   let text = dto.text?.trim() ?? '';
-  if (!text && dto.attachmentUrl) {
+  if (isAttachmentPlaceholderContent(text)) {
+    text = '';
+  }
+  if (isImage && attachmentName && text === attachmentName) {
+    text = '';
+  }
+  if (isImage && looksLikeAttachmentFilename(text)) {
+    text = '';
+  }
+
+  if (!text && attachmentUrl) {
     if (isPdf) {
-      text = dto.attachmentName?.trim() || 'PDF attachment';
+      text = attachmentName?.trim() || 'PDF attachment';
     } else if (!isImage) {
-      text = dto.attachmentName?.trim() || 'Attachment';
+      text = attachmentName?.trim() || 'Attachment';
     }
   }
 
@@ -26,7 +42,7 @@ export function toGiftedChatMessage(dto: JobChatMessageDto, currentUserId: strin
       _id: dto.senderId,
       name: dto.senderName ?? undefined,
     },
-    ...(isImage && dto.attachmentUrl ? { image: dto.attachmentUrl } : {}),
+    ...(isImage && attachmentUrl ? { image: attachmentUrl } : {}),
   };
 }
 

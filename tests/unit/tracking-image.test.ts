@@ -25,4 +25,5 @@ describe('React Native FormData file helpers', () => {
       type: 'image/jpeg',
     });
   });
+
 });

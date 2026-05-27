@@ -106,6 +106,7 @@ export async function fetchFreelancerJobTracking(jobId: string): Promise<Freelan
  * Backend route: POST /api/freelancer/jobs/[id]/tracking
  */
 export async function updateJobTracking(jobId: string, payload: UpdateTrackingPayload) {
+  console.log('Final PUT Payload:', payload);
   const response = await api.post<UpdateTrackingResponse | ApiEnvelope<UpdateTrackingResponse>>(
     `/api/freelancer/jobs/${encodeURIComponent(jobId)}/tracking`,
     payload,

@@ -1,5 +1,7 @@
+import { normalizeAttachmentUrl, resolveAttachmentName } from '../lib/chat/attachment-meta';
 import { api, type ApiEnvelope, unwrapApiData } from '../lib/api';
 import { appConfig } from '../lib/config';
+import { reactNativeFormDataFile } from '../lib/uploads/form-data-file';
 import type {
   JobChatHistoryResponse,
   JobChatMessageDto,
@@ -34,7 +36,10 @@ type WebSerializedMessage = {
   senderId: string;
   receiverId: string;
   content: string;
-  attachmentUrl: string | null;
+  attachmentUrl?: string | null;
+  attachment_url?: string | null;
+  attachmentName?: string | null;
+  attachment_name?: string | null;
   isRead: boolean;
   createdAt: string;
 };
@@ -55,14 +60,22 @@ function senderNameForMessage(message: WebSerializedMessage, participant: WebCha
 }
 
 export function mapWebMessage(message: WebSerializedMessage, participant: WebChatParticipant): JobChatMessageDto {
+  const content = message.content?.trim() ?? '';
+  const attachmentUrl = normalizeAttachmentUrl(message.attachmentUrl ?? message.attachment_url);
+  const attachmentName = resolveAttachmentName(
+    attachmentUrl,
+    message.attachmentName ?? message.attachment_name,
+    content,
+  );
+
   return {
     id: message.id,
     jobId: participant.jobId,
-    text: message.content,
+    text: content,
     senderId: message.senderId,
     senderName: senderNameForMessage(message, participant),
-    attachmentUrl: message.attachmentUrl,
-    attachmentName: null,
+    attachmentUrl,
+    attachmentName,
     createdAt: message.createdAt,
   };
 }
@@ -129,19 +142,17 @@ export async function postJobChatMessage(
   return { message: mapWebMessage(data.message, participant) } satisfies PostJobChatMessageResponse;
 }
 
-/** Multipart upload for chat images / PDFs (POST /api/chat/upload). */
+/** Multipart upload for chat images / PDFs (POST /api/upload — same bucket route as web). */
 export async function uploadChatAttachment(jobId: string, file: UploadChatAttachmentPayload) {
   const form = new FormData();
-  form.append('file', {
-    uri: file.uri,
-    name: file.name,
-    type: file.mimeType ?? 'application/octet-stream',
-  } as unknown as Blob);
+  const part = reactNativeFormDataFile(file.uri, file.name, file.mimeType);
+  form.append('file', part as any);
   form.append('jobId', jobId);
+  form.append('purpose', 'chat');
 
   const response = await api.post<
     UploadChatAttachmentResponse | ApiEnvelope<UploadChatAttachmentResponse>
-  >('/api/chat/upload', form);
+  >('/api/upload', form);
 
   const unwrapped = unwrapApiData<UploadChatAttachmentResponse>(response);
   if (unwrapped && typeof unwrapped === 'object' && 'url' in unwrapped) {

@@ -1,3 +1,4 @@
+import { normalizeAttachmentUrl, resolveAttachmentName } from './attachment-meta';
 import type { JobChatMessageDto } from '../../types/chat';
 
 export function pusherPayloadToDto(payload: unknown, jobId: string): JobChatMessageDto | null {
@@ -14,10 +15,24 @@ export function pusherPayloadToDto(payload: unknown, jobId: string): JobChatMess
     return null;
   }
 
+  const text = String(nested.content ?? nested.text ?? nested.body ?? '');
+  const attachmentUrl = normalizeAttachmentUrl(
+    nested.attachmentUrl ?? nested.attachment_url ?? nested.image,
+  );
+  const attachmentName = resolveAttachmentName(
+    attachmentUrl,
+    typeof nested.attachmentName === 'string'
+      ? nested.attachmentName
+      : typeof nested.attachment_name === 'string'
+        ? nested.attachment_name
+        : null,
+    text,
+  );
+
   return {
     id,
     jobId: String(nested.jobId ?? jobId),
-    text: String(nested.content ?? nested.text ?? nested.body ?? ''),
+    text,
     senderId,
     senderName:
       typeof nested.senderName === 'string'
@@ -25,13 +40,8 @@ export function pusherPayloadToDto(payload: unknown, jobId: string): JobChatMess
         : typeof nested.sender?.name === 'string'
           ? nested.sender.name
           : null,
-    attachmentUrl:
-      typeof nested.attachmentUrl === 'string'
-        ? nested.attachmentUrl
-        : typeof nested.image === 'string'
-          ? nested.image
-          : null,
-    attachmentName: typeof nested.attachmentName === 'string' ? nested.attachmentName : null,
+    attachmentUrl,
+    attachmentName,
     createdAt: String(nested.createdAt ?? new Date().toISOString()),
   };
 }

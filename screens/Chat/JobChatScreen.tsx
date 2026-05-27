@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import {
-  ActionSheetIOS,
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
   View,
 } from 'react-native';
-import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { Camera, Paperclip, Send as SendIcon } from 'lucide-react-native';
@@ -23,7 +22,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { getFreelancerJobById } from '../../features/freelancer/freelancer.api';
 import { toGiftedChatMessage, toGiftedChatMessages } from '../../lib/chat/message-mapper';
 import { t } from '../../lib/i18n/i18n';
-import { prepareTrackingImage, TRACKING_IMAGE_PICKER_OPTIONS } from '../../lib/uploads/tracking-image';
+import { prepareTrackingImage } from '../../lib/uploads/tracking-image';
 import { siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import {
@@ -35,17 +34,18 @@ import { useJobChatRealtime } from '../../hooks/use-job-chat-realtime';
 import { fetchClientJobTracking } from '../../services/trackingApi';
 import { useAuthStore } from '../../store/auth-store';
 import type { JobChatMeta, JobChatRealtimeConfig, WebChatParticipant } from '../../types/chat';
-import { CHAT_ATTACHMENT_MAX_BYTES } from '../../types/chat';
+
+/** Compressed gallery/camera picks for chat uploads (Step 1). */
+const CHAT_IMAGE_PICKER_OPTIONS = {
+  mediaTypes: ['images'] as ('images' | 'videos' | 'livePhotos')[],
+  quality: 0.5,
+  allowsEditing: false,
+  exif: false,
+} as const;
 
 type JobChatScreenProps = {
   jobId: string;
   role: 'client' | 'freelancer';
-};
-
-type PendingAttachment = {
-  uri: string;
-  name: string;
-  mimeType: string;
 };
 
 async function resolveChatMetaFallback(
@@ -94,7 +94,6 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [pendingAttachment, setPendingAttachment] = useState<PendingAttachment | null>(null);
   const seenMessageIds = useRef(new Set<string>());
   const isFocused = useIsFocused();
 
@@ -207,27 +206,20 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
     router.push(trackingPath);
   }, [router, trackingPath]);
 
-  const uploadPendingAttachment = useCallback(async () => {
-    if (!pendingAttachment) {
-      return null;
-    }
-    setUploading(true);
-    try {
-      const uploaded = await uploadChatAttachment(jobId, pendingAttachment);
-      return {
-        url: uploaded.url,
-        name: uploaded.name ?? pendingAttachment.name,
-      };
-    } finally {
-      setUploading(false);
-    }
-  }, [jobId, pendingAttachment]);
+  const giftedUser = useMemo(
+    () => ({
+      _id: currentUserId,
+      name: user?.name ?? user?.email,
+    }),
+    [currentUserId, user?.email, user?.name],
+  );
 
   const onSend = useCallback(
     async (outgoing: IMessage[] = []) => {
       const draft = outgoing[0];
       const text = draft?.text?.trim() ?? '';
-      if (!text && !pendingAttachment) {
+      const preUploadedImageUrl = typeof draft?.image === 'string' ? draft.image : null;
+      if (!text && !preUploadedImageUrl) {
         return;
       }
       if (sending || uploading) {
@@ -236,19 +228,6 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
 
       setSending(true);
       try {
-        let attachmentUrl: string | null = null;
-        let attachmentName: string | null = null;
-
-        if (pendingAttachment) {
-          const uploaded = await uploadPendingAttachment();
-          if (!uploaded?.url) {
-            throw new Error(t('chat.uploadFailed'));
-          }
-          attachmentUrl = uploaded.url;
-          attachmentName = uploaded.name;
-          setPendingAttachment(null);
-        }
-
         if (!webParticipant) {
           throw new Error(t('chat.loadError'));
         }
@@ -256,8 +235,8 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
         const { message } = await postJobChatMessage(
           jobId,
           {
-            content: text || (attachmentName ? `📎 ${attachmentName}` : ''),
-            attachmentUrl,
+            content: text,
+            attachmentUrl: preUploadedImageUrl,
           },
           webParticipant,
         );
@@ -265,111 +244,82 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
         const mapped = toGiftedChatMessage(message, currentUserId);
         appendUnique([mapped]);
       } catch (err) {
-        Alert.alert(t('chat.sendFailedTitle'), err instanceof Error ? err.message : t('chat.sendFailed'));
+        Alert.alert(
+          preUploadedImageUrl ? t('chat.uploadFailedTitle') : t('chat.sendFailedTitle'),
+          err instanceof Error ? err.message : preUploadedImageUrl ? t('chat.uploadFailed') : t('chat.sendFailed'),
+        );
       } finally {
         setSending(false);
       }
     },
-    [appendUnique, currentUserId, jobId, pendingAttachment, sending, uploadPendingAttachment, uploading, webParticipant],
+    [appendUnique, currentUserId, jobId, sending, uploading, webParticipant],
   );
 
-  const pickImage = useCallback(async (source: 'camera' | 'gallery') => {
-    const permission =
-      source === 'camera'
-        ? await ImagePicker.requestCameraPermissionsAsync()
-        : await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      Alert.alert(t('tracking.permissionRequired'), t('tracking.cameraAccessRequired'));
-      return;
-    }
-
-    const result =
-      source === 'camera'
-        ? await ImagePicker.launchCameraAsync(TRACKING_IMAGE_PICKER_OPTIONS)
-        : await ImagePicker.launchImageLibraryAsync(TRACKING_IMAGE_PICKER_OPTIONS);
-
-    if (result.canceled || !result.assets[0]?.uri) {
-      return;
-    }
-
-    const asset = result.assets[0];
-    const name = asset.fileName ?? (source === 'camera' ? 'chat-photo.jpg' : 'chat-image.jpg');
-    const mimeType = asset.mimeType ?? 'image/jpeg';
-
-    try {
-      await prepareTrackingImage(asset.uri, name, mimeType);
-      setPendingAttachment({ uri: asset.uri, name, mimeType });
-    } catch (err) {
-      Alert.alert(t('chat.uploadFailedTitle'), err instanceof Error ? err.message : t('chat.uploadFailed'));
-    }
-  }, []);
-
-  const pickDocument = useCallback(async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ['image/*', 'application/pdf'],
-      copyToCacheDirectory: true,
-    });
-
-    if (result.canceled || !result.assets?.[0]?.uri) {
-      return;
-    }
-
-    const asset = result.assets[0];
-    const size = asset.size ?? 0;
-    if (size > CHAT_ATTACHMENT_MAX_BYTES) {
-      Alert.alert(t('chat.uploadFailedTitle'), t('tracking.attachmentTypes'));
-      return;
-    }
-
-    setPendingAttachment({
-      uri: asset.uri,
-      name: asset.name ?? 'attachment.pdf',
-      mimeType: asset.mimeType ?? 'application/octet-stream',
-    });
-  }, []);
-
-  const showAttachmentMenu = useCallback(() => {
-    const options = [
-      t('tracking.takePhoto'),
-      t('tracking.uploadGallery'),
-      t('tracking.browseFiles'),
-      t('common.back'),
-    ];
-    const cancelIndex = 3;
-
-    const onSelect = (index: number) => {
-      if (index === 0) {
-        void pickImage('camera');
-      } else if (index === 1) {
-        void pickImage('gallery');
-      } else if (index === 2) {
-        void pickDocument();
+  const pickImageAndSend = useCallback(
+    async (source: 'camera' | 'gallery') => {
+      if (sending || uploading) {
+        return;
       }
-    };
 
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        { options, cancelButtonIndex: cancelIndex, title: t('chat.attachTitle') },
-        onSelect,
-      );
-      return;
-    }
+      const permission =
+        source === 'camera'
+          ? await ImagePicker.requestCameraPermissionsAsync()
+          : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    Alert.alert(t('chat.attachTitle'), undefined, [
-      { text: options[0], onPress: () => void pickImage('camera') },
-      { text: options[1], onPress: () => void pickImage('gallery') },
-      { text: options[2], onPress: () => void pickDocument() },
-      { text: options[3], style: 'cancel' },
-    ]);
-  }, [pickDocument, pickImage]);
+      if (!permission.granted) {
+        Alert.alert(t('tracking.permissionRequired'), t('tracking.cameraAccessRequired'));
+        return;
+      }
 
-  const giftedUser = useMemo(
-    () => ({
-      _id: currentUserId,
-      name: user?.name ?? user?.email,
-    }),
-    [currentUserId, user?.email, user?.name],
+      const result =
+        source === 'camera'
+          ? await ImagePicker.launchCameraAsync(CHAT_IMAGE_PICKER_OPTIONS)
+          : await ImagePicker.launchImageLibraryAsync(CHAT_IMAGE_PICKER_OPTIONS);
+
+      if (result.canceled || !result.assets[0]?.uri) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      const imageUri = asset.uri;
+      const filename = asset.fileName ?? (source === 'camera' ? 'chat-photo.jpg' : 'chat-image.jpg');
+      const fileType = asset.mimeType ?? 'image/jpeg';
+
+      setUploading(true);
+      let uploadedUrl: string | null = null;
+      try {
+        await prepareTrackingImage(imageUri, filename, fileType);
+        const uploaded = await uploadChatAttachment(jobId, {
+          uri: imageUri,
+          name: filename,
+          mimeType: fileType,
+        });
+        if (!uploaded?.url) {
+          throw new Error(t('chat.uploadFailed'));
+        }
+        uploadedUrl = uploaded.url;
+      } catch (err) {
+        Alert.alert(t('chat.uploadFailedTitle'), err instanceof Error ? err.message : t('chat.uploadFailed'));
+        return;
+      } finally {
+        setUploading(false);
+      }
+
+      if (!uploadedUrl) {
+        return;
+      }
+
+      await onSend([
+        {
+          _id: `local-${Date.now()}`,
+          text: '',
+          image: uploadedUrl,
+          createdAt: new Date(),
+          user: giftedUser,
+        },
+      ]);
+    },
+    [giftedUser, jobId, onSend, sending, uploading],
   );
 
   const headerTitle = meta?.counterpart?.name?.trim() || t('common.unknownUser');
@@ -426,19 +376,6 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
             </Pressable>
           }
         />
-        {pendingAttachment ? (
-          <View
-            className="mt-2 flex-row items-center justify-between rounded-xl px-3 py-2"
-            style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}
-          >
-            <Text className="flex-1 text-sm" style={{ color: colors.foreground }} numberOfLines={1}>
-              {t('chat.pendingAttachment', { name: pendingAttachment.name })}
-            </Text>
-            <Pressable onPress={() => setPendingAttachment(null)} hitSlop={8}>
-              <Text style={{ color: colors.primary, fontWeight: '600' }}>{t('chat.removeAttachment')}</Text>
-            </Pressable>
-          </View>
-        ) : null}
         <View className="mt-2 flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             <View
@@ -481,7 +418,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
           renderActions={() => (
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 4, gap: 2 }}>
               <Pressable
-                onPress={showAttachmentMenu}
+                onPress={() => void pickImageAndSend('gallery')}
                 disabled={sending || uploading}
                 accessibilityRole="button"
                 accessibilityLabel={t('chat.attachTitle')}
@@ -490,7 +427,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
                 <Paperclip size={22} color={colors.primary} strokeWidth={2} />
               </Pressable>
               <Pressable
-                onPress={() => void pickImage('camera')}
+                onPress={() => void pickImageAndSend('camera')}
                 disabled={sending || uploading}
                 accessibilityRole="button"
                 accessibilityLabel={t('tracking.takePhoto')}
@@ -501,7 +438,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
             </View>
           )}
           renderSend={(props) => {
-            const canSend = Boolean(props.text?.trim()) || Boolean(pendingAttachment);
+            const canSend = Boolean(props.text?.trim());
             const disabled = !canSend || sending || uploading;
 
             return (
@@ -534,8 +471,14 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
                   elevation: disabled ? 0 : 3,
                 }}
               >
-                <SendIcon size={18} color="#ffffff" strokeWidth={2.5} />
-                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 15 }}>{t('chat.send')}</Text>
+                {uploading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <SendIcon size={18} color="#ffffff" strokeWidth={2.5} />
+                )}
+                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 15 }}>
+                  {uploading ? t('chat.uploading') : sending ? t('chat.sending') : t('chat.send')}
+                </Text>
               </Pressable>
             );
           }}
@@ -552,7 +495,20 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
               }}
             />
           )}
-          imageStyle={{ width: 200, height: 140, borderRadius: 12, margin: 4 }}
+          renderMessageImage={(props) => {
+            const uri = props.currentMessage?.image;
+            if (!uri) {
+              return null;
+            }
+            return (
+              <Image
+                source={{ uri }}
+                style={{ width: 200, height: 140, borderRadius: 12, margin: 4 }}
+                resizeMode="cover"
+                accessibilityLabel={t('tracking.viewAttachment')}
+              />
+            );
+          }}
           textInputProps={{
             style: { color: colors.foreground, fontSize: 16, lineHeight: 22 },
             placeholderTextColor: colors.muted,

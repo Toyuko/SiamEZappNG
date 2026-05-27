@@ -39,7 +39,14 @@ export const TRACKING_IMAGE_PICKER_OPTIONS = {
 
 export function isTrackingAttachmentImage(url: string, name?: string | null): boolean {
   const target = `${url} ${name ?? ''}`.toLowerCase();
-  return /\.(jpe?g|png|webp|gif)(\?|$)/i.test(target) || target.includes('image/');
+  if (/\.(jpe?g|png|webp|gif)(\?|#|$)/i.test(target) || target.includes('image/')) {
+    return true;
+  }
+  // Chat uploads live under job-chat/ and are images or PDF only.
+  if (target.includes('/job-chat/') && !isPdfAttachment(url, name)) {
+    return true;
+  }
+  return false;
 }
 
 export function isPdfAttachment(url: string, name?: string | null): boolean {
