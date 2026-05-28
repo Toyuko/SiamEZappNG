@@ -9,6 +9,7 @@ import { enableScreens } from 'react-native-screens';
 import { AppProviders } from '../components/providers/app-providers';
 import { LoadingState } from '../components/ui/loading-state';
 import { useAuth } from '../hooks/use-auth';
+import { useAutoUpdate } from '../hooks/useAutoUpdate';
 import { t } from '../lib/i18n/i18n';
 import { useAuthStore } from '../store/auth-store';
 
@@ -26,10 +27,15 @@ function RootNavigator() {
     ...MaterialCommunityIcons.font,
   });
   const isE2E = process.env.EXPO_PUBLIC_E2E === 'true';
+  const { checkForUpdate } = useAutoUpdate();
 
   useEffect(() => {
     void bootstrapSession();
   }, [bootstrapSession]);
+
+  useEffect(() => {
+    void checkForUpdate();
+  }, [checkForUpdate]);
 
   useEffect(() => {
     if (fontError && __DEV__) {

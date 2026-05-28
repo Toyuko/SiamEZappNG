@@ -3,6 +3,14 @@
     "name": "SiamEZ",
     "slug": "SiamEZappNG",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "NEVER",
+      "fallbackToCacheTimeout": 0
+    },
     "scheme": "siamez",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
