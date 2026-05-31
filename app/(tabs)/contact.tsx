@@ -4,6 +4,7 @@ import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
+import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -100,7 +101,7 @@ export default function ContactScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 + VOICE_FAB_SCROLL_EXTRA }}>
         <PageHeader title={t('contact.title')} subtitle={t('contact.subtitle')} />
 
         <Card>

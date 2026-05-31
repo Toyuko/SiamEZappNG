@@ -10,6 +10,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigger';
 import { serviceCatalog, type ServiceItem } from '../../features/services/services.data';
 import { t } from '../../lib/i18n/i18n';
+import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
@@ -138,7 +139,7 @@ export default function ServicesScreen() {
         contentContainerStyle={{
           paddingHorizontal: spacing.screenPaddingX,
           paddingTop: spacing.stackMd,
-          paddingBottom: 40,
+          paddingBottom: 40 + VOICE_FAB_SCROLL_EXTRA,
           flexGrow: 1,
         }}
         ItemSeparatorComponent={() => <View style={{ height: spacing.stackLg }} />}

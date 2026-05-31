@@ -7,6 +7,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { enableScreens } from 'react-native-screens';
 
 import { AppProviders } from '../components/providers/app-providers';
+import { VoiceFirstProvider } from '../components/voice/VoiceFirstProvider';
 import { LoadingState } from '../components/ui/loading-state';
 import { useAuth } from '../hooks/use-auth';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
@@ -94,7 +95,9 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AppProviders>
-      <RootNavigator />
+      <VoiceFirstProvider>
+        <RootNavigator />
+      </VoiceFirstProvider>
     </AppProviders>
   );
 }

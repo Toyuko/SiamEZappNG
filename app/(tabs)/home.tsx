@@ -9,6 +9,7 @@ import { Card } from '../../components/ui/Card';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigger';
+import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { TestimonialCard } from '../../components/ui/TestimonialCard';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { serviceCatalog } from '../../features/services/services.data';
@@ -134,7 +135,7 @@ export default function HomeScreen() {
           paddingHorizontal: spacing.screenPaddingX,
           paddingTop: spacing.stackMd,
           gap: spacing.sectionGapLg,
-          paddingBottom: 40,
+          paddingBottom: 40 + VOICE_FAB_SCROLL_EXTRA,
         }}
       >
         <PageHeader

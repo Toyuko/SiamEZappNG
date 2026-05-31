@@ -45,7 +45,6 @@ export function ServiceSearchTrigger({
       <Text className="ml-2.5 flex-1 text-base" style={{ color: colors.muted }} numberOfLines={1}>
         {placeholder ?? t('search.placeholder')}
       </Text>
-      <Ionicons name="mic-outline" size={20} color={colors.primary} />
     </Pressable>
   );
 
