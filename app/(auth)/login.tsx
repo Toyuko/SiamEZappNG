@@ -13,6 +13,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,6 +45,10 @@ const CARD_SHADOW = {
   elevation: 5,
 } as const;
 
+const AUTH_BUTTON_HEIGHT = 52;
+const AUTH_BUTTON_RADIUS = radius.button;
+const AUTH_BUTTON_GAP = 12;
+
 type AuthFieldProps = {
   placeholder: string;
   value: string;
@@ -53,6 +58,7 @@ type AuthFieldProps = {
   autoComplete?: 'email' | 'password';
   textContentType?: 'emailAddress' | 'password';
   rightElement?: ReactNode;
+  noBottomSpacing?: boolean;
 };
 
 function AuthField({
@@ -64,9 +70,10 @@ function AuthField({
   autoComplete,
   textContentType,
   rightElement,
+  noBottomSpacing,
 }: AuthFieldProps) {
   return (
-    <View style={styles.fieldShell}>
+    <View style={[styles.fieldShell, noBottomSpacing ? styles.fieldShellTight : null]}>
       <TextInput
         style={[styles.fieldInput, rightElement ? styles.fieldInputWithIcon : null]}
         placeholder={placeholder}
@@ -93,22 +100,29 @@ type StackedButtonProps = {
 
 function StackedAuthButton({ label, onPress, variant }: StackedButtonProps) {
   const palette = {
-    guest: { bg: 'transparent', border: BRAND_BLUE, text: BRAND_BLUE, icon: null as string | null },
-    google: { bg: GOOGLE_RED, border: GOOGLE_RED, text: '#ffffff', icon: 'G' },
-    facebook: { bg: FACEBOOK_BLUE, border: FACEBOOK_BLUE, text: '#ffffff', icon: 'f' },
-    line: { bg: LINE_GREEN, border: LINE_GREEN, text: '#ffffff', icon: 'LINE' },
+    guest: {
+      bg: 'transparent',
+      border: BRAND_BLUE,
+      text: BRAND_BLUE,
+      icon: null as string | null,
+      borderWidth: 1,
+    },
+    google: { bg: GOOGLE_RED, border: GOOGLE_RED, text: '#ffffff', icon: 'G', borderWidth: 0 },
+    facebook: { bg: FACEBOOK_BLUE, border: FACEBOOK_BLUE, text: '#ffffff', icon: 'f', borderWidth: 0 },
+    line: { bg: LINE_GREEN, border: LINE_GREEN, text: '#ffffff', icon: 'LINE', borderWidth: 0 },
   }[variant];
 
   return (
-    <Pressable
+    <TouchableOpacity
       accessibilityRole="button"
+      activeOpacity={0.9}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.stackedButton,
+      style={[
+        styles.authButton,
         {
           backgroundColor: palette.bg,
           borderColor: palette.border,
-          opacity: pressed ? 0.9 : 1,
+          borderWidth: palette.borderWidth,
         },
       ]}
     >
@@ -122,7 +136,7 @@ function StackedAuthButton({ label, onPress, variant }: StackedButtonProps) {
         </View>
       ) : null}
       <Text style={[styles.stackedLabel, { color: palette.text }]}>{label}</Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -213,6 +227,7 @@ export default function LoginScreen() {
                   secureTextEntry={!showPassword}
                   autoComplete="password"
                   textContentType="password"
+                  noBottomSpacing
                   rightElement={
                     <Pressable
                       accessibilityRole="button"
@@ -230,22 +245,19 @@ export default function LoginScreen() {
                   }
                 />
 
-                <Pressable
+                <TouchableOpacity
                   accessibilityRole="button"
+                  activeOpacity={0.9}
                   disabled={loginMutation.isPending}
                   onPress={handleLogin}
-                  style={({ pressed }) => [
-                    styles.signInButton,
-                    loginMutation.isPending && styles.signInDisabled,
-                    pressed && !loginMutation.isPending ? styles.signInPressed : null,
-                  ]}
+                  style={[styles.signInButton, loginMutation.isPending && styles.signInDisabled]}
                 >
                   {loginMutation.isPending ? (
                     <ActivityIndicator color="#ffffff" />
                   ) : (
                     <Text style={styles.signInLabel}>{t('auth.signIn')}</Text>
                   )}
-                </Pressable>
+                </TouchableOpacity>
 
                 <Text style={styles.signUpPrompt}>
                   {t('auth.noAccountPrompt')}{' '}
@@ -365,11 +377,25 @@ const styles = StyleSheet.create({
     marginBottom: spacing.stackSm,
   },
   form: {
-    gap: 12,
+    width: '100%',
+  },
+  authButton: {
+    width: '100%',
+    height: AUTH_BUTTON_HEIGHT,
+    borderRadius: AUTH_BUTTON_RADIUS,
+    marginBottom: AUTH_BUTTON_GAP,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   fieldShell: {
     position: 'relative',
     justifyContent: 'center',
+    marginBottom: AUTH_BUTTON_GAP,
+  },
+  fieldShellTight: {
+    marginBottom: 0,
   },
   fieldInput: {
     minHeight: 52,
@@ -392,40 +418,41 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   signInButton: {
-    minHeight: 52,
-    borderRadius: radius.button,
+    width: '100%',
+    height: AUTH_BUTTON_HEIGHT,
+    borderRadius: AUTH_BUTTON_RADIUS,
     backgroundColor: BRAND_BLUE,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 4,
+    alignSelf: 'stretch',
+    marginTop: 20,
+    marginBottom: AUTH_BUTTON_GAP,
   },
   signInDisabled: {
     opacity: 0.65,
   },
-  signInPressed: {
-    opacity: 0.92,
-  },
   signInLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#ffffff',
+    textAlign: 'center',
   },
   signUpPrompt: {
     textAlign: 'center',
     fontSize: 14,
     color: TEXT_MUTED,
     lineHeight: 20,
+    marginBottom: AUTH_BUTTON_GAP,
   },
   signUpLink: {
     color: BRAND_BLUE,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginTop: 4,
-    marginBottom: 4,
+    marginBottom: AUTH_BUTTON_GAP,
   },
   dividerLine: {
     flex: 1,
@@ -438,21 +465,13 @@ const styles = StyleSheet.create({
     color: TEXT_MUTED,
   },
   stackedGroup: {
-    gap: 10,
-  },
-  stackedButton: {
-    minHeight: 52,
-    borderRadius: radius.button,
-    borderWidth: 1.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    width: '100%',
   },
   stackedIconSlot: {
     position: 'absolute',
     left: 16,
     minWidth: 32,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
   stackedLabel: {

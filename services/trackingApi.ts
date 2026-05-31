@@ -10,6 +10,8 @@ import type {
   JobLocationPayload,
   JobStatus,
   JobTrackingPayload,
+  SubmitJobReviewPayload,
+  SubmitJobReviewResponse,
   TrackingStatus,
   UpdateTrackingPayload,
   UpdateTrackingResponse,
@@ -151,4 +153,13 @@ export async function approveClientJob(jobId: string) {
     `/api/client/jobs/${encodeURIComponent(jobId)}/approve`,
   );
   return unwrapApiData<ApproveJobResponse>(response);
+}
+
+/** Client rating & review after service completion (POST /api/jobs/[id]/review). */
+export async function submitJobReview(jobId: string, payload: SubmitJobReviewPayload) {
+  const response = await api.post<SubmitJobReviewResponse | ApiEnvelope<SubmitJobReviewResponse>>(
+    `/api/jobs/${encodeURIComponent(jobId)}/review`,
+    payload,
+  );
+  return unwrapApiData<SubmitJobReviewResponse>(response);
 }

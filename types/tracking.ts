@@ -211,4 +211,13 @@ export type ApproveJobResponse = {
   approvedAt: string;
 };
 
+export type SubmitJobReviewPayload = {
+  rating: number;
+  comment: string;
+};
+
+export type SubmitJobReviewResponse = {
+  ok: boolean;
+};
+
 export const TRACKING_ATTACHMENT_MAX_BYTES = 5 * 1024 * 1024;

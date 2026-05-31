@@ -528,7 +528,22 @@
     "noOpenJobs": "No open jobs right now. Check back soon.",
     "acceptJob": "Accept job",
     "acceptErrorTitle": "Could not accept job",
-    "acceptErrorMessage": "This job may no longer be available.",
+    "acceptErrorMessage": "Sorry, another freelancer just claimed this job!",
+    "jobPreview": {
+      "title": "Job preview",
+      "category": "Category",
+      "categoryFallback": "General",
+      "budget": "Budget",
+      "location": "Location",
+      "locationNotSpecified": "Not specified",
+      "clientNotes": "Client notes",
+      "noClientNotes": "No additional notes from the client.",
+      "acceptThisJob": "Accept this job",
+      "accepting": "Accepting job",
+      "cancel": "Cancel",
+      "close": "Close job preview",
+      "tapToPreview": "Tap to preview details"
+    },
     "revenueTracker": "Revenue Tracker",
     "totalEarned": "Total Earned",
     "pendingClearance": "Pending Clearance",
@@ -633,7 +648,25 @@
     "openChat": "Message",
     "liveLabel": "Live",
     "liveConnected": "Connected to live updates",
-    "newMessageToast": "New message from %{name}"
+    "newMessageToast": "New message from %{name}",
+    "leaveReview": "Leave a Review"
+  },
+  "review": {
+    "sheetTitle": "Rate your experience",
+    "sheetSubtitle": "How was your service? Your feedback helps other clients and our coordinators.",
+    "sheetSubtitleNamed": "How was your experience with %{name}?",
+    "ratingLabel": "Your rating",
+    "starAccessibility": "%{count} stars",
+    "commentLabel": "Comments (optional)",
+    "commentPlaceholder": "Share what went well or what we could improve…",
+    "submitReview": "Submit Review",
+    "submitting": "Submitting…",
+    "ratingRequiredTitle": "Rating required",
+    "ratingRequiredMessage": "Please select at least one star before submitting.",
+    "thankYouTitle": "Thank you!",
+    "thankYouMessage": "Thank you for your feedback!",
+    "submitFailedTitle": "Could not submit review",
+    "submitFailed": "We could not save your review. Please try again."
   },
   "notifications": {
     "channelName": "SiamEZ alerts"

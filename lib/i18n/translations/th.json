@@ -528,7 +528,22 @@
     "noOpenJobs": "ยังไม่มีงานเปิดรับ กรุณาตรวจสอบอีกครั้ง",
     "acceptJob": "รับงาน",
     "acceptErrorTitle": "รับงานไม่สำเร็จ",
-    "acceptErrorMessage": "งานนี้อาจไม่พร้อมรับแล้ว",
+    "acceptErrorMessage": "ขออภัย มีฟรีแลนซ์คนอื่นรับงานนี้ไปแล้ว!",
+    "jobPreview": {
+      "title": "ดูรายละเอียดงาน",
+      "category": "หมวดหมู่",
+      "categoryFallback": "ทั่วไป",
+      "budget": "งบประมาณ",
+      "location": "สถานที่",
+      "locationNotSpecified": "ไม่ระบุ",
+      "clientNotes": "หมายเหตุจากลูกค้า",
+      "noClientNotes": "ไม่มีหมายเหตุเพิ่มเติมจากลูกค้า",
+      "acceptThisJob": "รับงานนี้",
+      "accepting": "กำลังรับงาน",
+      "cancel": "ยกเลิก",
+      "close": "ปิดหน้าต่างดูงาน",
+      "tapToPreview": "แตะเพื่อดูรายละเอียด"
+    },
     "revenueTracker": "ติดตามรายได้",
     "totalEarned": "รายได้รวม",
     "pendingClearance": "รอเคลียร์",
@@ -633,7 +648,25 @@
     "openChat": "ข้อความ",
     "liveLabel": "สด",
     "liveConnected": "เชื่อมต่ออัปเดตแบบเรียลไทม์แล้ว",
-    "newMessageToast": "ข้อความใหม่จาก %{name}"
+    "newMessageToast": "ข้อความใหม่จาก %{name}",
+    "leaveReview": "ให้คะแนนและรีวิว"
+  },
+  "review": {
+    "sheetTitle": "ให้คะแนนประสบการณ์ของคุณ",
+    "sheetSubtitle": "บริการเป็นอย่างไร? ความคิดเห็นของคุณช่วยลูกค้าคนอื่นและทีมงานของเรา",
+    "sheetSubtitleNamed": "ประสบการณ์กับ %{name} เป็นอย่างไร?",
+    "ratingLabel": "คะแนนของคุณ",
+    "starAccessibility": "%{count} ดาว",
+    "commentLabel": "ความคิดเห็น (ไม่บังคับ)",
+    "commentPlaceholder": "บอกสิ่งที่ดีหรือสิ่งที่เราควรปรับปรุง…",
+    "submitReview": "ส่งรีวิว",
+    "submitting": "กำลังส่ง…",
+    "ratingRequiredTitle": "กรุณาให้คะแนน",
+    "ratingRequiredMessage": "กรุณาเลือกอย่างน้อย 1 ดาวก่อนส่ง",
+    "thankYouTitle": "ขอบคุณ!",
+    "thankYouMessage": "ขอบคุณสำหรับความคิดเห็นของคุณ!",
+    "submitFailedTitle": "ส่งรีวิวไม่สำเร็จ",
+    "submitFailed": "ไม่สามารถบันทึกรีวิวได้ กรุณาลองอีกครั้ง"
   },
   "notifications": {
     "channelName": "การแจ้งเตือน SiamEZ"

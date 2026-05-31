@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
+import { ReviewBottomSheet } from '../../components/ReviewBottomSheet';
+import { Button } from '../../components/ui/Button';
 import { ClientApprovalBanner } from '../../components/tracking/ClientApprovalBanner';
 import { LiveIndicator } from '../../components/tracking/LiveIndicator';
 import { TrackingMessageToastBanner } from '../../components/tracking/TrackingMessageToast';
@@ -16,6 +19,8 @@ import { useClientJobTracking } from '../../hooks/use-client-job-tracking';
 import { useJobTrackingRealtime } from '../../hooks/use-job-tracking-realtime';
 import { t } from '../../lib/i18n/i18n';
 import { isAwaitingReviewStatus } from '../../lib/jobs/auto-approve';
+import { isReviewEligible } from '../../lib/jobs/review-eligibility';
+import { reviewDismissedKey, reviewSubmittedKey } from '../../lib/jobs/review-storage';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { approveClientJob } from '../../services/trackingApi';
@@ -45,12 +50,54 @@ export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
   });
   const [confirming, setConfirming] = useState(false);
   const [approveError, setApproveError] = useState<string | null>(null);
+  const [reviewSheetVisible, setReviewSheetVisible] = useState(false);
+  const [reviewDismissed, setReviewDismissed] = useState(false);
+  const [hasSubmittedReview, setHasSubmittedReview] = useState(false);
+  const [reviewPrefsLoaded, setReviewPrefsLoaded] = useState(false);
+  const wasReviewEligibleRef = useRef(false);
 
   useEffect(() => {
     if (isGuest || !accessToken) {
       router.replace('/(auth)/login');
     }
   }, [accessToken, isGuest, router]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const [submitted, dismissed] = await Promise.all([
+        AsyncStorage.getItem(reviewSubmittedKey(jobId)),
+        AsyncStorage.getItem(reviewDismissedKey(jobId)),
+      ]);
+      if (cancelled) {
+        return;
+      }
+      if (submitted === '1') {
+        setHasSubmittedReview(true);
+      }
+      if (dismissed === '1') {
+        setReviewDismissed(true);
+      }
+      setReviewPrefsLoaded(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [jobId]);
+
+  const reviewEligible = data
+    ? isReviewEligible(data.job.status, data.job.trackingStatus)
+    : false;
+
+  useEffect(() => {
+    if (!data || !reviewPrefsLoaded || hasSubmittedReview) {
+      return;
+    }
+    if (reviewEligible && !wasReviewEligibleRef.current && !reviewDismissed) {
+      setReviewSheetVisible(true);
+    }
+    wasReviewEligibleRef.current = reviewEligible;
+  }, [data, reviewEligible, reviewDismissed, hasSubmittedReview, reviewPrefsLoaded]);
 
   const onRefresh = useCallback(() => {
     void refetch();
@@ -68,6 +115,22 @@ export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
       setConfirming(false);
     }
   }
+
+  const handleReviewClose = useCallback(() => {
+    setReviewSheetVisible(false);
+    if (!hasSubmittedReview) {
+      setReviewDismissed(true);
+      void AsyncStorage.setItem(reviewDismissedKey(jobId), '1');
+    }
+  }, [hasSubmittedReview, jobId]);
+
+  const handleReviewSubmitted = useCallback(() => {
+    setHasSubmittedReview(true);
+    setReviewSheetVisible(false);
+    void AsyncStorage.setItem(reviewSubmittedKey(jobId), '1');
+  }, [jobId]);
+
+  const showLeaveReviewCta = reviewEligible && reviewDismissed && !hasSubmittedReview;
 
   if (isLoading) {
     return <LoadingState label={t('tracking.clientLoading')} />;
@@ -204,15 +267,39 @@ export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
               trackingHistory={trackingHistory}
               emptyMessage={t('tracking.noHistoryYet')}
             />
+            {showLeaveReviewCta ? (
+              <View style={{ marginTop: spacing.stackLg, paddingTop: spacing.stackMd }}>
+                <Button
+                  label={t('tracking.leaveReview')}
+                  onPress={() => setReviewSheetVisible(true)}
+                />
+              </View>
+            ) : null}
           </Card>
         ) : (
           <Card>
             <Text className="text-sm leading-5" style={{ color: colors.muted }}>
               {t('tracking.notTrackable')}
             </Text>
+            {showLeaveReviewCta ? (
+              <View style={{ marginTop: spacing.stackLg, paddingTop: spacing.stackMd }}>
+                <Button
+                  label={t('tracking.leaveReview')}
+                  onPress={() => setReviewSheetVisible(true)}
+                />
+              </View>
+            ) : null}
           </Card>
         )}
       </ScrollView>
+
+      <ReviewBottomSheet
+        visible={reviewSheetVisible}
+        jobId={jobId}
+        freelancerName={job.freelancer?.displayName}
+        onClose={handleReviewClose}
+        onSubmitted={handleReviewSubmitted}
+      />
     </SafeAreaView>
   );
 }

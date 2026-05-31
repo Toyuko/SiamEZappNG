@@ -1,4 +1,4 @@
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -11,7 +11,6 @@ import { Badge } from '../../components/ui/Badge';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { useAcceptFreelancerJob } from '../../hooks/use-accept-freelancer-job';
 import { useFreelancerDashboard } from '../../hooks/use-freelancer-dashboard';
 import { useMarkJobComplete } from '../../hooks/use-mark-job-complete';
 import type { FreelancerVerificationStatus } from '../../features/freelancer/freelancer.types';
@@ -36,9 +35,7 @@ export default function FreelancerScreen() {
   const { colors } = useTheme();
   const { userRole, accessToken, isGuest } = useAuthStore();
   const dashboardQuery = useFreelancerDashboard();
-  const acceptMutation = useAcceptFreelancerJob();
   const completeMutation = useMarkJobComplete();
-  const [acceptingJobId, setAcceptingJobId] = useState<string | null>(null);
   const [completingJobId, setCompletingJobId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,21 +48,6 @@ export default function FreelancerScreen() {
       router.replace('/(tabs)/dashboard');
     }
   }, [accessToken, isGuest, router, userRole]);
-
-  const handleAcceptJob = async (jobId: string) => {
-    setAcceptingJobId(jobId);
-    try {
-      await acceptMutation.mutateAsync(jobId);
-    } catch (error) {
-      Alert.alert(
-        t('freelancer.acceptErrorTitle'),
-        error instanceof Error ? error.message : t('freelancer.acceptErrorMessage'),
-      );
-      throw error;
-    } finally {
-      setAcceptingJobId(null);
-    }
-  };
 
   const handleMarkDone = async (jobId: string) => {
     setCompletingJobId(jobId);
@@ -118,11 +100,7 @@ export default function FreelancerScreen() {
 
         <SubscriptionCard />
 
-        <JobBoardScreen
-          nestedInScrollView
-          acceptingJobId={acceptingJobId}
-          onAcceptJob={handleAcceptJob}
-        />
+        <JobBoardScreen nestedInScrollView />
 
         <ActiveJobsTrack
           jobs={data?.activeJobs ?? []}

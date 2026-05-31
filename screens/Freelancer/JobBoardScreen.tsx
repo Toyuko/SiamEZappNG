@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   LayoutAnimation,
   Platform,
@@ -10,12 +11,14 @@ import {
   View,
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { Briefcase, Building2, Sparkles, X } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Briefcase, Building2, ChevronRight, Sparkles, X } from 'lucide-react-native';
 
-import { Button } from '../../components/ui/Button';
+import { JobPreviewModal } from '../../components/JobPreviewModal';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/empty-state';
 import { getOpenJobs } from '../../features/jobs/jobs.api';
+import { useAcceptFreelancerJob } from '../../hooks/use-accept-freelancer-job';
 import { feedPayoutAmount } from '../../lib/jobs/job-board-mapper';
 import { t } from '../../lib/i18n/i18n';
 import { formatJobAmount } from '../../lib/jobs/format-amount';
@@ -37,8 +40,6 @@ type JobToast = {
 };
 
 type JobBoardScreenProps = {
-  acceptingJobId?: string | null;
-  onAcceptJob?: (jobId: string) => void | Promise<void>;
   /** Disable FlatList scrolling when nested inside a parent ScrollView. */
   nestedInScrollView?: boolean;
   isSpecialMember?: boolean;
@@ -85,120 +86,118 @@ function JobBoardToast({ toast, onDismiss }: { toast: JobToast; onDismiss: () =>
 function JobBoardCard({
   job,
   highlighted,
-  acceptingJobId,
-  onAcceptJob,
+  onPress,
 }: {
   job: JobBoardFeedItem;
   highlighted: boolean;
-  acceptingJobId?: string | null;
-  onAcceptJob?: (jobId: string) => void | Promise<void>;
+  onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
 
-  const handleAccept = () => {
-    if (!onAcceptJob) return;
-    void onAcceptJob(job.id);
-  };
-
   return (
-    <View
-      style={{
-        borderRadius: 12,
-        borderWidth: highlighted ? 2 : 1,
-        borderColor: highlighted
-          ? isDark
-            ? siam.blue.bright
-            : siam.blue.DEFAULT
-          : colors.border,
-        backgroundColor: highlighted
-          ? isDark
-            ? 'rgba(91, 118, 224, 0.2)'
-            : 'rgba(44, 84, 198, 0.12)'
-          : colors.background,
-        padding: spacing.cardPaddingCompact,
-        gap: spacing.stackSm,
-      }}
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${job.title}. ${t('freelancer.jobPreview.tapToPreview')}`}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.92 : 1,
+      })}
     >
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-        <Text className="font-semibold" style={{ color: colors.foreground, flex: 1 }}>
-          {job.title}
-        </Text>
-        {job.isSpecialMemberOnly ? (
-          <View
+      <View
+        style={{
+          borderRadius: 12,
+          borderWidth: highlighted ? 2 : 1,
+          borderColor: highlighted
+            ? isDark
+              ? siam.blue.bright
+              : siam.blue.DEFAULT
+            : colors.border,
+          backgroundColor: highlighted
+            ? isDark
+              ? 'rgba(91, 118, 224, 0.2)'
+              : 'rgba(44, 84, 198, 0.12)'
+            : colors.background,
+          padding: spacing.cardPaddingCompact,
+          gap: spacing.stackSm,
+        }}
+      >
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+          <Text className="font-semibold" style={{ color: colors.foreground, flex: 1 }}>
+            {job.title}
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {job.isSpecialMemberOnly ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                  borderRadius: 999,
+                  backgroundColor: isDark ? 'rgba(245, 158, 11, 0.25)' : '#FEF3C7',
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                }}
+              >
+                <Sparkles size={12} color={isDark ? '#FCD34D' : '#B45309'} strokeWidth={2} />
+                <Text style={{ fontSize: 11, fontWeight: '600', color: isDark ? '#FCD34D' : '#92400E' }}>
+                  {t('freelancer.specialMemberOnly')}
+                </Text>
+              </View>
+            ) : null}
+            <ChevronRight size={18} color={colors.muted} strokeWidth={2} />
+          </View>
+        </View>
+
+        {job.category ? (
+          <Text
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 4,
-              borderRadius: 999,
-              backgroundColor: isDark ? 'rgba(245, 158, 11, 0.25)' : '#FEF3C7',
-              paddingHorizontal: 8,
-              paddingVertical: 4,
+              fontSize: 11,
+              fontWeight: '600',
+              letterSpacing: 0.6,
+              textTransform: 'uppercase',
+              color: colors.primary,
             }}
           >
-            <Sparkles size={12} color={isDark ? '#FCD34D' : '#B45309'} strokeWidth={2} />
-            <Text style={{ fontSize: 11, fontWeight: '600', color: isDark ? '#FCD34D' : '#92400E' }}>
-              {t('freelancer.specialMemberOnly')}
-            </Text>
-          </View>
+            {job.category}
+          </Text>
         ) : null}
-      </View>
 
-      {job.category ? (
-        <Text
-          style={{
-            fontSize: 11,
-            fontWeight: '600',
-            letterSpacing: 0.6,
-            textTransform: 'uppercase',
-            color: colors.primary,
-          }}
-        >
-          {job.category}
+        <Text className="text-sm leading-5" style={{ color: colors.muted }} numberOfLines={2}>
+          {job.description}
         </Text>
-      ) : null}
 
-      <Text className="text-sm leading-5" style={{ color: colors.muted }} numberOfLines={2}>
-        {job.description}
-      </Text>
+        <View className="flex-row flex-wrap items-center justify-between gap-2">
+          {job.service ? (
+            <View className="flex-row items-center gap-1">
+              <Building2 size={14} color={colors.muted} strokeWidth={2} />
+              <Text className="text-xs" style={{ color: colors.muted }}>
+                {job.service.name}
+              </Text>
+            </View>
+          ) : (
+            <View />
+          )}
+          <Text className="text-sm font-semibold" style={{ color: colors.primary }}>
+            {formatJobAmount(feedPayoutAmount(job), job.currency)}
+          </Text>
+        </View>
 
-      <View className="flex-row flex-wrap items-center justify-between gap-2">
-        {job.service ? (
-          <View className="flex-row items-center gap-1">
-            <Building2 size={14} color={colors.muted} strokeWidth={2} />
-            <Text className="text-xs" style={{ color: colors.muted }}>
-              {job.service.name}
-            </Text>
-          </View>
-        ) : (
-          <View />
-        )}
-        <Text className="text-sm font-semibold" style={{ color: colors.primary }}>
-          {formatJobAmount(feedPayoutAmount(job), job.currency)}
+        <Text className="text-xs" style={{ color: colors.muted }}>
+          {t('freelancer.jobPreview.tapToPreview')}
         </Text>
       </View>
-
-      {onAcceptJob ? (
-        acceptingJobId === job.id ? (
-          <View style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator color={colors.primary} />
-          </View>
-        ) : (
-          <Button label={t('freelancer.acceptJob')} size="md" onPress={handleAccept} />
-        )
-      ) : null}
-    </View>
+    </Pressable>
   );
 }
 
-export function JobBoardScreen({
-  acceptingJobId,
-  onAcceptJob,
-  nestedInScrollView = false,
-  isSpecialMember = false,
-}: JobBoardScreenProps) {
+export function JobBoardScreen({ nestedInScrollView = false, isSpecialMember = false }: JobBoardScreenProps) {
   const { colors } = useTheme();
+  const router = useRouter();
   const isFocused = useIsFocused();
+  const acceptMutation = useAcceptFreelancerJob();
   const [jobs, setJobs] = useState<JobBoardFeedItem[]>([]);
+  const [selectedJob, setSelectedJob] = useState<JobBoardFeedItem | null>(null);
+  const [isAccepting, setIsAccepting] = useState(false);
   const [highlightedIds, setHighlightedIds] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<JobToast[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -255,6 +254,32 @@ export function JobBoardScreen({
     [isFocused, prependJob],
   );
 
+  const closePreview = useCallback(() => {
+    if (isAccepting) return;
+    setSelectedJob(null);
+  }, [isAccepting]);
+
+  const handleAcceptJob = useCallback(async () => {
+    if (!selectedJob || isAccepting) return;
+
+    const jobId = selectedJob.id;
+    setIsAccepting(true);
+    try {
+      await acceptMutation.mutateAsync(jobId);
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setJobs((prev) => prev.filter((job) => job.id !== jobId));
+      setSelectedJob(null);
+      router.push(`/freelancer/tracking/${jobId}`);
+    } catch (error) {
+      Alert.alert(
+        t('freelancer.acceptErrorTitle'),
+        error instanceof Error ? error.message : t('freelancer.acceptErrorMessage'),
+      );
+    } finally {
+      setIsAccepting(false);
+    }
+  }, [acceptMutation, isAccepting, router, selectedJob]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -299,13 +324,6 @@ export function JobBoardScreen({
       highlightTimers.current.clear();
     };
   }, []);
-
-  const handleAcceptFromList = async (jobId: string) => {
-    if (!onAcceptJob) return;
-    await onAcceptJob(jobId);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setJobs((prev) => prev.filter((job) => job.id !== jobId));
-  };
 
   return (
     <View style={{ position: 'relative' }}>
@@ -368,13 +386,20 @@ export function JobBoardScreen({
               <JobBoardCard
                 job={item}
                 highlighted={highlightedIds.has(item.id)}
-                acceptingJobId={acceptingJobId}
-                onAcceptJob={onAcceptJob ? handleAcceptFromList : undefined}
+                onPress={() => setSelectedJob(item)}
               />
             )}
           />
         )}
       </Card>
+
+      <JobPreviewModal
+        visible={selectedJob !== null}
+        job={selectedJob}
+        accepting={isAccepting}
+        onClose={closePreview}
+        onAccept={() => void handleAcceptJob()}
+      />
     </View>
   );
 }

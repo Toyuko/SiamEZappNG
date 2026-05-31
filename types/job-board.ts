@@ -17,6 +17,10 @@ export type JobBoardFeedItem = {
   currency: string;
   isSpecialMemberOnly: boolean;
   category: string | null;
+  /** Work site or area when provided by the API / Pusher payload. */
+  location?: string | null;
+  /** Client instructions; falls back to `description` when omitted. */
+  clientNotes?: string | null;
   service: { id: string; name: string; slug: string } | null;
   createdAt: string;
 };
