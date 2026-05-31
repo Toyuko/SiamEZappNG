@@ -16,6 +16,7 @@ import {
 } from 'lucide-react-native';
 import { View } from 'react-native';
 
+import { VoiceFirstProvider } from '../../components/voice/VoiceFirstProvider';
 import { t } from '../../lib/i18n/i18n';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
@@ -65,6 +66,7 @@ export default function TabsLayout() {
     isFreelancer ? {} : { href: null };
 
   return (
+    <VoiceFirstProvider>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -266,5 +268,6 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+    </VoiceFirstProvider>
   );
 }

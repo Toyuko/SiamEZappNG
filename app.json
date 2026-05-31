@@ -61,6 +61,14 @@
         {
           "locationWhenInUsePermission": "SiamEZ uses your location while the app is open to verify task progress and share live transit updates with your client."
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow SiamEZ to use the microphone for voice search.",
+          "speechRecognitionPermission": "Allow SiamEZ to use speech recognition for voice search.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
       ]
     ]
   }

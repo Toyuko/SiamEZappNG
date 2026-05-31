@@ -6,8 +6,8 @@ import { useRouter } from 'expo-router';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigger';
 import { serviceCatalog, type ServiceItem } from '../../features/services/services.data';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
@@ -63,20 +63,11 @@ function filterChipLabel(chip: ServiceFilterChip): string {
 export default function ServicesScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const [query, setQuery] = useState('');
   const [filterChip, setFilterChip] = useState<ServiceFilterChip>('All');
 
   const filtered = useMemo(
-    () =>
-      serviceCatalog.filter((item) => {
-        const q = query.trim().toLowerCase();
-        const matchesQuery =
-          q.length === 0 ||
-          item.title.toLowerCase().includes(q) ||
-          item.shortDescription.toLowerCase().includes(q);
-        return matchesQuery && matchesFilter(item, filterChip);
-      }),
-    [query, filterChip],
+    () => serviceCatalog.filter((item) => matchesFilter(item, filterChip)),
+    [filterChip],
   );
 
   const header = (
@@ -84,14 +75,7 @@ export default function ServicesScreen() {
       <PageHeader title={t('services.title')} subtitle={t('services.subtitle')} />
 
       <Card shadow="medium">
-        <Input
-          placeholder={t('services.searchPlaceholder')}
-          value={query}
-          onChangeText={setQuery}
-          autoCorrect={false}
-          autoCapitalize="none"
-          leftIcon={<Ionicons name="search" size={20} color={colors.muted} />}
-        />
+        <ServiceSearchTrigger placeholder={t('services.searchPlaceholder')} />
       </Card>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.stackSm, paddingVertical: 2 }}>
@@ -137,7 +121,6 @@ export default function ServicesScreen() {
           label={t('services.allCategory')}
           variant="secondary"
           onPress={() => {
-            setQuery('');
             setFilterChip('All');
           }}
         />

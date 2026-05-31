@@ -10,9 +10,11 @@ type InputProps = TextInputProps & {
   error?: string;
   /** Renders inside the field on the left (e.g. search icon) */
   leftIcon?: ReactNode;
+  /** Renders inside the field on the right (e.g. microphone) */
+  rightIcon?: ReactNode;
 };
 
-export function Input({ label, error, className, leftIcon, ...props }: InputProps) {
+export function Input({ label, error, className, leftIcon, rightIcon, ...props }: InputProps) {
   const { colors } = useTheme();
 
   const fieldBorder = {
@@ -29,17 +31,18 @@ export function Input({ label, error, className, leftIcon, ...props }: InputProp
           {label}
         </Text>
       ) : null}
-      {leftIcon ? (
+      {leftIcon || rightIcon ? (
         <View className="flex-row items-center" style={fieldBorder}>
-          <View className="pl-3.5">{leftIcon}</View>
+          {leftIcon ? <View className="pl-3.5">{leftIcon}</View> : null}
           <TextInput
-            className={`min-h-[52px] flex-1 py-3.5 pr-4 pl-2 text-base ${className ?? ''}`}
+            className={`min-h-[52px] flex-1 py-3.5 pl-2 text-base ${rightIcon ? 'pr-2' : 'pr-4'} ${className ?? ''}`}
             placeholderTextColor={colors.muted}
             style={{
               color: colors.foreground,
             }}
             {...props}
           />
+          {rightIcon ? <View className="pr-2">{rightIcon}</View> : null}
         </View>
       ) : (
         <TextInput

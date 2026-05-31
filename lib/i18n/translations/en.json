@@ -157,6 +157,28 @@
     "emptyHint": "Try a different search or clear filters to see all services.",
     "viewDetails": "View Details"
   },
+  "search": {
+    "title": "Search services",
+    "placeholder": "Search visa, marriage, translation...",
+    "openSearch": "Open service search",
+    "voiceSearch": "Voice search",
+    "listening": "Listening...",
+    "hint": "Type or tap the microphone to search locally — no network needed.",
+    "resultCount": "%{count} results",
+    "emptyTitle": "No matching services",
+    "emptyHint": "Try different keywords or use voice search. Fuzzy matching handles typos."
+  },
+  "voice": {
+    "title": "Voice assistant",
+    "openAssistant": "Open voice search and navigation",
+    "listeningPrompt": "Speak a service name or what you need help with…",
+    "listeningTranscript": "Listening: \"%{text}\"",
+    "heard": "You said: \"%{text}\"",
+    "chooseService": "Choose a service",
+    "doneSpeaking": "Done speaking",
+    "tryAgain": "Try again",
+    "close": "Close"
+  },
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Track active cases, invoices, and latest progress.",

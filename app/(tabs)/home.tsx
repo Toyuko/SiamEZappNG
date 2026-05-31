@@ -6,9 +6,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
+import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigger';
 import { TestimonialCard } from '../../components/ui/TestimonialCard';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { serviceCatalog } from '../../features/services/services.data';
@@ -40,7 +40,6 @@ export default function HomeScreen() {
   const language = useLanguageStore((state) => state.language);
   const setLanguage = useLanguageStore((state) => state.setLanguage);
   const [preferencesExpanded, setPreferencesExpanded] = useState(false);
-  const [query, setQuery] = useState('');
   const { width: windowWidth } = useWindowDimensions();
   const testimonialCardWidth = Math.min(windowWidth - spacing.screenPaddingX * 2 - 36, 300);
   const testimonialSlideWidth = testimonialCardWidth + TESTIMONIAL_CAROUSEL_GAP;
@@ -126,10 +125,7 @@ export default function HomeScreen() {
     [startTestimonialAutoPlay, testimonials.length, testimonialSlideWidth],
   );
 
-  const featuredServices = useMemo(
-    () => serviceCatalog.filter((service) => service.title.toLowerCase().includes(query.toLowerCase())).slice(0, 6),
-    [query],
-  );
+  const featuredServices = useMemo(() => serviceCatalog.slice(0, 6), []);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
@@ -261,7 +257,9 @@ export default function HomeScreen() {
           <Text className="mt-1.5 text-sm leading-5" style={{ color: colors.muted }}>
             {t('home.searchServices')}
           </Text>
-          <Input placeholder={t('home.searchServices')} value={query} onChangeText={setQuery} className="mt-3" />
+          <View className="mt-3">
+            <ServiceSearchTrigger placeholder={t('home.searchServices')} />
+          </View>
           <View className="mt-4">
             <Button label={t('cta.bookNow')} onPress={() => router.push('/(tabs)/book')} />
           </View>
