@@ -126,6 +126,8 @@
     "showPassword": "แสดงรหัสผ่าน",
     "hidePassword": "ซ่อนรหัสผ่าน",
     "demoFreelancerAccount": "บัญชีทดลองฟรีแลนซ์",
+    "demoFreelancerDescription": "ทดลองพอร์ทัลฟรีแลนซ์: %{email} / %{password}",
+    "useDemoFreelancerAccount": "ใช้บัญชีทดลองฟรีแลนซ์",
     "creatingAccount": "กำลังสร้างบัญชี...",
     "continueAsGuest": "ใช้งานแบบผู้เยี่ยมชม",
     "backToLogin": "กลับไปหน้าเข้าสู่ระบบ",

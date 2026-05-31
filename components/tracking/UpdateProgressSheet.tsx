@@ -99,7 +99,7 @@ export function UpdateProgressSheet({
     const mimeType = asset.mimeType ?? 'image/jpeg';
 
     try {
-      const prepared = await prepareTrackingImage(asset.uri, name, mimeType);
+      const prepared = await prepareTrackingImage(asset.uri, name, mimeType, asset.fileSize);
       setAttachment({ uri: prepared.uri, name: prepared.name, mimeType: prepared.mimeType });
     } catch (err) {
       setMessage(err instanceof Error ? err.message : t('tracking.uploadFailed'));
@@ -124,7 +124,7 @@ export function UpdateProgressSheet({
 
     try {
       if (mimeType.startsWith('image/')) {
-        const prepared = await prepareTrackingImage(asset.uri, name, mimeType);
+        const prepared = await prepareTrackingImage(asset.uri, name, mimeType, asset.size);
         setAttachment({ uri: prepared.uri, name: prepared.name, mimeType: prepared.mimeType });
       } else {
         setAttachment({ uri: asset.uri, name, mimeType });

@@ -288,7 +288,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
       setUploading(true);
       let uploadedUrl: string | null = null;
       try {
-        await prepareTrackingImage(imageUri, filename, fileType);
+        await prepareTrackingImage(imageUri, filename, fileType, asset.fileSize);
         const uploaded = await uploadChatAttachment(jobId, {
           uri: imageUri,
           name: filename,

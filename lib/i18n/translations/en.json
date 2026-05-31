@@ -126,6 +126,8 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "demoFreelancerAccount": "Demo freelancer account",
+    "demoFreelancerDescription": "Freelancer portal demo: %{email} / %{password}",
+    "useDemoFreelancerAccount": "Use demo freelancer account",
     "creatingAccount": "Creating account...",
     "continueAsGuest": "Continue as Guest",
     "backToLogin": "Back to Login",

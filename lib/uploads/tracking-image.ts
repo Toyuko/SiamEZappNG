@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystemLegacy from 'expo-file-system/legacy';
 
 import { TRACKING_ATTACHMENT_MAX_BYTES } from '../../types/tracking';
 
@@ -10,7 +10,7 @@ export type PickedImage = {
 };
 
 export async function getLocalFileSize(uri: string): Promise<number> {
-  const info = await FileSystem.getInfoAsync(uri, { size: true });
+  const info = await FileSystemLegacy.getInfoAsync(uri, { size: true });
   if (!info.exists || !('size' in info)) {
     return 0;
   }
@@ -21,8 +21,17 @@ export async function getLocalFileSize(uri: string): Promise<number> {
  * Validates a picked image and returns metadata for multipart upload.
  * Call after expo-image-picker with a reduced `quality` to keep payloads under 5 MB.
  */
-export async function prepareTrackingImage(uri: string, name: string, mimeType = 'image/jpeg'): Promise<PickedImage> {
-  const sizeBytes = await getLocalFileSize(uri);
+export async function prepareTrackingImage(
+  uri: string,
+  name: string,
+  mimeType = 'image/jpeg',
+  /** Prefer `asset.fileSize` from expo-image-picker or `asset.size` from expo-document-picker. */
+  knownSizeBytes?: number | null,
+): Promise<PickedImage> {
+  const sizeBytes =
+    typeof knownSizeBytes === 'number' && knownSizeBytes >= 0
+      ? knownSizeBytes
+      : await getLocalFileSize(uri);
   if (sizeBytes > TRACKING_ATTACHMENT_MAX_BYTES) {
     throw new Error(`Image is too large (max ${Math.round(TRACKING_ATTACHMENT_MAX_BYTES / 1024 / 1024)} MB). Try again with a closer crop.`);
   }
