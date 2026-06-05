@@ -153,8 +153,9 @@ export function toSelectOptions(keys: readonly string[], t: (key: string) => str
 
 /** Human-readable starting price line for the booking header */
 export function getServiceStartingPriceLine(service: ServiceItem, t: (key: string, opts?: Record<string, unknown>) => string): string {
-  if (service.cardPriceBaht != null && service.cardPriceBaht.length > 0) {
-    return t('services.priceFromBaht', { amount: service.cardPriceBaht });
+  const amount = service.priceFrom ?? service.cardPriceBaht;
+  if (amount != null && amount.length > 0) {
+    return t('services.priceFromBaht', { amount });
   }
   return t('book.pricingQuote');
 }

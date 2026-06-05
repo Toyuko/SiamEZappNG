@@ -20,14 +20,9 @@ import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import type { ServiceItem } from '../../features/services/services.data';
-
-const ICON_SURFACE: Record<ServiceItem['category'], { light: string; dark: string }> = {
-  Legal: { light: 'rgba(44, 84, 198, 0.14)', dark: 'rgba(91, 118, 224, 0.26)' },
-  Translation: { light: 'rgba(91, 118, 224, 0.12)', dark: 'rgba(91, 118, 224, 0.22)' },
-  Mobility: { light: 'rgba(44, 84, 198, 0.1)', dark: 'rgba(91, 118, 224, 0.2)' },
-  Business: { light: 'rgba(255, 206, 45, 0.22)', dark: 'rgba(255, 206, 45, 0.16)' },
-  Concierge: { light: 'rgba(44, 84, 198, 0.12)', dark: 'rgba(91, 118, 224, 0.22)' },
-};
+import { getCategoryLabel, getServiceDescription, getServiceTitle } from '../../features/services/service-display';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
+import { SERVICE_ICON_SURFACE } from '../services/service-icon-surface';
 
 type ServiceSearchModalProps = {
   visible: boolean;
@@ -39,6 +34,7 @@ type ServiceSearchModalProps = {
 export function ServiceSearchModal({ visible, onClose, initialQuery = '' }: ServiceSearchModalProps) {
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const language = useLanguageStore((state) => state.language);
   const inputRef = useRef<TextInput>(null);
   const { query, setQuery, results, hasQuery } = useServiceFuzzySearch('');
 
@@ -79,12 +75,14 @@ export function ServiceSearchModal({ visible, onClose, initialQuery = '' }: Serv
 
   const renderItem = useCallback(
     ({ item }: { item: ServiceItem }) => {
-      const tint = ICON_SURFACE[item.category][isDark ? 'dark' : 'light'];
+      const tint = SERVICE_ICON_SURFACE[item.category][isDark ? 'dark' : 'light'];
+      const title = getServiceTitle(item, language);
+      const description = getServiceDescription(item, language);
       return (
         <Pressable
           onPress={() => handleSelect(item.slug)}
           accessibilityRole="button"
-          accessibilityLabel={`${item.title}. ${t('services.viewDetails')}`}
+          accessibilityLabel={`${title}. ${t('services.viewDetails')}`}
           style={({ pressed }) => ({
             opacity: pressed ? 0.88 : 1,
             flexDirection: 'row',
@@ -106,20 +104,20 @@ export function ServiceSearchModal({ visible, onClose, initialQuery = '' }: Serv
           </View>
           <View className="min-w-0 flex-1">
             <Text className="text-base font-semibold leading-5" style={{ color: colors.foreground }} numberOfLines={1}>
-              {item.title}
+              {title}
             </Text>
             <Text className="mt-0.5 text-sm leading-5" style={{ color: colors.muted }} numberOfLines={2}>
-              {item.shortDescription}
+              {description}
             </Text>
             <Text className="mt-1 text-xs font-medium" style={{ color: colors.primary }}>
-              {item.category}
+              {getCategoryLabel(item.category)}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.muted} />
         </Pressable>
       );
     },
-    [colors, handleSelect, isDark],
+    [colors, handleSelect, isDark, language],
   );
 
   const keyExtractor = useCallback((item: ServiceItem) => item.slug, []);

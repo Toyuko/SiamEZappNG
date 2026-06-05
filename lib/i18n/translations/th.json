@@ -166,9 +166,26 @@
     "priceFromBaht": "เริ่มต้น ฿%{amount}",
     "badgePopular": "ยอดนิยม",
     "badgeFast": "รวดเร็ว",
+    "badges": {
+      "popular": "ยอดนิยม",
+      "sameDay": "ภายในวัน",
+      "fixedPrice": "ราคาคงที่",
+      "homeService": "บริการถึงบ้าน",
+      "nationwide": "ทั่วประเทศ"
+    },
+    "categories": {
+      "drivingVehicle": "ขับขี่และยานพาหนะ",
+      "immigrationLegal": "ตรวจคนเข้าเมืองและกฎหมาย",
+      "translationDocuments": "แปลภาษาและเอกสาร",
+      "homeProperty": "บ้านและอสังหาริมทรัพย์",
+      "transportPrivateDriver": "ขนส่งและคนขับส่วนตัว",
+      "eventsLifestyle": "อีเวนต์และไลฟ์สไตล์",
+      "businessServices": "บริการธุรกิจ"
+    },
+    "lineOfficial": "LINE @siamez",
     "emptyTitle": "ไม่พบบริการ",
     "emptyHint": "ลองค้นหาด้วยคำอื่น หรือรีเซ็ตตัวกรองเพื่อดูบริการทั้งหมด",
-    "viewDetails": "ดูรายละเอียด"
+    "viewDetails": "รายละเอียด"
   },
   "search": {
     "title": "ค้นหาบริการ",

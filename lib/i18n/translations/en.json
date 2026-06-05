@@ -166,9 +166,26 @@
     "priceFromBaht": "From ฿%{amount}",
     "badgePopular": "Popular",
     "badgeFast": "Fast",
+    "badges": {
+      "popular": "Popular",
+      "sameDay": "Same Day",
+      "fixedPrice": "Fixed Price",
+      "homeService": "Home Service",
+      "nationwide": "Nationwide"
+    },
+    "categories": {
+      "drivingVehicle": "Driving & Vehicle",
+      "immigrationLegal": "Immigration & Legal",
+      "translationDocuments": "Translation & Documents",
+      "homeProperty": "Home & Property",
+      "transportPrivateDriver": "Transport & Private Driver",
+      "eventsLifestyle": "Events & Lifestyle",
+      "businessServices": "Business Services"
+    },
+    "lineOfficial": "LINE @siamez",
     "emptyTitle": "No services found",
     "emptyHint": "Try a different search or clear filters to see all services.",
-    "viewDetails": "View Details"
+    "viewDetails": "Details"
   },
   "search": {
     "title": "Search services",

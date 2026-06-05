@@ -12,7 +12,8 @@ import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigg
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { TestimonialCard } from '../../components/ui/TestimonialCard';
 import { TrustStats } from '../../components/ui/TrustStats';
-import { serviceCatalog } from '../../features/services/services.data';
+import { getFeaturedServices } from '../../features/services/services.data';
+import { getServiceDescription, getServiceTitle } from '../../features/services/service-display';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme, type ThemeMode } from '../../lib/theme/theme';
@@ -126,7 +127,7 @@ export default function HomeScreen() {
     [startTestimonialAutoPlay, testimonials.length, testimonialSlideWidth],
   );
 
-  const featuredServices = useMemo(() => serviceCatalog.slice(0, 6), []);
+  const featuredServices = useMemo(() => getFeaturedServices(), []);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
@@ -271,10 +272,10 @@ export default function HomeScreen() {
             <Card key={service.slug}>
               <Ionicons name={service.icon} size={28} color={colors.primary} accessibilityIgnoresInvertColors />
               <Text className="mt-2 text-base font-bold" style={{ color: colors.foreground }}>
-                {service.title}
+                {getServiceTitle(service, language)}
               </Text>
               <Text className="mt-1.5 text-sm leading-5" style={{ color: colors.muted }}>
-                {service.shortDescription}
+                {getServiceDescription(service, language)}
               </Text>
               <View className="mt-4 gap-3">
                 <Button

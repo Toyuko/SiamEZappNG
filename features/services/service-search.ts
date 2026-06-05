@@ -34,10 +34,14 @@ export const searchableServices: SearchableService[] = serviceCatalog.map((item)
 
 const fuseIndex = new Fuse(searchableServices, {
   keys: [
-    { name: 'title', weight: 0.35 },
-    { name: 'shortDescription', weight: 0.25 },
-    { name: 'fullDescription', weight: 0.12 },
-    { name: 'category', weight: 0.13 },
+    { name: 'title', weight: 0.2 },
+    { name: 'titleEn', weight: 0.2 },
+    { name: 'titleTh', weight: 0.2 },
+    { name: 'shortDescription', weight: 0.12 },
+    { name: 'descriptionEn', weight: 0.1 },
+    { name: 'descriptionTh', weight: 0.1 },
+    { name: 'fullDescription', weight: 0.08 },
+    { name: 'category', weight: 0.05 },
     { name: 'keywords', weight: 0.15 },
   ],
   threshold: 0.38,

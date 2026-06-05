@@ -1,10 +1,20 @@
-import type { ComponentProps } from 'react';
-import type Ionicons from '@expo/vector-icons/Ionicons';
+/**
+ * SiamEZ service catalog — static source of truth for browse, search, detail, and booking.
+ *
+ * HOW TO ADD A NEW SERVICE:
+ * 1. Copy an existing object in `rawServiceCatalog` below and update slug, copy, icon, pricing, etc.
+ * 2. Register metadata in `service-catalog-meta.ts` (category, Thai copy, badges, featured).
+ * 3. Extend `SEARCH_ALIASES` in `service-search.ts` for fuzzy/voice search.
+ * 4. Add booking fields in `booking-fields.ts` when the wizard needs custom inputs.
+ */
+import { SERVICE_CATALOG_META } from './service-catalog-meta';
+import type { ServiceBadgeId, ServiceCatalogIconName, ServiceCategoryId, ServiceItem } from './services.types';
 
-/** Vector icon name — avoids emoji font gaps on iOS */
-export type ServiceCatalogIconName = ComponentProps<typeof Ionicons>['name'];
+export type { ServiceCatalogIconName, ServiceCategoryId, ServiceItem } from './services.types';
+export { SERVICE_CATEGORIES, SERVICE_CATEGORY_ORDER } from './services.types';
 
-export type ServiceItem = {
+/** Raw catalog row before metadata enrichment — see service-catalog-meta.ts to extend */
+type RawServiceItem = {
   slug: string;
   icon: ServiceCatalogIconName;
   title: string;
@@ -27,13 +37,43 @@ export type ServiceItem = {
   rating?: string;
   consultationNote?: string;
   disclaimer?: string;
-  category: 'Legal' | 'Translation' | 'Mobility' | 'Business' | 'Concierge';
-  /** Optional catalog card — formatted as “From ฿{amount}” via i18n */
   cardPriceBaht?: string;
   cardBadge?: 'popular' | 'fast';
 };
 
-export const serviceCatalog: ServiceItem[] = [
+function legacyBadgeToIds(cardBadge?: 'popular' | 'fast'): ServiceBadgeId[] {
+  if (cardBadge === 'popular') {
+    return ['popular'];
+  }
+  if (cardBadge === 'fast') {
+    return ['sameDay'];
+  }
+  return [];
+}
+
+function enrichServiceItem(raw: RawServiceItem): ServiceItem {
+  const meta = SERVICE_CATALOG_META[raw.slug];
+  if (!meta) {
+    throw new Error(`Missing SERVICE_CATALOG_META for slug: ${raw.slug}`);
+  }
+  const badges = meta.badges.length > 0 ? meta.badges : legacyBadgeToIds(raw.cardBadge);
+  return {
+    ...raw,
+    id: raw.slug,
+    category: meta.category,
+    titleEn: raw.title,
+    titleTh: meta.titleTh,
+    descriptionEn: raw.shortDescription,
+    descriptionTh: meta.descriptionTh,
+    priceFrom: raw.cardPriceBaht,
+    estimatedTime: raw.processingTime,
+    badges,
+    featured: meta.featured,
+    active: meta.active,
+  };
+}
+
+const rawServiceCatalog: RawServiceItem[] = [
   {
     slug: 'marriage-registration',
     icon: 'heart-outline',
@@ -140,7 +180,6 @@ export const serviceCatalog: ServiceItem[] = [
     consultationNote: 'Free initial 15-minute consultation available.',
     disclaimer:
       'SiamEZ offers professional assistance and consultancy services as an independent company and is not connected to or endorsed by the Thai government.',
-    category: 'Legal',
     cardPriceBaht: '8,500',
     cardBadge: 'popular',
   },
@@ -176,7 +215,6 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: '2 - 5 business days',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
-    category: 'Translation',
     cardBadge: 'fast',
   },
   {
@@ -279,7 +317,6 @@ export const serviceCatalog: ServiceItem[] = [
     consultationNote: 'Free initial 15-minute call. Payment supported via KBank transfer or PromptPay after coordinator confirmation.',
     disclaimer:
       'SiamEZ offers professional assistance as an independent company and is not connected to or endorsed by the Thai government or the DLT.',
-    category: 'Mobility',
     cardPriceBaht: '3,500',
     cardBadge: 'popular',
   },
@@ -323,7 +360,6 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: '1 - 4 Weeks (varies by visa type)',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our visa experts.',
-    category: 'Legal',
     cardBadge: 'fast',
   },
   {
@@ -366,7 +402,6 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: '2 - 4 Weeks',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
-    category: 'Legal',
   },
   {
     slug: 'vehicle-registration',
@@ -442,7 +477,6 @@ export const serviceCatalog: ServiceItem[] = [
     consultationNote: 'Free initial 15-minute call with our experts.',
     disclaimer:
       'SiamEZ offers professional assistance and consultancy services as an independent company and is not connected to or endorsed by the Thai government.',
-    category: 'Mobility',
     cardPriceBaht: '2,000',
   },
   {
@@ -486,7 +520,6 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: 'Varies by Project',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
-    category: 'Business',
   },
   {
     slug: 'private-driver-service',
@@ -523,7 +556,6 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: '1 - 3 Business Days',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
-    category: 'Concierge',
   },
   {
     slug: 'transportation-services',
@@ -560,7 +592,6 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: 'Same Day - Advance Booking',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
-    category: 'Concierge',
   },
   {
     slug: 'event-planning-venue-services',
@@ -606,9 +637,21 @@ export const serviceCatalog: ServiceItem[] = [
     processingTime: 'We typically reply within 2-5 business days (complex events may take longer)',
     rating: '4.9 / 5.0 based on 150+ reviews',
     consultationNote: 'Free initial 15-minute call with our experts.',
-    category: 'Business',
   },
 ];
 
-export const serviceCategories = ['All', 'Legal', 'Translation', 'Mobility', 'Business', 'Concierge'] as const;
+/** Enriched, data-driven catalog — single source of truth for Services UI and search */
+export const serviceCatalog: ServiceItem[] = rawServiceCatalog.map(enrichServiceItem);
+
+export function getActiveServices(): ServiceItem[] {
+  return serviceCatalog.filter((item) => item.active);
+}
+
+export function getFeaturedServices(): ServiceItem[] {
+  return getActiveServices().filter((item) => item.featured);
+}
+
+export function getServicesByCategory(categoryId: ServiceCategoryId): ServiceItem[] {
+  return getActiveServices().filter((item) => item.category === categoryId);
+}
 

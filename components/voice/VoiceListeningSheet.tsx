@@ -14,23 +14,18 @@ import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { FuzzySearchHit } from '../../features/services/service-search';
-import type { ServiceItem } from '../../features/services/services.data';
+import { getServiceDescription, getServiceTitle } from '../../features/services/service-display';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
+import { SERVICE_ICON_SURFACE } from '../services/service-icon-surface';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useVoiceFirst } from './VoiceFirstProvider';
 import { VoiceWaveform } from './VoiceWaveform';
 
-const ICON_SURFACE: Record<ServiceItem['category'], { light: string; dark: string }> = {
-  Legal: { light: 'rgba(44, 84, 198, 0.14)', dark: 'rgba(91, 118, 224, 0.26)' },
-  Translation: { light: 'rgba(91, 118, 224, 0.12)', dark: 'rgba(91, 118, 224, 0.22)' },
-  Mobility: { light: 'rgba(44, 84, 198, 0.1)', dark: 'rgba(91, 118, 224, 0.2)' },
-  Business: { light: 'rgba(255, 206, 45, 0.22)', dark: 'rgba(255, 206, 45, 0.16)' },
-  Concierge: { light: 'rgba(44, 84, 198, 0.12)', dark: 'rgba(91, 118, 224, 0.22)' },
-};
-
 export function VoiceListeningSheet() {
   const { colors, isDark } = useTheme();
+  const language = useLanguageStore((state) => state.language);
   const insets = useSafeAreaInsets();
   const {
     sheetOpen,
@@ -62,12 +57,14 @@ export function VoiceListeningSheet() {
   const renderResult = useCallback(
     ({ item }: { item: FuzzySearchHit }) => {
       const service = item.item;
-      const tint = ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
+      const tint = SERVICE_ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
+      const title = getServiceTitle(service, language);
+      const description = getServiceDescription(service, language);
       return (
         <Pressable
           onPress={() => selectResult(service.slug)}
           accessibilityRole="button"
-          accessibilityLabel={service.title}
+          accessibilityLabel={title}
           style={({ pressed }) => ({
             opacity: pressed ? 0.88 : 1,
             flexDirection: 'row',
@@ -90,17 +87,17 @@ export function VoiceListeningSheet() {
           </View>
           <View className="min-w-0 flex-1">
             <Text className="text-base font-semibold" style={{ color: colors.foreground }} numberOfLines={1}>
-              {service.title}
+              {title}
             </Text>
             <Text className="mt-0.5 text-sm" style={{ color: colors.muted }} numberOfLines={2}>
-              {service.shortDescription}
+              {description}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={colors.muted} />
         </Pressable>
       );
     },
-    [colors, isDark, selectResult],
+    [colors, isDark, language, selectResult],
   );
 
   const keyExtractor = useCallback((item: FuzzySearchHit) => item.item.slug, []);

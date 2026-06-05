@@ -11,13 +11,16 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { serviceCatalog } from '../../features/services/services.data';
+import { getServiceDescription, getServiceTitle } from '../../features/services/service-display';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function ServiceDetailScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const language = useLanguageStore((state) => state.language);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const service = serviceCatalog.find((item) => item.slug === slug);
 
@@ -64,8 +67,8 @@ export default function ServiceDetailScreen() {
         </Card>
 
         <PageHeader
-          title={service.title}
-          subtitle={service.shortDescription}
+          title={getServiceTitle(service, language)}
+          subtitle={getServiceDescription(service, language)}
           rightSlot={<Ionicons name={service.icon} size={32} color="#ffffff" accessibilityIgnoresInvertColors />}
         />
 

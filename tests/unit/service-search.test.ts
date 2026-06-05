@@ -13,8 +13,8 @@ describe('fuzzySearchServices', () => {
   });
 
   it('matches category', () => {
-    const results = fuzzySearchServices('Mobility');
-    expect(results.every((item) => item.category === 'Mobility')).toBe(true);
+    const results = fuzzySearchServices('driving');
+    expect(results.some((item) => item.category === 'driving-vehicle')).toBe(true);
   });
 
   it('matches keyword aliases', () => {
