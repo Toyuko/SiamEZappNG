@@ -54,6 +54,9 @@ export type ServiceItem = {
   category: ServiceCategoryId;
   titleEn: string;
   titleTh: string;
+  /** Compact label for app-icon grid tiles */
+  shortTitleEn: string;
+  shortTitleTh: string;
   descriptionEn: string;
   descriptionTh: string;
   /** English title — mirrors titleEn for legacy consumers */

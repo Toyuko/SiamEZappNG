@@ -10,14 +10,16 @@ export type SearchableService = ServiceItem & {
 const SEARCH_ALIASES: Record<string, string[]> = {
   'marriage-registration': ['wedding', 'marry', 'spouse', 'amphur', 'district office'],
   'translation-services': ['translate', 'certified', 'document', 'thai english'],
+  'basic-translation-fixed-price': ['fixed price', 'per page', 'simple translation'],
   'driver-license': ['driving', 'dlt', 'motorcycle', 'car license', 'idp'],
   'visa-services': ['immigration', 'extension', 'retirement', 'tourist visa', 'work permit'],
   'police-clearance': ['background check', 'criminal record', 'certificate'],
-  'vehicle-registration': ['car registration', 'motorbike', 'dlT', 'tax renewal'],
+  'vehicle-registration': ['car registration', 'motorbike', 'dlt', 'tax renewal'],
+  'car-motorbike-finding-selling': ['buy car', 'sell car', 'motorbike', 'vehicle search'],
   'construction-handyman': ['repair', 'renovation', 'contractor', 'plumber', 'electrician'],
   'private-driver-service': ['chauffeur', 'driver hire', 'personal driver'],
   'transportation-services': ['airport transfer', 'taxi', 'van', 'shuttle'],
-  'event-planning-venue-services': ['event', 'venue', 'party', 'corporate', 'celebration'],
+  'event-planning-venue-services': ['event', 'venue', 'party', 'corporate', 'celebration', 'red door'],
 };
 
 function buildKeywords(item: ServiceItem): string {
@@ -37,6 +39,8 @@ const fuseIndex = new Fuse(searchableServices, {
     { name: 'title', weight: 0.2 },
     { name: 'titleEn', weight: 0.2 },
     { name: 'titleTh', weight: 0.2 },
+    { name: 'shortTitleEn', weight: 0.15 },
+    { name: 'shortTitleTh', weight: 0.15 },
     { name: 'shortDescription', weight: 0.12 },
     { name: 'descriptionEn', weight: 0.1 },
     { name: 'descriptionTh', weight: 0.1 },

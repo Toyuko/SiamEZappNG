@@ -4,7 +4,7 @@ import { fuzzySearchServices, resolveVoiceIntent } from '../../features/services
 
 describe('fuzzySearchServices', () => {
   it('returns all services for empty query', () => {
-    expect(fuzzySearchServices('')).toHaveLength(10);
+    expect(fuzzySearchServices('')).toHaveLength(12);
   });
 
   it('matches title with typos', () => {

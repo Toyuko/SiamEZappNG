@@ -12,6 +12,11 @@ export function getServiceTitle(service: ServiceItem, language: AppLanguage): st
   return language === 'th' ? service.titleTh : service.titleEn;
 }
 
+/** Compact label for launcher grid tiles */
+export function getServiceShortTitle(service: ServiceItem, language: AppLanguage): string {
+  return language === 'th' ? service.shortTitleTh : service.shortTitleEn;
+}
+
 export function getServiceDescription(service: ServiceItem, language: AppLanguage): string {
   return language === 'th' ? service.descriptionTh : service.descriptionEn;
 }
@@ -49,6 +54,8 @@ export function filterServicesByQuery(services: ServiceItem[], query: string, la
       item.slug,
       item.titleEn,
       item.titleTh,
+      item.shortTitleEn,
+      item.shortTitleTh,
       item.descriptionEn,
       item.descriptionTh,
       item.category,

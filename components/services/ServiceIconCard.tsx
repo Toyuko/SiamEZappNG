@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { getBadgeLabel, getServiceDescription, getServicePriceFrom, getServiceTitle } from '../../features/services/service-display';
 import type { ServiceItem } from '../../features/services/services.types';
@@ -14,7 +13,6 @@ import { SERVICE_ICON_SURFACE } from './service-icon-surface';
 
 type ServiceIconCardProps = {
   service: ServiceItem;
-  /** Compact grid card vs full-width list card */
   variant?: 'grid' | 'list';
 };
 
@@ -26,61 +24,60 @@ export function ServiceIconCard({ service, variant = 'grid' }: ServiceIconCardPr
   const description = getServiceDescription(service, language);
   const priceLine = getServicePriceFrom(service);
   const tint = SERVICE_ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
-  const iconSize = variant === 'grid' ? 32 : 28;
-  const iconBox = variant === 'grid' ? 72 : 56;
+  const isGrid = variant === 'grid';
 
   const openDetails = () => router.push(`/services/${service.slug}`);
   const openBook = () => router.push({ pathname: '/(tabs)/book', params: { serviceSlug: service.slug } });
 
   return (
-    <View style={variant === 'grid' ? { flex: 1, minWidth: 0 } : undefined}>
-    <Card shadow="medium">
+    <Card shadow="medium" compact={isGrid}>
       <Pressable
         onPress={openDetails}
         accessibilityRole="button"
         accessibilityLabel={`${title}. ${t('services.viewDetails')}`}
         style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}
       >
-        <View className={variant === 'grid' ? 'items-center' : 'flex-row gap-3'}>
+        <View className={isGrid ? '' : 'flex-row gap-3'}>
           <View
-            className="items-center justify-center"
             style={{
-              width: iconBox,
-              height: iconBox,
-              borderRadius: radius.lg,
+              width: isGrid ? 56 : 56,
+              height: 56,
+              borderRadius: radius.md,
+              alignItems: 'center',
+              justifyContent: 'center',
               backgroundColor: tint,
             }}
           >
-            <Ionicons name={service.icon} size={iconSize} color={colors.primary} accessibilityIgnoresInvertColors />
+            <Ionicons name={service.icon} size={isGrid ? 26 : 28} color={colors.primary} accessibilityIgnoresInvertColors />
           </View>
 
-          <View className={variant === 'grid' ? 'mt-3 w-full items-center' : 'min-w-0 flex-1'}>
+          <View className={isGrid ? 'mt-2.5' : 'min-w-0 flex-1'} style={isGrid ? { width: '100%' } : undefined}>
             <Text
-              className={`font-bold leading-5 ${variant === 'grid' ? 'text-center text-sm' : 'text-base'}`}
+              className={`font-bold leading-4 ${isGrid ? 'text-[13px]' : 'text-base leading-5'}`}
               style={{ color: colors.foreground }}
               numberOfLines={2}
             >
               {title}
             </Text>
             <Text
-              className={`mt-1.5 leading-5 ${variant === 'grid' ? 'text-center text-xs' : 'text-sm'}`}
+              className={`mt-1 leading-4 ${isGrid ? 'text-[11px]' : 'text-sm leading-5'}`}
               style={{ color: colors.muted }}
-              numberOfLines={variant === 'grid' ? 2 : 3}
+              numberOfLines={isGrid ? 2 : 3}
             >
               {description}
             </Text>
 
             {service.badges.length > 0 ? (
-              <View className={`mt-2 flex-row flex-wrap gap-1.5 ${variant === 'grid' ? 'justify-center' : ''}`}>
-                {service.badges.slice(0, 2).map((badge) => (
+              <View className="mt-1.5 flex-row flex-wrap gap-1">
+                {service.badges.slice(0, 1).map((badge) => (
                   <View
                     key={badge}
-                    className="rounded-full px-2 py-0.5"
+                    className="rounded-full px-1.5 py-0.5"
                     style={{
                       backgroundColor: isDark ? 'rgba(91, 118, 224, 0.25)' : 'rgba(44, 84, 198, 0.1)',
                     }}
                   >
-                    <Text className="text-[10px] font-semibold" style={{ color: colors.primary }}>
+                    <Text className="text-[9px] font-semibold" style={{ color: colors.primary }}>
                       {getBadgeLabel(badge)}
                     </Text>
                   </View>
@@ -89,10 +86,7 @@ export function ServiceIconCard({ service, variant = 'grid' }: ServiceIconCardPr
             ) : null}
 
             {priceLine ? (
-              <Text
-                className={`mt-2 font-semibold ${variant === 'grid' ? 'text-center text-xs' : 'text-sm'}`}
-                style={{ color: colors.primary }}
-              >
+              <Text className="mt-1.5 text-[11px] font-semibold" style={{ color: colors.primary }}>
                 {priceLine}
               </Text>
             ) : null}
@@ -100,11 +94,50 @@ export function ServiceIconCard({ service, variant = 'grid' }: ServiceIconCardPr
         </View>
       </Pressable>
 
-      <View style={{ marginTop: spacing.stackMd, gap: spacing.stackSm }}>
-        <Button label={t('cta.bookNow')} size="md" onPress={openBook} />
-        <Button label={t('services.viewDetails')} variant="secondary" size="md" onPress={openDetails} />
+      <View style={{ marginTop: spacing.stackSm, flexDirection: 'row', gap: 6 }}>
+        <CompactActionButton label={t('cta.bookNow')} primary onPress={openBook} />
+        <CompactActionButton label={t('services.viewDetails')} onPress={openDetails} />
       </View>
     </Card>
-    </View>
+  );
+}
+
+function CompactActionButton({
+  label,
+  primary = false,
+  onPress,
+}: {
+  label: string;
+  primary?: boolean;
+  onPress: () => void;
+}) {
+  const { colors } = useTheme();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={({ pressed }) => ({
+        flex: 1,
+        minHeight: 36,
+        borderRadius: radius.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 6,
+        opacity: pressed ? 0.88 : 1,
+        backgroundColor: primary ? colors.primary : colors.card,
+        borderWidth: primary ? 0 : 1,
+        borderColor: colors.primary,
+      })}
+    >
+      <Text
+        className="text-[11px] font-semibold"
+        style={{ color: primary ? '#ffffff' : colors.primary }}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+    </Pressable>
   );
 }

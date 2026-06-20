@@ -183,6 +183,9 @@
       "businessServices": "Business Services"
     },
     "lineOfficial": "LINE @siamez",
+    "allServices": "All Services",
+    "serviceCount": "%{count} services",
+    "estimatedTime": "Estimated time",
     "emptyTitle": "No services found",
     "emptyHint": "Try a different search or clear filters to see all services.",
     "viewDetails": "Details"

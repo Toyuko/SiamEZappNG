@@ -14,6 +14,9 @@ type PopularServicesProps = {
   services: ServiceItem[];
 };
 
+const POPULAR_CARD_WIDTH = 132;
+const POPULAR_ICON_SIZE = 52;
+
 export function PopularServices({ services }: PopularServicesProps) {
   const router = useRouter();
   const { colors, isDark } = useTheme();
@@ -37,7 +40,11 @@ export function PopularServices({ services }: PopularServicesProps) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: spacing.stackSm, paddingVertical: 2 }}
+        contentContainerStyle={{
+          gap: spacing.stackMd,
+          paddingVertical: 2,
+          paddingRight: spacing.stackSm,
+        }}
       >
         {services.map((service) => {
           const title = getServiceTitle(service, language);
@@ -50,9 +57,8 @@ export function PopularServices({ services }: PopularServicesProps) {
               accessibilityLabel={title}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.9 : 1,
-                width: 112,
-                alignItems: 'center',
-                padding: spacing.stackSm,
+                width: POPULAR_CARD_WIDTH,
+                padding: spacing.stackMd,
                 borderRadius: radius.lg,
                 borderWidth: 1,
                 borderColor: colors.border,
@@ -60,14 +66,20 @@ export function PopularServices({ services }: PopularServicesProps) {
               })}
             >
               <View
-                className="h-14 w-14 items-center justify-center rounded-2xl"
-                style={{ backgroundColor: tint }}
+                style={{
+                  width: POPULAR_ICON_SIZE,
+                  height: POPULAR_ICON_SIZE,
+                  borderRadius: radius.md,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: tint,
+                }}
               >
-                <Ionicons name={service.icon} size={28} color={colors.primary} accessibilityIgnoresInvertColors />
+                <Ionicons name={service.icon} size={26} color={colors.primary} accessibilityIgnoresInvertColors />
               </View>
               <Text
-                className="mt-2 text-center text-xs font-semibold leading-4"
-                style={{ color: colors.foreground }}
+                className="mt-2.5 text-xs font-semibold leading-4"
+                style={{ color: colors.foreground, minHeight: 32 }}
                 numberOfLines={2}
               >
                 {title}

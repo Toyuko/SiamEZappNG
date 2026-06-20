@@ -7,6 +7,7 @@
  * 3. Extend `SEARCH_ALIASES` in `service-search.ts` for fuzzy/voice search.
  * 4. Add booking fields in `booking-fields.ts` when the wizard needs custom inputs.
  */
+import { LAUNCHER_SERVICE_SEEDS, LAUNCHER_SHORT_TITLES, type LauncherServiceSeed } from './launcher-catalog';
 import { SERVICE_CATALOG_META } from './service-catalog-meta';
 import type { ServiceBadgeId, ServiceCatalogIconName, ServiceCategoryId, ServiceItem } from './services.types';
 
@@ -57,12 +58,15 @@ function enrichServiceItem(raw: RawServiceItem): ServiceItem {
     throw new Error(`Missing SERVICE_CATALOG_META for slug: ${raw.slug}`);
   }
   const badges = meta.badges.length > 0 ? meta.badges : legacyBadgeToIds(raw.cardBadge);
+  const short = LAUNCHER_SHORT_TITLES[raw.slug];
   return {
     ...raw,
     id: raw.slug,
     category: meta.category,
     titleEn: raw.title,
     titleTh: meta.titleTh,
+    shortTitleEn: short?.en ?? raw.title,
+    shortTitleTh: short?.th ?? meta.titleTh,
     descriptionEn: raw.shortDescription,
     descriptionTh: meta.descriptionTh,
     priceFrom: raw.cardPriceBaht,
@@ -70,6 +74,36 @@ function enrichServiceItem(raw: RawServiceItem): ServiceItem {
     badges,
     featured: meta.featured,
     active: meta.active,
+  };
+}
+
+function buildLauncherServiceItem(seed: LauncherServiceSeed): ServiceItem {
+  return {
+    id: seed.slug,
+    slug: seed.slug,
+    category: seed.category,
+    titleEn: seed.titleEn,
+    titleTh: seed.titleTh,
+    shortTitleEn: seed.shortTitleEn,
+    shortTitleTh: seed.shortTitleTh,
+    title: seed.titleEn,
+    shortDescription: seed.descriptionEn,
+    descriptionEn: seed.descriptionEn,
+    descriptionTh: seed.descriptionTh,
+    fullDescription: seed.descriptionEn,
+    benefits: [seed.descriptionEn],
+    steps: [
+      'Contact SiamEZ for a free consultation',
+      'Submit required documents',
+      'We coordinate processing and keep you updated',
+    ],
+    requirements: seed.requirements,
+    icon: seed.icon,
+    priceFrom: seed.priceFrom,
+    estimatedTime: seed.estimatedTime,
+    badges: seed.badges,
+    featured: seed.featured,
+    active: seed.active,
   };
 }
 
@@ -640,8 +674,37 @@ const rawServiceCatalog: RawServiceItem[] = [
   },
 ];
 
-/** Enriched, data-driven catalog — single source of truth for Services UI and search */
-export const serviceCatalog: ServiceItem[] = rawServiceCatalog.map(enrichServiceItem);
+function mergeSeedWithFull(full: ServiceItem, seed: LauncherServiceSeed): ServiceItem {
+  return {
+    ...full,
+    category: seed.category,
+    titleEn: seed.titleEn,
+    titleTh: seed.titleTh,
+    shortTitleEn: seed.shortTitleEn,
+    shortTitleTh: seed.shortTitleTh,
+    title: seed.titleEn,
+    descriptionEn: seed.descriptionEn,
+    descriptionTh: seed.descriptionTh,
+    shortDescription: seed.descriptionEn,
+    priceFrom: seed.priceFrom ?? full.priceFrom,
+    estimatedTime: seed.estimatedTime ?? full.estimatedTime,
+    badges: seed.badges,
+    featured: seed.featured,
+    active: seed.active,
+    requirements: seed.requirements ?? full.requirements,
+  };
+}
+
+const fullServiceCatalog = rawServiceCatalog.map(enrichServiceItem);
+const fullBySlug = new Map(fullServiceCatalog.map((item) => [item.slug, item]));
+
+/** Web-aligned catalog — only active launcher seeds, merged with full detail pages when available */
+export const serviceCatalog: ServiceItem[] = LAUNCHER_SERVICE_SEEDS.filter((seed) => seed.active)
+  .sort((a, b) => a.sortOrder - b.sortOrder)
+  .map((seed) => {
+    const full = fullBySlug.get(seed.slug);
+    return full ? mergeSeedWithFull(full, seed) : buildLauncherServiceItem(seed);
+  });
 
 export function getActiveServices(): ServiceItem[] {
   return serviceCatalog.filter((item) => item.active);

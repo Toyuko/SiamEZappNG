@@ -183,6 +183,9 @@
       "businessServices": "บริการธุรกิจ"
     },
     "lineOfficial": "LINE @siamez",
+    "allServices": "บริการทั้งหมด",
+    "serviceCount": "%{count} บริการ",
+    "estimatedTime": "ระยะเวลาโดยประมาณ",
     "emptyTitle": "ไม่พบบริการ",
     "emptyHint": "ลองค้นหาด้วยคำอื่น หรือรีเซ็ตตัวกรองเพื่อดูบริการทั้งหมด",
     "viewDetails": "รายละเอียด"

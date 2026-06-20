@@ -1,13 +1,8 @@
 import type { ServiceBadgeId, ServiceCategoryId } from './services.types';
 
 /**
- * Per-slug catalog metadata (category, localization, badges, featured flag).
- *
- * HOW TO ADD A NEW SERVICE:
- * 1. Add a full entry to `rawServiceCatalog` in `services.data.ts` (copy an existing block).
- * 2. Add a row here with category, Thai copy, badges, and featured/active flags.
- * 3. Add search aliases in `service-search.ts` and booking fields in `booking-fields.ts` if needed.
- * 4. Add `contact.serviceOptions.{slug}` keys in en.json / th.json when the service appears on the contact form.
+ * Per-slug metadata for raw catalog entries in services.data.ts.
+ * Launcher grid copy lives in launcher-catalog.ts — keep Thai titles in sync here.
  */
 export type ServiceCatalogMeta = {
   category: ServiceCategoryId;
@@ -19,68 +14,62 @@ export type ServiceCatalogMeta = {
 };
 
 export const SERVICE_CATALOG_META: Record<string, ServiceCatalogMeta> = {
-  'driver-license': {
-    category: 'driving-vehicle',
-    titleTh: 'ใบขับขี่',
-    descriptionTh: 'นัดหมายด่วน แพ็กเกจกลุ่ม และเตรียมสอบ — ทีมสองภาษาดูแลให้ครบ',
-    badges: ['popular', 'fixedPrice'],
-    featured: true,
-    active: true,
-  },
-  'vehicle-registration': {
-    category: 'driving-vehicle',
-    titleTh: 'ทะเบียนรถ',
-    descriptionTh: 'จดทะเบียนรถและมอเตอร์ไซค์ในกรุงเทพฯ — บางรายการเสร็จภายในวันเดียว',
-    badges: ['sameDay', 'fixedPrice'],
-    featured: true,
-    active: true,
-  },
   'marriage-registration': {
     category: 'immigration-legal',
     titleTh: 'จดทะเบียนสมรส',
-    descriptionTh: 'ดูแลเอกสารและขั้นตอนจดทะเบียนสมรสในไทยอย่างครบถ้วน',
+    descriptionTh:
+      'ดูแลครบทุกขั้นตอนสำหรับการจดทะเบียนสมรสในไทย เอกสาร และข้อกำหนดทางกฎหมาย',
     badges: ['popular', 'fixedPrice'],
     featured: false,
     active: true,
   },
-  'visa-services': {
-    category: 'immigration-legal',
-    titleTh: 'บริการวีซ่า',
-    descriptionTh: 'ยื่นวีซ่า ต่ออายุ และเปลี่ยนประเภท — ครบทุกประเภทในไทย',
-    badges: ['sameDay'],
+  'translation-services': {
+    category: 'translation-documents',
+    titleTh: 'บริการแปลเอกสาร',
+    descriptionTh: 'แปลเอกสารรับรองสำหรับเอกสารราชการ กฎหมาย และการยื่นต่อหน่วยงาน',
+    badges: ['popular', 'nationwide'],
+    featured: true,
+    active: true,
+  },
+  'driver-license': {
+    category: 'driving-vehicle',
+    titleTh: 'ใบขับขี่',
+    descriptionTh:
+      'ใบขับขี่ไทยตามกฎ DLT 2026: แปลงใบต่างชาติ ต่ออายุ สมัครใหม่ รถ/มอไซค์ IDP FastTrack',
+    badges: ['popular', 'sameDay'],
     featured: true,
     active: true,
   },
   'police-clearance': {
     category: 'immigration-legal',
     titleTh: 'ใบรับรองความประพฤติ',
-    descriptionTh: 'ช่วยขอใบรับรองความประพฤติจากตำรวจสำหรับวีซ่าและใบอนุญาตทำงาน',
-    badges: ['nationwide'],
+    descriptionTh: 'ช่วยขอใบรับรองความประพฤติและตรวจประวัติสำหรับวีซ่า',
+    badges: ['popular', 'nationwide'],
     featured: true,
     active: true,
   },
-  'translation-services': {
-    category: 'translation-documents',
-    titleTh: 'บริการแปลเอกสาร',
-    descriptionTh: 'แปลเอกสารรับรองสำหรับยื่นราชการ กฎหมาย และธุรกิจ — รวดเร็วและแม่นยำ',
-    badges: ['sameDay', 'popular'],
+  'visa-services': {
+    category: 'immigration-legal',
+    titleTh: 'บริการวีซ่า',
+    descriptionTh: 'คำแนะนำมืออาชีพด้านการยื่นวีซ่า ต่ออายุ และเรื่องตรวจคนเข้าเมือง',
+    badges: ['popular', 'nationwide'],
     featured: true,
     active: true,
   },
   'construction-handyman': {
     category: 'home-property',
     titleTh: 'ก่อสร้างและช่างซ่อม',
-    descriptionTh: 'ซ่อมแซม ปรับปรุง และงานก่อสร้างสำหรับบ้านและอาคารพาณิชย์',
+    descriptionTh: 'งานซ่อมแซม ปรับปรุง และก่อสร้างสำหรับที่อยู่อาศัยและอาคารพาณิชย์',
     badges: ['homeService'],
     featured: false,
     active: true,
   },
-  'private-driver-service': {
-    category: 'transport-private-driver',
-    titleTh: 'บริการคนขับส่วนตัว',
-    descriptionTh: 'คนขับมืออาชีพสำหรับเดินทางประจำ ธุรกิจ หรืองานพิเศษ',
-    badges: ['nationwide'],
-    featured: false,
+  'vehicle-registration': {
+    category: 'driving-vehicle',
+    titleTh: 'ทะเบียนรถ',
+    descriptionTh: 'จดทะเบียนรถและมอเตอร์ไซค์ในกรุงเทพฯ — ป้าย กทม. บางรายการเสร็จใน 1 วัน',
+    badges: ['popular', 'sameDay'],
+    featured: true,
     active: true,
   },
   'transportation-services': {
@@ -91,10 +80,18 @@ export const SERVICE_CATALOG_META: Record<string, ServiceCatalogMeta> = {
     featured: false,
     active: true,
   },
+  'private-driver-service': {
+    category: 'transport-private-driver',
+    titleTh: 'บริการคนขับส่วนตัว',
+    descriptionTh: 'คนขับส่วนตัวมืออาชีพสำหรับใช้ประจำ ธุรกิจ หรืองานพิเศษ',
+    badges: ['nationwide'],
+    featured: false,
+    active: true,
+  },
   'event-planning-venue-services': {
     category: 'events-lifestyle',
-    titleTh: 'จัดงานอีเวนต์และเช่าสถานที่',
-    descriptionTh: 'วางแผนงานและจองสถานที่พรีเมียมในกรุงเทพฯ',
+    titleTh: 'จัดงานและเช่าสถานที่',
+    descriptionTh: 'บริการวางแผนงานและสถานที่ ร่วมกับ The Red Door Bkk',
     badges: ['popular'],
     featured: false,
     active: true,
