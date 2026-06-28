@@ -33,7 +33,11 @@ local database or in-repo backend to run. Standard commands live in
   still calls `setBootstrapping(false)`, so the app falls through to the login
   screen. The unauthenticated/guest flow (login → "Continue as Guest" → home →
   service search) works without any code changes. Authenticated persistence
-  across web reloads is the only thing that won't work.
+  across web reloads is the only thing that won't work. In **dev mode** this
+  surfaces as a dismissible Expo redbox overlay
+  (`ExpoSecureStore.default.deleteValueWithKeyAsync is not a function`, plus a
+  NativeWind `dark mode is type 'media'` warning) — close it and the app is fully
+  usable. These overlays do not appear in a production web export.
 - After changing `babel.config.js` / `metro.config.js`, restart Metro with
   `npm run web -- --clear` so the cache rebuilds.
 - The dev web bundle is large (~13 MB). The Chrome tab can crash ("Aw, Snap!
