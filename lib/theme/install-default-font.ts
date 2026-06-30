@@ -1,18 +1,24 @@
-import { cloneElement } from 'react';
 import { Platform, StyleSheet, Text, TextInput } from 'react-native';
 
 import { fontFamilyForWeight } from './fonts';
 
+const isWeb = Platform.OS === 'web';
+
 /**
- * Applies Geist as the app-wide default font on native by injecting a
- * weight-aware `fontFamily` into every `Text` / `TextInput`. Explicit
- * `fontFamily` on a component (e.g. icon fonts) always wins. On web this is a
- * no-op — `global.css` sets the document font instead.
+ * Applies Geist as the app-wide default font by injecting a weight-aware
+ * `fontFamily` into every `Text` / `TextInput` that doesn't already specify one.
+ *
+ * This is needed on web too: react-native-web otherwise applies its own system
+ * font stack (as a generated class) to each text node, which overrides
+ * document-level CSS. We patch the component's `render` and adjust the *input*
+ * props (where styles are still plain RN objects) so the correct Geist weight is
+ * picked, and so components that set their own `fontFamily` (e.g. icon fonts) are
+ * left untouched.
  */
 let installed = false;
 
 export function installDefaultFont(): void {
-  if (installed || Platform.OS === 'web') {
+  if (installed) {
     return;
   }
   installed = true;
@@ -21,7 +27,7 @@ export function installDefaultFont(): void {
 }
 
 type PatchableComponent = {
-  render?: (...args: unknown[]) => any;
+  render?: (props: any, ref: unknown) => any;
   __geistPatched?: boolean;
 };
 
@@ -30,16 +36,16 @@ function patchComponent(Component: PatchableComponent): void {
     return;
   }
   const originalRender = Component.render;
-  Component.render = function patchedRender(...args: unknown[]) {
-    const element = originalRender.apply(this, args);
-    if (!element || !element.props) {
-      return element;
+  Component.render = function patchedRender(props: any, ref: unknown) {
+    const flattened = StyleSheet.flatten(props?.style) || {};
+    if (!flattened.fontFamily) {
+      // On web, Geist is a multi-weight web font (global.css), so the existing
+      // `fontWeight` (including NativeWind classes) resolves the real weight.
+      // On native we map to the matching loaded Geist family.
+      const fontFamily = isWeb ? 'Geist' : fontFamilyForWeight(flattened.fontWeight);
+      props = { ...props, style: [props?.style, { fontFamily }] };
     }
-    const flattened = StyleSheet.flatten(element.props.style) || {};
-    const fontFamily = flattened.fontFamily ?? fontFamilyForWeight(flattened.fontWeight);
-    return cloneElement(element, {
-      style: [{ fontFamily }, element.props.style],
-    });
+    return originalRender.call(this, props, ref);
   };
   Component.__geistPatched = true;
 }
