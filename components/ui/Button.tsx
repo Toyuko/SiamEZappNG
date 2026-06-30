@@ -1,10 +1,10 @@
 import { Pressable, Text } from 'react-native';
 import type { ReactNode } from 'react';
 
-import { radius } from '../../lib/theme/tokens';
+import { accentForeground, radius, siam } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'secondary' | 'accent';
 type ButtonSize = 'md' | 'lg';
 
 type ButtonProps = {
@@ -38,9 +38,13 @@ export function Button({
   const sizeClass = size === 'lg' ? 'min-h-[52px] min-w-[48px] px-5 py-3.5' : 'min-h-[48px] min-w-[48px] px-4 py-3';
   const variantClass = disabled ? 'opacity-60' : '';
   const borderRadius = rounded ? radius.button : radius.md;
-  const resolvedBackgroundColor = backgroundColor ?? (variant === 'primary' ? colors.primary : colors.card);
+  const defaultBackground =
+    variant === 'primary' ? colors.primary : variant === 'accent' ? siam.yellow.DEFAULT : colors.card;
+  const defaultTextColor =
+    variant === 'primary' ? '#ffffff' : variant === 'accent' ? accentForeground : colors.primary;
+  const resolvedBackgroundColor = backgroundColor ?? defaultBackground;
   const resolvedBorderColor = borderColor ?? colors.primary;
-  const resolvedTextColor = textColor ?? (variant === 'primary' ? '#ffffff' : colors.primary);
+  const resolvedTextColor = textColor ?? defaultTextColor;
   const resolvedBorderWidth = borderColor ? 1 : variant === 'secondary' ? 1 : 0;
 
   return (

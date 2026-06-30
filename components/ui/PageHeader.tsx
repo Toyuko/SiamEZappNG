@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react-native';
 
-import { heroGradient, radius, siam, spacing } from '../../lib/theme/tokens';
+import { accentForeground, heroGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 import { Button } from './Button';
 
 export type PageHeaderCta = {
@@ -75,13 +75,13 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
         <View
           style={{
             alignSelf: 'flex-start',
-            backgroundColor: `${siam.yellow.DEFAULT}33`,
-            paddingHorizontal: spacing.stackMd,
+            backgroundColor: siam.yellow.DEFAULT,
+            paddingHorizontal: spacing.stackMd + 2,
             paddingVertical: 6,
             borderRadius: radius.full,
           }}
         >
-          <Text style={{ color: siam.yellow.DEFAULT, fontSize: 13, fontWeight: '600' }}>{badge}</Text>
+          <Text style={{ color: accentForeground, fontSize: 13, fontWeight: '700' }}>{badge}</Text>
         </View>
       ) : null}
 
@@ -106,11 +106,11 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
               <Button
                 label={primaryCta.label}
                 onPress={primaryCta.onPress}
-                variant={primaryCta.variant ?? 'primary'}
+                variant={primaryCta.variant ?? 'accent'}
                 rounded
                 fullWidth
-                backgroundColor="#ffffff"
-                textColor={siam.blue.dark}
+                backgroundColor={primaryCta.variant === 'secondary' ? '#ffffff' : siam.yellow.DEFAULT}
+                textColor={primaryCta.variant === 'secondary' ? siam.blue.dark : accentForeground}
                 borderColor="transparent"
               />
             </View>

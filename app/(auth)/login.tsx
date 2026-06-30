@@ -29,6 +29,8 @@ const DEMO_FREELANCER_EMAIL = 'freelancer@example.com';
 const DEMO_FREELANCER_PASSWORD = 'Freelancer123!';
 
 const BRAND_BLUE = siam.blue.DEFAULT;
+const BRAND_GOLD = siam.yellow.DEFAULT;
+const TEXT_ON_GOLD = '#1f2937';
 const SCREEN_WHITE = '#ffffff';
 const TEXT_PRIMARY = '#1f2937';
 const TEXT_MUTED = '#6b7280';
@@ -253,7 +255,7 @@ export default function LoginScreen() {
                   style={[styles.signInButton, loginMutation.isPending && styles.signInDisabled]}
                 >
                   {loginMutation.isPending ? (
-                    <ActivityIndicator color="#ffffff" />
+                    <ActivityIndicator color={TEXT_ON_GOLD} />
                   ) : (
                     <Text style={styles.signInLabel}>{t('auth.signIn')}</Text>
                   )}
@@ -421,7 +423,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: AUTH_BUTTON_HEIGHT,
     borderRadius: AUTH_BUTTON_RADIUS,
-    backgroundColor: BRAND_BLUE,
+    backgroundColor: BRAND_GOLD,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'stretch',
@@ -434,7 +436,7 @@ const styles = StyleSheet.create({
   signInLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: TEXT_ON_GOLD,
     textAlign: 'center',
   },
   signUpPrompt: {

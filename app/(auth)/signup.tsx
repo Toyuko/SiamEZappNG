@@ -98,7 +98,11 @@ export default function SignUpScreen() {
               value={password}
               onChangeText={setPassword}
             />
-            <Button label={signUpMutation.isPending ? t('auth.creatingAccount') : t('cta.getStarted')} onPress={handleSignUp} />
+            <Button
+              label={signUpMutation.isPending ? t('auth.creatingAccount') : t('cta.getStarted')}
+              variant="accent"
+              onPress={handleSignUp}
+            />
             <Button label={t('auth.backToLogin')} variant="secondary" onPress={() => router.replace('/(auth)/login')} />
           </View>
         </Card>

@@ -41,13 +41,16 @@ export const spacing = {
 
 export const radius = {
   sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  /** Buttons / inputs — matches web rounded-lg feel on mobile */
-  button: 16,
+  md: 10,
+  lg: 14,
+  xl: 20,
+  /** Buttons / inputs — matches the web `rounded-lg` feel */
+  button: 12,
   full: 9999,
 } as const;
+
+/** Foreground used on gold/accent surfaces (matches web yellow CTA text). */
+export const accentForeground = '#1f2937';
 
 export type ShadowStyle = {
   shadowColor: string;
