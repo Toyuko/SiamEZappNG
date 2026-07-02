@@ -1,17 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
+import { useOscillation } from '../../lib/anim/use-oscillation';
 import { accentForeground, heroGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 import { Button } from './Button';
 
@@ -51,7 +44,7 @@ function FloatingOrb({
   left,
   right,
   range,
-  delay,
+  phaseOffset,
   duration,
 }: {
   size: number;
@@ -61,17 +54,10 @@ function FloatingOrb({
   left?: number;
   right?: number;
   range: number;
-  delay: number;
+  phaseOffset: number;
   duration: number;
 }) {
-  const t = useSharedValue(0);
-
-  useEffect(() => {
-    t.value = withDelay(
-      delay,
-      withRepeat(withTiming(1, { duration, easing: Easing.inOut(Easing.quad) }), -1, true),
-    );
-  }, [delay, duration, t]);
+  const t = useOscillation(duration, phaseOffset);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: 0.55 + t.value * 0.45,
@@ -103,6 +89,14 @@ function FloatingOrb({
   );
 }
 
+/** Subtle infinite pulse to keep the primary CTA feeling alive. */
+function PulseView({ children, style }: { children: ReactNode; style?: object }) {
+  const p = useOscillation(1700);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + p.value * 0.035 }] }));
+
+  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
+}
+
 export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlot, primaryCta, secondaryCta }: PageHeaderProps) {
   const singlePrimary = Boolean(primaryCta && !secondaryCta);
 
@@ -117,9 +111,9 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
         overflow: 'hidden',
       }}
     >
-      <FloatingOrb size={160} color="rgba(255,206,45,0.28)" top={-48} right={-28} range={30} delay={0} duration={3200} />
-      <FloatingOrb size={120} color="rgba(255,255,255,0.14)" bottom={-38} left={-26} range={-26} delay={500} duration={3900} />
-      <FloatingOrb size={70} color="rgba(255,206,45,0.16)" top={40} left={30} range={22} delay={1000} duration={4600} />
+      <FloatingOrb size={170} color="rgba(255,206,45,0.55)" top={-52} right={-30} range={34} phaseOffset={0} duration={5200} />
+      <FloatingOrb size={124} color="rgba(255,255,255,0.28)" bottom={-40} left={-28} range={-30} phaseOffset={0.33} duration={6400} />
+      <FloatingOrb size={78} color="rgba(255,206,45,0.38)" top={38} left={26} range={26} phaseOffset={0.66} duration={7200} />
       {onBack ? (
         <Pressable
           onPress={onBack}
@@ -177,7 +171,7 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
       {primaryCta || secondaryCta ? (
         <View style={{ marginTop: spacing.stackLg + 4, gap: spacing.stackMd }}>
           {primaryCta ? (
-            <View style={singlePrimary ? { borderRadius: radius.button, ...ctaShadow } : undefined}>
+            <PulseView style={singlePrimary ? { borderRadius: radius.button, ...ctaShadow } : undefined}>
               <Button
                 label={primaryCta.label}
                 onPress={primaryCta.onPress}
@@ -189,7 +183,7 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
                 textColor={primaryCta.variant === 'secondary' ? siam.blue.dark : accentForeground}
                 borderColor={primaryCta.variant === 'secondary' ? 'transparent' : undefined}
               />
-            </View>
+            </PulseView>
           ) : null}
           {secondaryCta ? (
             <Button
