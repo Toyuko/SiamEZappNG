@@ -64,17 +64,17 @@ export const shadows = {
   /** Subtle card lift — light surfaces */
   cardLight: {
     shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.07,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
     elevation: 4,
   } satisfies ShadowStyle,
   /** Stats / metrics — medium depth */
   cardMedium: {
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.09,
+    shadowRadius: 22,
     elevation: 7,
   } satisfies ShadowStyle,
   /** Featured quote / testimonial — stronger depth */
