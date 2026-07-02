@@ -26,6 +26,7 @@ import { useAuth } from '../../hooks/use-auth';
 import { ApiError } from '../../lib/api';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
+import { useTheme } from '../../lib/theme/theme';
 import { goldGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 
 const DEMO_FREELANCER_EMAIL = 'freelancer@example.com';
@@ -77,12 +78,17 @@ function AuthField({
   rightElement,
   noBottomSpacing,
 }: AuthFieldProps) {
+  const { colors } = useTheme();
   return (
     <View style={[styles.fieldShell, noBottomSpacing ? styles.fieldShellTight : null]}>
       <TextInput
-        style={[styles.fieldInput, rightElement ? styles.fieldInputWithIcon : null]}
+        style={[
+          styles.fieldInput,
+          { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground },
+          rightElement ? styles.fieldInputWithIcon : null,
+        ]}
         placeholder={placeholder}
-        placeholderTextColor={TEXT_MUTED}
+        placeholderTextColor={colors.muted}
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
@@ -104,11 +110,12 @@ type StackedButtonProps = {
 };
 
 function StackedAuthButton({ label, onPress, variant }: StackedButtonProps) {
+  const { colors } = useTheme();
   const palette = {
     guest: {
       bg: 'transparent',
-      border: BRAND_BLUE,
-      text: BRAND_BLUE,
+      border: colors.primary,
+      text: colors.primary,
       icon: null as string | null,
       borderWidth: 1,
     },
@@ -148,6 +155,7 @@ function StackedAuthButton({ label, onPress, variant }: StackedButtonProps) {
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const { loginMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -193,7 +201,7 @@ export default function LoginScreen() {
   return (
     <LoginPhoneFrame>
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={[styles.flex, { backgroundColor: colors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 4 : 0}
       >
@@ -204,7 +212,7 @@ export default function LoginScreen() {
         >
           <View style={styles.mainColumn}>
             <FadeInView distance={24} scaleFrom={0.97}>
-            <View style={[styles.card, CARD_SHADOW]}>
+            <View style={[styles.card, CARD_SHADOW, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
               <View style={styles.logoRing}>
                 <Image
                   source={require('../../assets/siamez-logo.png')}
@@ -214,8 +222,8 @@ export default function LoginScreen() {
                 />
               </View>
 
-              <Text style={styles.cardTitle}>{t('auth.welcome')}</Text>
-              <Text style={styles.cardSubtitle}>{t('auth.welcomeSubtitle')}</Text>
+              <Text style={[styles.cardTitle, { color: colors.foreground }]}>{t('auth.welcome')}</Text>
+              <Text style={[styles.cardSubtitle, { color: colors.muted }]}>{t('auth.welcomeSubtitle')}</Text>
 
               <View style={styles.form}>
                 <AuthField
@@ -245,7 +253,7 @@ export default function LoginScreen() {
                       <Ionicons
                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                         size={22}
-                        color={TEXT_MUTED}
+                        color={colors.muted}
                       />
                     </Pressable>
                   }
@@ -271,17 +279,17 @@ export default function LoginScreen() {
                   )}
                 </TouchableOpacity>
 
-                <Text style={styles.signUpPrompt}>
+                <Text style={[styles.signUpPrompt, { color: colors.muted }]}>
                   {t('auth.noAccountPrompt')}{' '}
-                  <Text style={styles.signUpLink} onPress={() => router.push('/(auth)/signup')}>
+                  <Text style={[styles.signUpLink, { color: colors.primary }]} onPress={() => router.push('/(auth)/signup')}>
                     {t('auth.signUpHere')}
                   </Text>
                 </Text>
 
                 <View style={styles.dividerRow}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>{t('auth.orContinueWith')}</Text>
-                  <View style={styles.dividerLine} />
+                  <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                  <Text style={[styles.dividerText, { color: colors.muted }]}>{t('auth.orContinueWith')}</Text>
+                  <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
                 </View>
 
                 <View style={styles.stackedGroup}>
@@ -315,7 +323,7 @@ export default function LoginScreen() {
 
             {typeof __DEV__ !== 'undefined' && __DEV__ ? (
               <View style={styles.demoFooter}>
-                <Text style={styles.demoDescription}>
+                <Text style={[styles.demoDescription, { color: colors.muted }]}>
                   {t('auth.demoFreelancerDescription', {
                     email: DEMO_FREELANCER_EMAIL,
                     password: DEMO_FREELANCER_PASSWORD,
@@ -324,9 +332,13 @@ export default function LoginScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={fillDemoFreelancer}
-                  style={({ pressed }) => [styles.demoButton, pressed ? styles.demoButtonPressed : null]}
+                  style={({ pressed }) => [
+                    styles.demoButton,
+                    { borderColor: colors.primary, backgroundColor: colors.card },
+                    pressed ? styles.demoButtonPressed : null,
+                  ]}
                 >
-                  <Text style={styles.demoButtonLabel}>{t('auth.useDemoFreelancerAccount')}</Text>
+                  <Text style={[styles.demoButtonLabel, { color: colors.primary }]}>{t('auth.useDemoFreelancerAccount')}</Text>
                 </Pressable>
               </View>
             ) : null}
