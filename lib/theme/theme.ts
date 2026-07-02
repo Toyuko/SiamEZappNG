@@ -3,8 +3,8 @@ import { useColorScheme } from 'react-native';
 import { siam } from './tokens';
 import { useThemeStore } from './useThemeStore';
 
-export type ThemeMode = 'light' | 'dark' | 'system';
-export type ResolvedTheme = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark' | 'night' | 'system';
+export type ResolvedTheme = 'light' | 'dark' | 'night';
 
 export type ThemeColors = {
   background: string;
@@ -67,6 +67,24 @@ export const themeColors: Record<ResolvedTheme, ThemeColors> = {
     headerText: '#f4f4f5',
     headerTextMuted: '#a1a1aa',
   },
+  night: {
+    // Deep midnight blue — a softer, bluer alternative to the neutral dark.
+    background: '#0a0f1f',
+    foreground: '#e7ecf7',
+    card: '#141d33',
+    cardForeground: '#e7ecf7',
+    text: '#e7ecf7',
+    primary: siam.blue.bright,
+    mutedText: '#93a0bd',
+    muted: '#93a0bd',
+    border: '#26314f',
+    danger: '#f87171',
+    success: '#34d399',
+    headerBg: '#0a0f1f',
+    headerBorder: '#26314f',
+    headerText: '#e7ecf7',
+    headerTextMuted: '#93a0bd',
+  },
 };
 
 function resolveTheme(mode: ThemeMode, systemScheme: ReturnType<typeof useColorScheme>): ResolvedTheme {
@@ -83,7 +101,8 @@ export function useTheme() {
 
   return {
     colors: themeColors[resolvedTheme],
-    isDark: resolvedTheme === 'dark',
+    isDark: resolvedTheme !== 'light',
+    resolvedTheme,
     themeMode,
   };
 }

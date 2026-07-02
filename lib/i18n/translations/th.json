@@ -103,7 +103,9 @@
     "language": "ภาษา",
     "light": "สว่าง",
     "dark": "มืด",
+    "night": "กลางคืน",
     "system": "ตามระบบ",
+    "auto": "อัตโนมัติ",
     "english": "English",
     "thai": "ไทย"
   },

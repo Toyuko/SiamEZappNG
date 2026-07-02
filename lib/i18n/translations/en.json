@@ -103,7 +103,9 @@
     "language": "Language",
     "light": "Light",
     "dark": "Dark",
+    "night": "Night",
     "system": "System",
+    "auto": "Auto",
     "english": "English",
     "thai": "Thai"
   },
