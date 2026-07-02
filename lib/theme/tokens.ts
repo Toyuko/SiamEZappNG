@@ -117,3 +117,17 @@ export const heroGradient = {
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 };
+
+/** Gold gradient for striking accent CTAs (matches the SiamEZ yellow palette). */
+export const goldGradient = {
+  colors: [siam.yellow.light, siam.yellow.DEFAULT, siam.yellow.dark] as const,
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+};
+
+/** Brighter blue gradient for primary CTAs / accents. */
+export const brandGradient = {
+  colors: [siam.blue.bright, siam.blue.DEFAULT, siam.blue.dark] as const,
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+};

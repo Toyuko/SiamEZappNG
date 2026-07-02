@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigger';
@@ -139,12 +140,14 @@ export default function HomeScreen() {
           paddingBottom: 40 + VOICE_FAB_SCROLL_EXTRA,
         }}
       >
-        <PageHeader
-          badge={t('home.badge')}
-          title={t('home.title')}
-          subtitle={t('home.subtitle')}
-          primaryCta={{ label: t('cta.getStarted'), onPress: () => router.push('/(auth)/signup') }}
-        />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader
+            badge={t('home.badge')}
+            title={t('home.title')}
+            subtitle={t('home.subtitle')}
+            primaryCta={{ label: t('cta.getStarted'), onPress: () => router.push('/(auth)/signup') }}
+          />
+        </FadeInView>
 
         {isGuest ? (
           <Card>
@@ -215,7 +218,9 @@ export default function HomeScreen() {
           </Card>
         ) : null}
 
-        <TrustStats />
+        <FadeInView delay={120}>
+          <TrustStats />
+        </FadeInView>
 
         <Section title={t('trust.whatClientsSay')} subtitle={t('trust.testimonialSubtitle')}>
           <ScrollView
@@ -252,24 +257,27 @@ export default function HomeScreen() {
           </ScrollView>
         </Section>
 
-        <Card>
-          <Text className="text-lg font-bold tracking-tight" style={{ color: colors.foreground }}>
-            {t('home.findService')}
-          </Text>
-          <Text className="mt-1.5 text-sm leading-5" style={{ color: colors.muted }}>
-            {t('home.searchServices')}
-          </Text>
-          <View className="mt-3">
-            <ServiceSearchTrigger placeholder={t('home.searchServices')} />
-          </View>
-          <View className="mt-4">
-            <Button label={t('cta.bookNow')} onPress={() => router.push('/(tabs)/book')} />
-          </View>
-        </Card>
+        <FadeInView delay={200}>
+          <Card>
+            <Text className="text-lg font-bold tracking-tight" style={{ color: colors.foreground }}>
+              {t('home.findService')}
+            </Text>
+            <Text className="mt-1.5 text-sm leading-5" style={{ color: colors.muted }}>
+              {t('home.searchServices')}
+            </Text>
+            <View className="mt-3">
+              <ServiceSearchTrigger placeholder={t('home.searchServices')} />
+            </View>
+            <View className="mt-4">
+              <Button label={t('cta.bookNow')} gradient onPress={() => router.push('/(tabs)/book')} />
+            </View>
+          </Card>
+        </FadeInView>
 
         <Section title={t('home.popularServices')} subtitle={t('home.popularServicesSubtitle')}>
-          {featuredServices.map((service) => (
-            <Card key={service.slug}>
+          {featuredServices.map((service, serviceIndex) => (
+            <FadeInView key={service.slug} delay={260 + serviceIndex * 90} distance={20} scaleFrom={0.96}>
+            <Card>
               <Ionicons name={service.icon} size={28} color={colors.primary} accessibilityIgnoresInvertColors />
               <Text className="mt-2 text-base font-bold" style={{ color: colors.foreground }}>
                 {getServiceTitle(service, language)}
@@ -280,6 +288,7 @@ export default function HomeScreen() {
               <View className="mt-4 gap-3">
                 <Button
                   label={t('cta.bookNow')}
+                  gradient
                   onPress={() =>
                     router.push({ pathname: '/(tabs)/book', params: { serviceSlug: service.slug } })
                   }
@@ -291,6 +300,7 @@ export default function HomeScreen() {
                 />
               </View>
             </Card>
+            </FadeInView>
           ))}
           <Button variant="secondary" onPress={() => router.push('/(tabs)/services')}>
             <View className="flex-row items-center justify-center gap-2">

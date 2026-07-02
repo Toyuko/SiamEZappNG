@@ -18,12 +18,15 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { LoginPhoneFrame } from '../../components/auth/LoginPhoneFrame';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { useAuth } from '../../hooks/use-auth';
 import { ApiError } from '../../lib/api';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
-import { radius, siam, spacing } from '../../lib/theme/tokens';
+import { goldGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 
 const DEMO_FREELANCER_EMAIL = 'freelancer@example.com';
 const DEMO_FREELANCER_PASSWORD = 'Freelancer123!';
@@ -200,6 +203,7 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.mainColumn}>
+            <FadeInView distance={24} scaleFrom={0.97}>
             <View style={[styles.card, CARD_SHADOW]}>
               <View style={styles.logoRing}>
                 <Image
@@ -254,6 +258,12 @@ export default function LoginScreen() {
                   onPress={handleLogin}
                   style={[styles.signInButton, loginMutation.isPending && styles.signInDisabled]}
                 >
+                  <LinearGradient
+                    colors={[...goldGradient.colors]}
+                    start={goldGradient.start}
+                    end={goldGradient.end}
+                    style={StyleSheet.absoluteFill}
+                  />
                   {loginMutation.isPending ? (
                     <ActivityIndicator color={TEXT_ON_GOLD} />
                   ) : (
@@ -301,6 +311,7 @@ export default function LoginScreen() {
                 </View>
               </View>
             </View>
+            </FadeInView>
 
             {typeof __DEV__ !== 'undefined' && __DEV__ ? (
               <View style={styles.demoFooter}>
@@ -429,6 +440,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     marginTop: 20,
     marginBottom: AUTH_BUTTON_GAP,
+    overflow: 'hidden',
   },
   signInDisabled: {
     opacity: 0.65,

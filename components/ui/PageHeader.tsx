@@ -1,7 +1,16 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { accentForeground, heroGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 import { Button } from './Button';
@@ -33,6 +42,67 @@ const ctaShadow = {
   elevation: 8,
 } as const;
 
+/** Slowly drifting decorative orb that gives the hero some life. */
+function FloatingOrb({
+  size,
+  color,
+  top,
+  bottom,
+  left,
+  right,
+  range,
+  delay,
+  duration,
+}: {
+  size: number;
+  color: string;
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+  range: number;
+  delay: number;
+  duration: number;
+}) {
+  const t = useSharedValue(0);
+
+  useEffect(() => {
+    t.value = withDelay(
+      delay,
+      withRepeat(withTiming(1, { duration, easing: Easing.inOut(Easing.quad) }), -1, true),
+    );
+  }, [delay, duration, t]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: 0.55 + t.value * 0.45,
+    transform: [
+      { translateY: t.value * range },
+      { translateX: t.value * (range * 0.5) },
+      { scale: 1 + t.value * 0.22 },
+    ],
+  }));
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        {
+          position: 'absolute',
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: color,
+          top,
+          bottom,
+          left,
+          right,
+        },
+        animatedStyle,
+      ]}
+    />
+  );
+}
+
 export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlot, primaryCta, secondaryCta }: PageHeaderProps) {
   const singlePrimary = Boolean(primaryCta && !secondaryCta);
 
@@ -47,6 +117,9 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
         overflow: 'hidden',
       }}
     >
+      <FloatingOrb size={160} color="rgba(255,206,45,0.28)" top={-48} right={-28} range={30} delay={0} duration={3200} />
+      <FloatingOrb size={120} color="rgba(255,255,255,0.14)" bottom={-38} left={-26} range={-26} delay={500} duration={3900} />
+      <FloatingOrb size={70} color="rgba(255,206,45,0.16)" top={40} left={30} range={22} delay={1000} duration={4600} />
       {onBack ? (
         <Pressable
           onPress={onBack}
@@ -79,6 +152,8 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
             paddingHorizontal: spacing.stackMd + 2,
             paddingVertical: 6,
             borderRadius: radius.full,
+            ...ctaShadow,
+            shadowOpacity: 0.18,
           }}
         >
           <Text style={{ color: accentForeground, fontSize: 13, fontWeight: '700' }}>{badge}</Text>
@@ -107,11 +182,12 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
                 label={primaryCta.label}
                 onPress={primaryCta.onPress}
                 variant={primaryCta.variant ?? 'accent'}
+                gradient={primaryCta.variant !== 'secondary'}
                 rounded
                 fullWidth
-                backgroundColor={primaryCta.variant === 'secondary' ? '#ffffff' : siam.yellow.DEFAULT}
+                backgroundColor={primaryCta.variant === 'secondary' ? '#ffffff' : undefined}
                 textColor={primaryCta.variant === 'secondary' ? siam.blue.dark : accentForeground}
-                borderColor="transparent"
+                borderColor={primaryCta.variant === 'secondary' ? 'transparent' : undefined}
               />
             </View>
           ) : null}
