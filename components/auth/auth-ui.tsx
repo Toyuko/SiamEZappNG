@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -10,7 +11,7 @@ import {
   type TextInputProps,
 } from 'react-native';
 
-import { goldGradient, radius, siam } from '../../lib/theme/tokens';
+import { goldGradient, radius } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 const GOOGLE_RED = '#DB4437';
@@ -30,22 +31,15 @@ export function useAuthColors() {
   };
 }
 
-/** Blue rounded-square "SZ" mark (matches the website portal logo). */
-export function AuthLogo() {
+/** The SiamEZ brand logo (blue circle + gold elephant). */
+export function AuthLogo({ size = 84 }: { size?: number }) {
   return (
-    <View
-      style={{
-        alignSelf: 'center',
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        backgroundColor: siam.blue.DEFAULT,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Text style={{ color: '#ffffff', fontWeight: '800', fontSize: 20, letterSpacing: 0.5 }}>SZ</Text>
-    </View>
+    <Image
+      source={require('../../assets/siamez-logo.png')}
+      style={{ alignSelf: 'center', width: size, height: size, borderRadius: size / 2 }}
+      resizeMode="contain"
+      accessibilityLabel="SiamEZ logo"
+    />
   );
 }
 

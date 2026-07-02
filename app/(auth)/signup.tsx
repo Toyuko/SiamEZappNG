@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { ApiError } from '../../lib/api';
 import {
   AuthField,
+  AuthLogo,
   AuthSubmitButton,
   AuthSwitchLink,
   OrDivider,
@@ -59,6 +60,9 @@ export default function SignUpScreen() {
               padding: spacing.cardPadding + 4,
             }}
           >
+            <View style={{ marginBottom: 16 }}>
+              <AuthLogo />
+            </View>
             <SocialButton kind="google" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
             <SocialButton kind="line" label={t('auth.continueWithLine')} onPress={() => loginWithProvider('line')} />
 
