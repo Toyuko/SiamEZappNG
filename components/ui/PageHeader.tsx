@@ -91,8 +91,8 @@ function FloatingOrb({
 
 /** Subtle infinite pulse to keep the primary CTA feeling alive. */
 function PulseView({ children, style }: { children: ReactNode; style?: object }) {
-  const p = useOscillation(1700);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + p.value * 0.035 }] }));
+  const p = useOscillation(1500);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + p.value * 0.05 }] }));
 
   return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
 }
@@ -111,9 +111,9 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
         overflow: 'hidden',
       }}
     >
-      <FloatingOrb size={170} color="rgba(255,206,45,0.55)" top={-52} right={-30} range={34} phaseOffset={0} duration={5200} />
-      <FloatingOrb size={124} color="rgba(255,255,255,0.28)" bottom={-40} left={-28} range={-30} phaseOffset={0.33} duration={6400} />
-      <FloatingOrb size={78} color="rgba(255,206,45,0.38)" top={38} left={26} range={26} phaseOffset={0.66} duration={7200} />
+      <FloatingOrb size={170} color="rgba(255,206,45,0.55)" top={-52} right={-30} range={52} phaseOffset={0} duration={3400} />
+      <FloatingOrb size={124} color="rgba(255,255,255,0.30)" bottom={-40} left={-28} range={-46} phaseOffset={0.33} duration={4200} />
+      <FloatingOrb size={80} color="rgba(255,206,45,0.42)" top={38} left={26} range={40} phaseOffset={0.66} duration={5000} />
       {onBack ? (
         <Pressable
           onPress={onBack}
