@@ -109,6 +109,12 @@
     "english": "English",
     "thai": "Thai"
   },
+  "ads": {
+    "sponsored": "Sponsored",
+    "title": "Advertise with SiamEZ",
+    "subtitle": "Reach thousands of clients — your ad could be here.",
+    "cta": "Learn more"
+  },
   "auth": {
     "welcome": "Welcome back to SiamEZ",
     "welcomeSubtitle": "Manage your cases, documents, and payments from one place.",

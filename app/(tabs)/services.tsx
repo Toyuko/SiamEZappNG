@@ -7,6 +7,7 @@ import { ServiceDetailSheet } from '../../components/services/ServiceDetailSheet
 import { ServiceIconPager } from '../../components/services/ServiceIconPager';
 import { ServiceSearchBar } from '../../components/services/ServiceSearchBar';
 import { ServicesScreenHeader } from '../../components/services/ServicesScreenHeader';
+import { AdSlot } from '../../components/ui/AdSlot';
 import { filterServicesByQuery } from '../../features/services/service-display';
 import { getActiveServices } from '../../features/services/services.data';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
@@ -54,6 +55,10 @@ export default function ServicesScreen() {
         </View>
 
         <ServiceIconPager services={filteredServices} onSelectService={setSelectedService} />
+
+        <View style={{ paddingTop: spacing.stackSm, paddingBottom: spacing.stackMd }}>
+          <AdSlot />
+        </View>
       </View>
 
       <ServiceDetailSheet
