@@ -1,161 +1,50 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { LinearGradient } from 'expo-linear-gradient';
-
 import { LoginPhoneFrame } from '../../components/auth/LoginPhoneFrame';
+import {
+  AuthField,
+  AuthLogo,
+  AuthSubmitButton,
+  AuthSwitchLink,
+  OrDivider,
+  SocialButton,
+  useAuthColors,
+} from '../../components/auth/auth-ui';
 import { FadeInView } from '../../components/ui/FadeInView';
 import { useAuth } from '../../hooks/use-auth';
 import { ApiError } from '../../lib/api';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
-import { useTheme } from '../../lib/theme/theme';
-import { goldGradient, radius, siam, spacing } from '../../lib/theme/tokens';
+import { radius, spacing } from '../../lib/theme/tokens';
 
 const DEMO_FREELANCER_EMAIL = 'freelancer@example.com';
 const DEMO_FREELANCER_PASSWORD = 'Freelancer123!';
 
-const BRAND_BLUE = siam.blue.DEFAULT;
-const BRAND_GOLD = siam.yellow.DEFAULT;
-const TEXT_ON_GOLD = '#1f2937';
-const SCREEN_WHITE = '#ffffff';
-const TEXT_PRIMARY = '#1f2937';
-const TEXT_MUTED = '#6b7280';
-const BORDER = '#e5e7eb';
-const GOOGLE_RED = '#DB4437';
-const FACEBOOK_BLUE = '#1877F2';
-const LINE_GREEN = '#06C755';
-
 const CARD_SHADOW = {
   shadowColor: '#0f172a',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.1,
-  shadowRadius: 14,
-  elevation: 5,
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.08,
+  shadowRadius: 24,
+  elevation: 6,
 } as const;
-
-const AUTH_BUTTON_HEIGHT = 52;
-const AUTH_BUTTON_RADIUS = radius.button;
-const AUTH_BUTTON_GAP = 12;
-
-type AuthFieldProps = {
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  secureTextEntry?: boolean;
-  keyboardType?: 'email-address' | 'default';
-  autoComplete?: 'email' | 'password';
-  textContentType?: 'emailAddress' | 'password';
-  rightElement?: ReactNode;
-  noBottomSpacing?: boolean;
-};
-
-function AuthField({
-  placeholder,
-  value,
-  onChangeText,
-  secureTextEntry,
-  keyboardType = 'default',
-  autoComplete,
-  textContentType,
-  rightElement,
-  noBottomSpacing,
-}: AuthFieldProps) {
-  const { colors } = useTheme();
-  return (
-    <View style={[styles.fieldShell, noBottomSpacing ? styles.fieldShellTight : null]}>
-      <TextInput
-        style={[
-          styles.fieldInput,
-          { backgroundColor: colors.card, borderColor: colors.border, color: colors.foreground },
-          rightElement ? styles.fieldInputWithIcon : null,
-        ]}
-        placeholder={placeholder}
-        placeholderTextColor={colors.muted}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        autoCapitalize="none"
-        autoCorrect={false}
-        autoComplete={autoComplete}
-        textContentType={textContentType}
-      />
-      {rightElement}
-    </View>
-  );
-}
-
-type StackedButtonProps = {
-  label: string;
-  onPress: () => void;
-  variant: 'guest' | 'google' | 'facebook' | 'line';
-};
-
-function StackedAuthButton({ label, onPress, variant }: StackedButtonProps) {
-  const { colors } = useTheme();
-  const palette = {
-    guest: {
-      bg: 'transparent',
-      border: colors.primary,
-      text: colors.primary,
-      icon: null as string | null,
-      borderWidth: 1,
-    },
-    google: { bg: GOOGLE_RED, border: GOOGLE_RED, text: '#ffffff', icon: 'G', borderWidth: 0 },
-    facebook: { bg: FACEBOOK_BLUE, border: FACEBOOK_BLUE, text: '#ffffff', icon: 'f', borderWidth: 0 },
-    line: { bg: LINE_GREEN, border: LINE_GREEN, text: '#ffffff', icon: 'LINE', borderWidth: 0 },
-  }[variant];
-
-  return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      activeOpacity={0.9}
-      onPress={onPress}
-      style={[
-        styles.authButton,
-        {
-          backgroundColor: palette.bg,
-          borderColor: palette.border,
-          borderWidth: palette.borderWidth,
-        },
-      ]}
-    >
-      {palette.icon ? (
-        <View style={styles.stackedIconSlot}>
-          {variant === 'line' ? (
-            <Text style={styles.lineIcon}>LINE</Text>
-          ) : (
-            <Text style={[styles.brandLetter, { color: palette.text }]}>{palette.icon}</Text>
-          )}
-        </View>
-      ) : null}
-      <Text style={[styles.stackedLabel, { color: palette.text }]}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
 
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
+  const { colors, pageBackground } = useAuthColors();
   const { loginMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -201,351 +90,134 @@ export default function LoginScreen() {
   return (
     <LoginPhoneFrame>
       <KeyboardAvoidingView
-        style={[styles.flex, { backgroundColor: colors.background }]}
+        style={{ flex: 1, backgroundColor: pageBackground }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 4 : 0}
       >
         <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: spacing.sectionGap + insets.bottom }]}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            paddingHorizontal: spacing.screenPaddingX,
+            paddingVertical: spacing.sectionGap,
+            paddingBottom: spacing.sectionGap + insets.bottom,
+          }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.mainColumn}>
-            <FadeInView distance={24} scaleFrom={0.97}>
-            <View style={[styles.card, CARD_SHADOW, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-              <View style={styles.logoRing}>
-                <Image
-                  source={require('../../assets/siamez-logo.png')}
-                  style={styles.logoImage}
-                  resizeMode="contain"
-                  accessibilityLabel="SiamEZ logo"
-                />
-              </View>
+          <FadeInView distance={22} scaleFrom={0.98}>
+            <View
+              style={{
+                alignSelf: 'center',
+                width: '100%',
+                maxWidth: 440,
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                borderWidth: 1,
+                borderRadius: radius.xl,
+                padding: spacing.cardPadding + 4,
+                ...CARD_SHADOW,
+              }}
+            >
+              <AuthLogo />
+              <Text
+                style={{ textAlign: 'center', fontSize: 24, fontWeight: '700', color: colors.foreground, marginTop: 16 }}
+              >
+                {t('auth.welcome')}
+              </Text>
+              <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 21, color: colors.muted, marginTop: 6, marginBottom: 18 }}>
+                {t('auth.welcomeSubtitle')}
+              </Text>
 
-              <Text style={[styles.cardTitle, { color: colors.foreground }]}>{t('auth.welcome')}</Text>
-              <Text style={[styles.cardSubtitle, { color: colors.muted }]}>{t('auth.welcomeSubtitle')}</Text>
+              <SocialButton kind="google-outline" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
+              <SocialButton kind="line" label={t('auth.continueWithLine')} onPress={() => loginWithProvider('line')} />
+              <SocialButton kind="facebook" label={t('auth.continueWithFacebook')} onPress={() => loginWithProvider('facebook')} />
+              <SocialButton
+                kind="guest"
+                label={t('auth.continueAsGuest')}
+                onPress={() => {
+                  continueAsGuest();
+                  router.replace('/(tabs)/home');
+                }}
+              />
 
-              <View style={styles.form}>
-                <AuthField
-                  placeholder={t('auth.email')}
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoComplete="email"
-                  textContentType="emailAddress"
-                />
-                <AuthField
-                  placeholder={t('auth.password')}
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoComplete="password"
-                  textContentType="password"
-                  noBottomSpacing
-                  rightElement={
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
-                      hitSlop={10}
-                      onPress={() => setShowPassword((prev) => !prev)}
-                      style={styles.eyeButton}
-                    >
-                      <Ionicons
-                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                        size={22}
-                        color={colors.muted}
-                      />
-                    </Pressable>
-                  }
-                />
+              <OrDivider label={t('auth.orContinueWith')} />
 
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  activeOpacity={0.9}
-                  disabled={loginMutation.isPending}
-                  onPress={handleLogin}
-                  style={[styles.signInButton, loginMutation.isPending && styles.signInDisabled]}
-                >
-                  <LinearGradient
-                    colors={[...goldGradient.colors]}
-                    start={goldGradient.start}
-                    end={goldGradient.end}
-                    style={StyleSheet.absoluteFill}
-                  />
-                  {loginMutation.isPending ? (
-                    <ActivityIndicator color={TEXT_ON_GOLD} />
-                  ) : (
-                    <Text style={styles.signInLabel}>{t('auth.signIn')}</Text>
-                  )}
-                </TouchableOpacity>
+              <AuthField
+                label={t('auth.email')}
+                placeholder={t('auth.email')}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="email"
+                textContentType="emailAddress"
+              />
+              <AuthField
+                label={t('auth.password')}
+                placeholder={t('auth.password')}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="password"
+                textContentType="password"
+                rightElement={
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                    hitSlop={10}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                  >
+                    <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={22} color={colors.muted} />
+                  </Pressable>
+                }
+              />
 
-                <Text style={[styles.signUpPrompt, { color: colors.muted }]}>
-                  {t('auth.noAccountPrompt')}{' '}
-                  <Text style={[styles.signUpLink, { color: colors.primary }]} onPress={() => router.push('/(auth)/signup')}>
-                    {t('auth.signUpHere')}
-                  </Text>
-                </Text>
+              <AuthSubmitButton label={t('auth.signIn')} onPress={handleLogin} loading={loginMutation.isPending} />
 
-                <View style={styles.dividerRow}>
-                  <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                  <Text style={[styles.dividerText, { color: colors.muted }]}>{t('auth.orContinueWith')}</Text>
-                  <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                </View>
-
-                <View style={styles.stackedGroup}>
-                  <StackedAuthButton
-                    label={t('auth.continueAsGuest')}
-                    variant="guest"
-                    onPress={() => {
-                      continueAsGuest();
-                      router.replace('/(tabs)/home');
-                    }}
-                  />
-                  <StackedAuthButton
-                    label={t('auth.continueWithGoogle')}
-                    variant="google"
-                    onPress={() => loginWithProvider('google')}
-                  />
-                  <StackedAuthButton
-                    label={t('auth.continueWithFacebook')}
-                    variant="facebook"
-                    onPress={() => loginWithProvider('facebook')}
-                  />
-                  <StackedAuthButton
-                    label={t('auth.continueWithLine')}
-                    variant="line"
-                    onPress={() => loginWithProvider('line')}
-                  />
-                </View>
-              </View>
+              <AuthSwitchLink
+                prompt={t('auth.noAccountPrompt')}
+                actionLabel={t('auth.signUpHere')}
+                onPress={() => router.push('/(auth)/signup')}
+              />
             </View>
-            </FadeInView>
+          </FadeInView>
 
-            {typeof __DEV__ !== 'undefined' && __DEV__ ? (
-              <View style={styles.demoFooter}>
-                <Text style={[styles.demoDescription, { color: colors.muted }]}>
-                  {t('auth.demoFreelancerDescription', {
-                    email: DEMO_FREELANCER_EMAIL,
-                    password: DEMO_FREELANCER_PASSWORD,
-                  })}
+          {typeof __DEV__ !== 'undefined' && __DEV__ ? (
+            <View style={{ alignItems: 'center', gap: 10, marginTop: spacing.stackLg }}>
+              <Text style={{ textAlign: 'center', fontSize: 12, lineHeight: 18, color: colors.muted, paddingHorizontal: 8 }}>
+                {t('auth.demoFreelancerDescription', {
+                  email: DEMO_FREELANCER_EMAIL,
+                  password: DEMO_FREELANCER_PASSWORD,
+                })}
+              </Text>
+              <Pressable
+                accessibilityRole="button"
+                onPress={fillDemoFreelancer}
+                style={({ pressed }) => ({
+                  alignSelf: 'center',
+                  minHeight: 44,
+                  paddingHorizontal: 18,
+                  borderRadius: radius.button,
+                  borderWidth: 1.5,
+                  borderColor: colors.primary,
+                  backgroundColor: colors.card,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.85 : 1,
+                })}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primary }}>
+                  {t('auth.useDemoFreelancerAccount')}
                 </Text>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={fillDemoFreelancer}
-                  style={({ pressed }) => [
-                    styles.demoButton,
-                    { borderColor: colors.primary, backgroundColor: colors.card },
-                    pressed ? styles.demoButtonPressed : null,
-                  ]}
-                >
-                  <Text style={[styles.demoButtonLabel, { color: colors.primary }]}>{t('auth.useDemoFreelancerAccount')}</Text>
-                </Pressable>
-              </View>
-            ) : null}
-          </View>
+              </Pressable>
+            </View>
+          ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </LoginPhoneFrame>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: SCREEN_WHITE,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: spacing.screenPaddingX,
-    paddingBottom: spacing.sectionGap,
-  },
-  mainColumn: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    gap: spacing.stackLg,
-    paddingTop: spacing.stackMd,
-  },
-  card: {
-    backgroundColor: SCREEN_WHITE,
-    borderRadius: radius.xl,
-    padding: spacing.cardPadding,
-    gap: spacing.stackMd,
-    alignSelf: 'stretch',
-  },
-  logoRing: {
-    alignSelf: 'center',
-    width: 92,
-    height: 92,
-    borderRadius: 46,
-    backgroundColor: siam.yellow.DEFAULT,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.stackSm,
-  },
-  logoImage: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-  },
-  cardTitle: {
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '700',
-    color: TEXT_PRIMARY,
-    letterSpacing: -0.3,
-  },
-  cardSubtitle: {
-    textAlign: 'center',
-    fontSize: 14,
-    lineHeight: 21,
-    color: TEXT_MUTED,
-    marginBottom: spacing.stackSm,
-  },
-  form: {
-    width: '100%',
-  },
-  authButton: {
-    width: '100%',
-    height: AUTH_BUTTON_HEIGHT,
-    borderRadius: AUTH_BUTTON_RADIUS,
-    marginBottom: AUTH_BUTTON_GAP,
-    alignSelf: 'stretch',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  fieldShell: {
-    position: 'relative',
-    justifyContent: 'center',
-    marginBottom: AUTH_BUTTON_GAP,
-  },
-  fieldShellTight: {
-    marginBottom: 0,
-  },
-  fieldInput: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: radius.button,
-    backgroundColor: SCREEN_WHITE,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: TEXT_PRIMARY,
-  },
-  fieldInputWithIcon: {
-    paddingRight: 48,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 14,
-    height: 52,
-    justifyContent: 'center',
-  },
-  signInButton: {
-    width: '100%',
-    height: AUTH_BUTTON_HEIGHT,
-    borderRadius: AUTH_BUTTON_RADIUS,
-    backgroundColor: BRAND_GOLD,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'stretch',
-    marginTop: 20,
-    marginBottom: AUTH_BUTTON_GAP,
-    overflow: 'hidden',
-  },
-  signInDisabled: {
-    opacity: 0.65,
-  },
-  signInLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: TEXT_ON_GOLD,
-    textAlign: 'center',
-  },
-  signUpPrompt: {
-    textAlign: 'center',
-    fontSize: 14,
-    color: TEXT_MUTED,
-    lineHeight: 20,
-    marginBottom: AUTH_BUTTON_GAP,
-  },
-  signUpLink: {
-    color: BRAND_BLUE,
-    fontWeight: '700',
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: AUTH_BUTTON_GAP,
-  },
-  dividerLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: BORDER,
-  },
-  dividerText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: TEXT_MUTED,
-  },
-  stackedGroup: {
-    width: '100%',
-  },
-  stackedIconSlot: {
-    position: 'absolute',
-    left: 16,
-    minWidth: 32,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  stackedLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingHorizontal: 40,
-  },
-  brandLetter: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  lineIcon: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#ffffff',
-    letterSpacing: 0.4,
-  },
-  demoFooter: {
-    alignItems: 'center',
-    gap: 12,
-    paddingTop: spacing.stackSm,
-    paddingBottom: spacing.stackMd,
-  },
-  demoDescription: {
-    textAlign: 'center',
-    fontSize: 12,
-    lineHeight: 18,
-    color: TEXT_MUTED,
-    paddingHorizontal: 8,
-  },
-  demoButton: {
-    alignSelf: 'stretch',
-    minHeight: 48,
-    borderRadius: radius.button,
-    borderWidth: 1.5,
-    borderColor: BRAND_BLUE,
-    backgroundColor: SCREEN_WHITE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  demoButtonPressed: {
-    opacity: 0.85,
-  },
-  demoButtonLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: BRAND_BLUE,
-  },
-});
