@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -51,6 +52,7 @@ export default function SalesDetailScreen() {
             </Text>
           </Card>
         ) : (
+          <FadeInView delay={60} distance={20} scaleFrom={0.98}>
           <Card shadow="medium">
             <Text className="text-sm" style={{ color: colors.muted }}>
               {t('sales.gallery')}
@@ -98,13 +100,14 @@ export default function SalesDetailScreen() {
                 {t('sales.contactSeller')}
               </Text>
               <View className="mt-3 gap-2">
-                <Button label={t('sales.contactWhatsApp')} variant="secondary" size="md" onPress={() => void openExternalLink(CONTACT_WHATSAPP_URL)} />
+                <Button label={t('sales.contactWhatsApp')} gradient size="md" onPress={() => void openExternalLink(CONTACT_WHATSAPP_URL)} />
                 <Button label={t('sales.contactLine')} variant="secondary" size="md" onPress={() => void openExternalLink(CONTACT_LINE_URL)} />
                 <Button label={t('sales.contactCall')} variant="secondary" size="md" onPress={() => void openExternalLink(CONTACT_PHONE_URL)} />
                 <Button label={t('sales.contactEmail')} variant="secondary" size="md" onPress={() => void openExternalLink(CONTACT_EMAIL_URL)} />
               </View>
             </View>
           </Card>
+          </FadeInView>
         )}
       </ScrollView>
     </SafeAreaView>

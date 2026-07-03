@@ -9,6 +9,7 @@ import { RevenueTracker } from '../../components/freelancer/revenue-tracker';
 import { SubscriptionCard } from '../../components/freelancer/subscription-card';
 import { Badge } from '../../components/ui/Badge';
 import { ErrorState } from '../../components/ui/error-state';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useFreelancerDashboard } from '../../hooks/use-freelancer-dashboard';
@@ -84,29 +85,41 @@ export default function FreelancerScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <View style={{ gap: spacing.stackMd }}>
-          <PageHeader title={t('freelancer.dashboardTitle')} subtitle={t('freelancer.dashboardSubtitle')} />
-          <Badge
-            label={
-              profile?.verificationStatus === 'verified' && profile.averageRating > 0
-                ? `${verificationLabel(profile.verificationStatus)} · ★ ${profile.averageRating.toFixed(1)}`
-                : verificationLabel(profile?.verificationStatus)
-            }
-            variant={profile?.verificationStatus === 'verified' ? 'success' : 'info'}
+        <FadeInView delay={0} distance={22}>
+          <View style={{ gap: spacing.stackMd }}>
+            <PageHeader title={t('freelancer.dashboardTitle')} subtitle={t('freelancer.dashboardSubtitle')} />
+            <Badge
+              label={
+                profile?.verificationStatus === 'verified' && profile.averageRating > 0
+                  ? `${verificationLabel(profile.verificationStatus)} · ★ ${profile.averageRating.toFixed(1)}`
+                  : verificationLabel(profile?.verificationStatus)
+              }
+              variant={profile?.verificationStatus === 'verified' ? 'success' : 'info'}
+            />
+          </View>
+        </FadeInView>
+
+        {data?.revenue ? (
+          <FadeInView delay={100}>
+            <RevenueTracker revenue={data.revenue} />
+          </FadeInView>
+        ) : null}
+
+        <FadeInView delay={170}>
+          <SubscriptionCard />
+        </FadeInView>
+
+        <FadeInView delay={240}>
+          <JobBoardScreen nestedInScrollView />
+        </FadeInView>
+
+        <FadeInView delay={300}>
+          <ActiveJobsTrack
+            jobs={data?.activeJobs ?? []}
+            completingJobId={completingJobId}
+            onMarkDone={(jobId) => void handleMarkDone(jobId)}
           />
-        </View>
-
-        {data?.revenue ? <RevenueTracker revenue={data.revenue} /> : null}
-
-        <SubscriptionCard />
-
-        <JobBoardScreen nestedInScrollView />
-
-        <ActiveJobsTrack
-          jobs={data?.activeJobs ?? []}
-          completingJobId={completingJobId}
-          onMarkDone={(jobId) => void handleMarkDone(jobId)}
-        />
+        </FadeInView>
       </ScrollView>
     </SafeAreaView>
   );

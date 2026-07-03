@@ -4,6 +4,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
@@ -62,36 +63,39 @@ export default function MoreScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader title={t('tabs.more')} subtitle="Everything else in one place." />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader title={t('tabs.more')} subtitle="Everything else in one place." />
+        </FadeInView>
 
         <Card>
           <View className="gap-2">
-            {MORE_LINKS.map((item) => (
-              <Pressable
-                key={item.path}
-                onPress={() => router.push(item.path)}
-                className="flex-row items-center gap-3 rounded-xl px-3 py-3"
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.75 : 1,
-                  backgroundColor: colors.background,
-                })}
-              >
-                <View
-                  className="h-10 w-10 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}
+            {MORE_LINKS.map((item, index) => (
+              <FadeInView key={item.path} delay={90 + index * 60} distance={14}>
+                <Pressable
+                  onPress={() => router.push(item.path)}
+                  className="flex-row items-center gap-3 rounded-xl px-3 py-3"
+                  style={({ pressed }) => ({
+                    opacity: pressed ? 0.75 : 1,
+                    backgroundColor: colors.background,
+                  })}
                 >
-                  <Ionicons name={item.icon} size={18} color={colors.primary} />
-                </View>
-                <View className="min-w-0 flex-1">
-                  <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
-                    {item.label}
-                  </Text>
-                  <Text className="mt-0.5 text-xs leading-4" style={{ color: colors.muted }}>
-                    {item.subtitle}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.muted} />
-              </Pressable>
+                  <View
+                    className="h-10 w-10 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}
+                  >
+                    <Ionicons name={item.icon} size={18} color={colors.primary} />
+                  </View>
+                  <View className="min-w-0 flex-1">
+                    <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
+                      {item.label}
+                    </Text>
+                    <Text className="mt-0.5 text-xs leading-4" style={{ color: colors.muted }}>
+                      {item.subtitle}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+                </Pressable>
+              </FadeInView>
             ))}
           </View>
         </Card>
