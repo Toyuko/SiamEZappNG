@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -9,7 +10,11 @@ import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
-import { SERVICE_ICON_SURFACE } from './service-icon-surface';
+import {
+  SERVICE_ICON_GRADIENT,
+  SERVICE_ICON_GRADIENT_END,
+  SERVICE_ICON_GRADIENT_START,
+} from './service-icon-gradient';
 
 type ServiceIconCardProps = {
   service: ServiceItem;
@@ -23,7 +28,7 @@ export function ServiceIconCard({ service, variant = 'grid' }: ServiceIconCardPr
   const title = getServiceTitle(service, language);
   const description = getServiceDescription(service, language);
   const priceLine = getServicePriceFrom(service);
-  const tint = SERVICE_ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
+  const gradient = SERVICE_ICON_GRADIENT[service.category];
   const isGrid = variant === 'grid';
 
   const openDetails = () => router.push(`/services/${service.slug}`);
@@ -38,18 +43,25 @@ export function ServiceIconCard({ service, variant = 'grid' }: ServiceIconCardPr
         style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}
       >
         <View className={isGrid ? '' : 'flex-row gap-3'}>
-          <View
+          <LinearGradient
+            colors={[...gradient.colors]}
+            start={SERVICE_ICON_GRADIENT_START}
+            end={SERVICE_ICON_GRADIENT_END}
             style={{
-              width: isGrid ? 56 : 56,
+              width: 56,
               height: 56,
-              borderRadius: radius.md,
+              borderRadius: 16,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: tint,
+              shadowColor: gradient.shadow,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: isDark ? 0.5 : 0.3,
+              shadowRadius: 7,
+              elevation: 4,
             }}
           >
-            <Ionicons name={service.icon} size={isGrid ? 26 : 28} color={colors.primary} accessibilityIgnoresInvertColors />
-          </View>
+            <Ionicons name={service.icon} size={isGrid ? 26 : 28} color={gradient.foreground} accessibilityIgnoresInvertColors />
+          </LinearGradient>
 
           <View className={isGrid ? 'mt-2.5' : 'min-w-0 flex-1'} style={isGrid ? { width: '100%' } : undefined}>
             <Text

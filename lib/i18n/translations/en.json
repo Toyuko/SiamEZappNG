@@ -103,9 +103,17 @@
     "language": "Language",
     "light": "Light",
     "dark": "Dark",
+    "night": "Night",
     "system": "System",
+    "auto": "Auto",
     "english": "English",
     "thai": "Thai"
+  },
+  "ads": {
+    "sponsored": "Sponsored",
+    "title": "Advertise with SiamEZ",
+    "subtitle": "Reach thousands of clients — your ad could be here.",
+    "cta": "Learn more"
   },
   "auth": {
     "welcome": "Welcome back to SiamEZ",
@@ -119,6 +127,7 @@
     "signUp": "Sign Up",
     "signUpHere": "Sign up here",
     "noAccountPrompt": "Don't have an account?",
+    "haveAccountPrompt": "Already have an account?",
     "orContinueWith": "or continue with",
     "continueWithGoogle": "Continue with Google",
     "continueWithFacebook": "Continue with Facebook",
