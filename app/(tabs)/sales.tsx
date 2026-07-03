@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,10 +7,11 @@ import { useRouter } from 'expo-router';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { t } from '../../lib/i18n/i18n';
-import { spacing } from '../../lib/theme/tokens';
+import { radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
 import { useSalesStore } from '../../store/sales-store';
@@ -68,7 +70,7 @@ function listingToForm(listing: SalesListing): FormState {
 
 export default function SalesScreen() {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
   const listings = useSalesStore((state) => state.listings);
   const hydrateListings = useSalesStore((state) => state.hydrateListings);
@@ -148,6 +150,12 @@ export default function SalesScreen() {
 
   const myListings = useMemo(() => listings.filter((listing) => listing.ownerId === currentUserId), [currentUserId, listings]);
 
+  const statusBadge = (status: ListingStatus) => {
+    if (status === 'available') return { bg: colors.success, fg: '#ffffff' };
+    if (status === 'reserved') return { bg: siam.yellow.DEFAULT, fg: '#1f2937' };
+    return { bg: colors.danger, fg: '#ffffff' };
+  };
+
   const resetForm = () => {
     setFormState(defaultForm);
     setEditingId(null);
@@ -186,7 +194,9 @@ export default function SalesScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: spacing.screenPaddingX, paddingTop: spacing.stackMd, paddingBottom: 40 + VOICE_FAB_SCROLL_EXTRA, gap: spacing.sectionGap }}>
-        <PageHeader title={t('sales.title')} subtitle={t('sales.subtitle')} />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader title={t('sales.title')} subtitle={t('sales.subtitle')} />
+        </FadeInView>
         {loadingRemote ? (
           <Card compact>
             <Text className="text-sm" style={{ color: colors.muted }}>
@@ -202,6 +212,7 @@ export default function SalesScreen() {
           </Card>
         ) : null}
 
+        <FadeInView delay={80}>
         <Card>
           <View className="gap-3">
             <Input placeholder={t('sales.searchPlaceholder')} value={search} onChangeText={setSearch} />
@@ -231,33 +242,77 @@ export default function SalesScreen() {
             </View>
           </View>
         </Card>
+        </FadeInView>
 
         <View className="gap-3">
-          {filteredListings.map((listing) => (
-            <Pressable key={listing.id} onPress={() => router.push(`/sales/${listing.id}`)} style={({ pressed }) => ({ opacity: pressed ? 0.9 : 1 })}>
-              <Card shadow="medium">
-                <View className="gap-3">
-                  <Image source={{ uri: listing.heroImageUrl }} className="h-44 w-full rounded-xl" resizeMode="cover" />
-                  <Text className="text-xl font-bold" style={{ color: colors.primary }}>
-                    {formatMoney(listing.priceAmount)}
-                  </Text>
-                  <View>
-                    <Text className="text-lg font-semibold" style={{ color: colors.foreground }}>
-                      {listing.make} {listing.model}
-                    </Text>
-                    <Text className="text-sm" style={{ color: colors.muted }}>
-                      {listing.year} - {listing.mileageKm.toLocaleString()} km
-                    </Text>
-                  </View>
-                  <View className="self-start rounded-full px-3 py-1" style={{ backgroundColor: isDark ? 'rgba(91, 118, 224, 0.22)' : 'rgba(44, 84, 198, 0.12)' }}>
-                    <Text className="text-xs font-semibold" style={{ color: colors.primary }}>
-                      {t(`sales.status.${listing.status}`)}
-                    </Text>
-                  </View>
-                </View>
-              </Card>
-            </Pressable>
-          ))}
+          {filteredListings.map((listing, index) => {
+            const badge = statusBadge(listing.status);
+            return (
+              <FadeInView key={listing.id} delay={Math.min(index * 60, 320)} distance={18} scaleFrom={0.98}>
+                <Pressable
+                  onPress={() => router.push(`/sales/${listing.id}`)}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.94 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] })}
+                >
+                  <Card shadow="medium">
+                    <View style={{ position: 'relative' }}>
+                      <Image
+                        source={{ uri: listing.heroImageUrl }}
+                        style={{ height: 176, width: '100%', borderRadius: radius.lg }}
+                        resizeMode="cover"
+                      />
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 10,
+                          right: 10,
+                          borderRadius: 999,
+                          paddingHorizontal: 10,
+                          paddingVertical: 4,
+                          backgroundColor: badge.bg,
+                        }}
+                      >
+                        <Text className="text-[11px] font-bold" style={{ color: badge.fg }}>
+                          {t(`sales.status.${listing.status}`)}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: 10,
+                          left: 10,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 4,
+                          borderRadius: 999,
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          backgroundColor: 'rgba(15,23,42,0.55)',
+                        }}
+                      >
+                        <Ionicons name={listing.category === 'motorcycle' ? 'bicycle' : 'car-sport'} size={13} color="#ffffff" />
+                        <Text className="text-[10px] font-semibold" style={{ color: '#ffffff' }}>
+                          {t(listing.category === 'motorcycle' ? 'sales.categoryMotorcycles' : 'sales.categoryCars')}
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="mt-3 flex-row items-end justify-between gap-3">
+                      <View className="min-w-0 flex-1">
+                        <Text className="text-base font-bold" numberOfLines={1} style={{ color: colors.foreground }}>
+                          {listing.make} {listing.model}
+                        </Text>
+                        <Text className="mt-0.5 text-xs" style={{ color: colors.muted }}>
+                          {listing.year} · {listing.mileageKm.toLocaleString()} km
+                        </Text>
+                      </View>
+                      <Text className="text-lg font-extrabold" style={{ color: colors.primary }}>
+                        {formatMoney(listing.priceAmount)}
+                      </Text>
+                    </View>
+                  </Card>
+                </Pressable>
+              </FadeInView>
+            );
+          })}
           {filteredListings.length === 0 ? (
             <Card>
               <Text className="text-center text-sm" style={{ color: colors.muted }}>
@@ -299,7 +354,7 @@ export default function SalesScreen() {
                 <Button label={t('sales.status.sold')} size="md" variant={formState.status === 'sold' ? 'primary' : 'secondary'} onPress={() => setFormState((prev) => ({ ...prev, status: 'sold' }))} />
               </View>
               <View className="mt-2 flex-row gap-2">
-                <Button label={isEditing ? t('sales.form.saveChanges') : t('sales.form.addListing')} onPress={submitForm} />
+                <Button label={isEditing ? t('sales.form.saveChanges') : t('sales.form.addListing')} gradient onPress={submitForm} />
                 {isEditing ? <Button label={t('sales.form.cancelEdit')} variant="secondary" onPress={resetForm} /> : null}
               </View>
             </View>

@@ -7,12 +7,48 @@ import { useRouter } from 'expo-router';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+
+type ContactRowProps = {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value: string;
+  onPress: () => void;
+};
+
+function ContactRow({ icon, label, value, onPress }: ContactRowProps) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      className="flex-row items-center gap-3 py-2.5"
+      style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+    >
+      <View
+        className="h-10 w-10 items-center justify-center rounded-xl"
+        style={{ backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border }}
+      >
+        <Ionicons name={icon} size={19} color={colors.primary} />
+      </View>
+      <View className="min-w-0 flex-1">
+        <Text className="text-xs" style={{ color: colors.muted }}>
+          {label}
+        </Text>
+        <Text className="text-sm font-semibold" numberOfLines={1} style={{ color: colors.foreground }}>
+          {value}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+    </Pressable>
+  );
+}
 
 const SOCIAL_LINKS = [
   { url: 'https://www.facebook.com/siamezofficial', icon: 'logo-facebook' as const, labelKey: 'contact.social.facebook' },
@@ -102,45 +138,58 @@ export default function ContactScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 + VOICE_FAB_SCROLL_EXTRA }}>
-        <PageHeader title={t('contact.title')} subtitle={t('contact.subtitle')} />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader title={t('contact.title')} subtitle={t('contact.subtitle')} />
+        </FadeInView>
 
-        <Card>
-          <Text className="text-base font-bold" style={{ color: colors.foreground }}>
-            {t('contact.contactDetails')}
-          </Text>
-          <View className="mt-3 gap-2">
-            <Text className="text-sm leading-5" style={{ color: colors.foreground }}>
-              Email: inquiries@siam-ez.com
-            </Text>
-            <Text className="text-sm leading-5" style={{ color: colors.foreground }}>
-              Phone: +66 64 343 8768
-            </Text>
-            <Text className="text-sm leading-5" style={{ color: colors.foreground }}>
-              LINE Official: @siamez
-            </Text>
-          </View>
+        <FadeInView delay={80}>
+          <Section title={t('contact.contactDetails')}>
+            <Card>
+              <ContactRow
+                icon="mail-outline"
+                label="Email"
+                value="inquiries@siam-ez.com"
+                onPress={() => void openSocialUrl('mailto:inquiries@siam-ez.com')}
+              />
+              <View style={{ height: 1, backgroundColor: colors.border }} />
+              <ContactRow
+                icon="call-outline"
+                label="Phone"
+                value="+66 64 343 8768"
+                onPress={() => void openSocialUrl('tel:+66643438768')}
+              />
+              <View style={{ height: 1, backgroundColor: colors.border }} />
+              <ContactRow
+                icon="chatbubble-ellipses-outline"
+                label="LINE Official"
+                value="@siamez"
+                onPress={() => void openSocialUrl('https://line.me/R/ti/p/@siamez')}
+              />
 
-          <View className="mt-5 border-t pt-4" style={{ borderTopColor: colors.border }}>
-            <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
-              {t('contact.followUs')}
-            </Text>
-            <View className="mt-3 flex-row flex-wrap" style={{ gap: 10 }}>
-              {SOCIAL_LINKS.map((item) => (
-                <Pressable
-                  key={item.url}
-                  accessibilityRole="link"
-                  accessibilityLabel={t(item.labelKey)}
-                  className="h-11 w-11 items-center justify-center rounded-full"
-                  style={{ backgroundColor: colors.primary }}
-                  onPress={() => void openSocialUrl(item.url)}
-                >
-                  <Ionicons name={item.icon} size={22} color="#ffffff" />
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        </Card>
+              <View className="mt-4 border-t pt-4" style={{ borderTopColor: colors.border }}>
+                <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                  {t('contact.followUs')}
+                </Text>
+                <View className="mt-3 flex-row flex-wrap" style={{ gap: 10 }}>
+                  {SOCIAL_LINKS.map((item) => (
+                    <Pressable
+                      key={item.url}
+                      accessibilityRole="link"
+                      accessibilityLabel={t(item.labelKey)}
+                      className="h-11 w-11 items-center justify-center rounded-full"
+                      style={{ backgroundColor: colors.primary }}
+                      onPress={() => void openSocialUrl(item.url)}
+                    >
+                      <Ionicons name={item.icon} size={22} color="#ffffff" />
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </Card>
+          </Section>
+        </FadeInView>
 
+        <FadeInView delay={140}>
         <Section title={t('contact.bookService')}>
           <Card>
             <Input placeholder={t('contact.fullName')} value={fullName} onChangeText={setFullName} error={errors.fullName} />
@@ -208,19 +257,27 @@ export default function ContactScreen() {
               className="mt-3 min-h-[120px]"
             />
             <View className="mt-4">
-              <Button label={isSubmitting ? t('contact.submitting') : t('contact.submitRequest')} onPress={() => void submitRequest()} disabled={isSubmitting} />
+              <Button
+                label={isSubmitting ? t('contact.submitting') : t('contact.submitRequest')}
+                gradient
+                onPress={() => void submitRequest()}
+                disabled={isSubmitting}
+              />
             </View>
           </Card>
         </Section>
+        </FadeInView>
 
-        <Card>
-          <Text className="text-sm leading-5" style={{ color: colors.muted }}>
-            {t('contact.preferOnline')}
-          </Text>
-          <View className="mt-3">
-            <Button label={t('cta.bookNow')} variant="secondary" onPress={() => router.push('/(tabs)/book')} />
-          </View>
-        </Card>
+        <FadeInView delay={200}>
+          <Card>
+            <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+              {t('contact.preferOnline')}
+            </Text>
+            <View className="mt-3">
+              <Button label={t('cta.bookNow')} variant="secondary" onPress={() => router.push('/(tabs)/book')} />
+            </View>
+          </Card>
+        </FadeInView>
       </ScrollView>
     </SafeAreaView>
   );
