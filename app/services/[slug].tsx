@@ -7,6 +7,7 @@ import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout'
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { TrustStats } from '../../components/ui/TrustStats';
@@ -66,13 +67,17 @@ export default function ServiceDetailScreen() {
           <Button label={t('serviceDetail.backToServicesLower')} variant="secondary" size="md" fullWidth={false} onPress={() => router.back()} />
         </Card>
 
-        <PageHeader
-          title={getServiceTitle(service, language)}
-          subtitle={getServiceDescription(service, language)}
-          rightSlot={<Ionicons name={service.icon} size={32} color="#ffffff" accessibilityIgnoresInvertColors />}
-        />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader
+            title={getServiceTitle(service, language)}
+            subtitle={getServiceDescription(service, language)}
+            rightSlot={<Ionicons name={service.icon} size={32} color="#ffffff" accessibilityIgnoresInvertColors />}
+          />
+        </FadeInView>
 
-        <TrustStats />
+        <FadeInView delay={100}>
+          <TrustStats />
+        </FadeInView>
 
         <Section title={t('serviceDetail.overview')}>
           <Card>
@@ -152,6 +157,7 @@ export default function ServiceDetailScreen() {
                 <View className="mt-4">
                   <Button
                     label={t('cta.bookNow')}
+                    gradient
                     onPress={() =>
                       router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })
                     }
@@ -218,6 +224,7 @@ export default function ServiceDetailScreen() {
 
         <Button
           label={t('cta.bookNow')}
+          gradient
           onPress={() => router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })}
         />
         <Button label={t('serviceDetail.contactUs')} variant="secondary" onPress={() => void openContact()} />

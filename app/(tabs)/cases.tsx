@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Card } from '../../components/ui/Card';
 import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/status-badge';
@@ -29,8 +30,12 @@ export default function CasesScreen() {
 
   const listHeader = (
     <View style={{ gap: spacing.sectionGap, marginBottom: spacing.stackMd }}>
-      <PageHeader title={t('cases.title')} subtitle={t('cases.subtitle')} />
-      <TrustStats />
+      <FadeInView delay={0} distance={22}>
+        <PageHeader title={t('cases.title')} subtitle={t('cases.subtitle')} />
+      </FadeInView>
+      <FadeInView delay={100}>
+        <TrustStats />
+      </FadeInView>
     </View>
   );
 
@@ -42,23 +47,25 @@ export default function CasesScreen() {
         ListHeaderComponent={listHeader}
         ListEmptyComponent={<EmptyState label={t('cases.empty')} />}
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32, gap: spacing.stackMd }}
-        renderItem={({ item }) => (
-          <Card>
-            <Pressable onPress={() => router.push(`/cases/${item.id}`)}>
-              <Text className="text-base font-bold" style={{ color: colors.foreground }}>
-                {item.title}
-              </Text>
-              <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
-                {item.serviceType}
-              </Text>
-              <View className="mt-3 flex-row items-center justify-between">
-                <StatusBadge status={item.status} />
-                <Text className="text-xs" style={{ color: colors.muted }}>
-                  {new Date(item.updatedAt).toLocaleDateString()}
+        renderItem={({ item, index }) => (
+          <FadeInView delay={Math.min(index * 60, 300)} distance={16} scaleFrom={0.98}>
+            <Card>
+              <Pressable onPress={() => router.push(`/cases/${item.id}`)}>
+                <Text className="text-base font-bold" style={{ color: colors.foreground }}>
+                  {item.title}
                 </Text>
-              </View>
-            </Pressable>
-          </Card>
+                <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
+                  {item.serviceType}
+                </Text>
+                <View className="mt-3 flex-row items-center justify-between">
+                  <StatusBadge status={item.status} />
+                  <Text className="text-xs" style={{ color: colors.muted }}>
+                    {new Date(item.updatedAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              </Pressable>
+            </Card>
+          </FadeInView>
         )}
       />
     </SafeAreaView>

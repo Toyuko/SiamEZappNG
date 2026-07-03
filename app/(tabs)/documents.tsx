@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
@@ -77,31 +78,37 @@ export default function DocumentsScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader title={t('documents.title')} subtitle={t('documents.subtitle')} />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader title={t('documents.title')} subtitle={t('documents.subtitle')} />
+        </FadeInView>
 
-        <Card>
-          <View className="gap-3">
-            <Button label={t('documents.uploadFiles')} onPress={pickFile} disabled={uploadMutation.isPending} />
-            <Button label={t('documents.captureCamera')} variant="secondary" onPress={capturePhoto} disabled={uploadMutation.isPending} />
-          </View>
-        </Card>
+        <FadeInView delay={90}>
+          <Card>
+            <View className="gap-3">
+              <Button label={t('documents.uploadFiles')} gradient onPress={pickFile} disabled={uploadMutation.isPending} />
+              <Button label={t('documents.captureCamera')} variant="secondary" onPress={capturePhoto} disabled={uploadMutation.isPending} />
+            </View>
+          </Card>
+        </FadeInView>
 
         {(data ?? []).length === 0 ? (
           <EmptyState label={t('documents.empty')} />
         ) : (
           <View style={{ gap: spacing.stackMd }}>
-            {data?.map((document) => (
-              <Card key={document.id}>
-                <Text className="font-bold" style={{ color: colors.foreground }}>
-                  {document.name}
-                </Text>
-                <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
-                  {document.type}
-                </Text>
-                <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
-                  {new Date(document.uploadedAt).toLocaleDateString()} - {document.status}
-                </Text>
-              </Card>
+            {data?.map((document, index) => (
+              <FadeInView key={document.id} delay={150 + index * 60} distance={16}>
+                <Card>
+                  <Text className="font-bold" style={{ color: colors.foreground }}>
+                    {document.name}
+                  </Text>
+                  <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
+                    {document.type}
+                  </Text>
+                  <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
+                    {new Date(document.uploadedAt).toLocaleDateString()} - {document.status}
+                  </Text>
+                </Card>
+              </FadeInView>
             ))}
           </View>
         )}

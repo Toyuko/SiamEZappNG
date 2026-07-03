@@ -7,6 +7,7 @@ import { AutoApprovalTimer } from '../../components/freelancer/auto-approval-tim
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useFreelancerJob } from '../../hooks/use-freelancer-job';
@@ -76,36 +77,43 @@ export default function FreelancerJobDetailScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader
-          title={data?.title ?? t('freelancer.jobDetail.untitled')}
-          subtitle={t('freelancer.progress')}
-        />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader
+            title={data?.title ?? t('freelancer.jobDetail.untitled')}
+            subtitle={t('freelancer.progress')}
+          />
+        </FadeInView>
 
-        <AutoApprovalTimer status={data?.status ?? 'open'} completionSubmittedAt={data?.completionSubmittedAt} />
+        <FadeInView delay={90}>
+          <AutoApprovalTimer status={data?.status ?? 'open'} completionSubmittedAt={data?.completionSubmittedAt} />
+        </FadeInView>
 
-        <Card>
-          <Text className="text-sm" style={{ color: colors.muted }}>
-            {t(`freelancer.status.${data?.status ?? 'open'}`)}
-          </Text>
-          <Text className="mt-1 text-base font-semibold" style={{ color: colors.foreground }}>
-            {progress}%
-          </Text>
-          <Text className="mt-3 text-sm leading-5" style={{ color: colors.muted }}>
-            {data?.description}
-          </Text>
-          <Text className="mt-3 text-sm" style={{ color: colors.muted }}>
-            {data?.postedBy.name ?? data?.postedBy.email}
-          </Text>
-          {data ? (
-            <Text className="mt-2 text-sm font-medium" style={{ color: colors.foreground }}>
-              {formatJobAmount(data.amount, data.currency)}
+        <FadeInView delay={160}>
+          <Card>
+            <Text className="text-sm" style={{ color: colors.muted }}>
+              {t(`freelancer.status.${data?.status ?? 'open'}`)}
             </Text>
-          ) : null}
-        </Card>
+            <Text className="mt-1 text-base font-semibold" style={{ color: colors.foreground }}>
+              {progress}%
+            </Text>
+            <Text className="mt-3 text-sm leading-5" style={{ color: colors.muted }}>
+              {data?.description}
+            </Text>
+            <Text className="mt-3 text-sm" style={{ color: colors.muted }}>
+              {data?.postedBy.name ?? data?.postedBy.email}
+            </Text>
+            {data ? (
+              <Text className="mt-2 text-sm font-medium" style={{ color: colors.foreground }}>
+                {formatJobAmount(data.amount, data.currency)}
+              </Text>
+            ) : null}
+          </Card>
+        </FadeInView>
 
         {canMarkDone ? (
           <Button
             label={t('freelancer.markAsDone')}
+            gradient
             disabled={isSubmitting || completeMutation.isPending}
             onPress={() => void handleMarkDone()}
           />
