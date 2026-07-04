@@ -41,13 +41,16 @@ export const spacing = {
 
 export const radius = {
   sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  /** Buttons / inputs — matches web rounded-lg feel on mobile */
-  button: 16,
+  md: 10,
+  lg: 14,
+  xl: 20,
+  /** Buttons / inputs — matches the web `rounded-lg` feel */
+  button: 12,
   full: 9999,
 } as const;
+
+/** Foreground used on gold/accent surfaces (matches web yellow CTA text). */
+export const accentForeground = '#1f2937';
 
 export type ShadowStyle = {
   shadowColor: string;
@@ -61,17 +64,17 @@ export const shadows = {
   /** Subtle card lift — light surfaces */
   cardLight: {
     shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.07,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
     elevation: 4,
   } satisfies ShadowStyle,
   /** Stats / metrics — medium depth */
   cardMedium: {
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.09,
+    shadowRadius: 22,
     elevation: 7,
   } satisfies ShadowStyle,
   /** Featured quote / testimonial — stronger depth */
@@ -111,6 +114,20 @@ export type CardShadowLevel = 'default' | 'medium' | 'strong';
 /** Hero gradient — matches web HeroSection `from-siam-blue via-siam-blue-light to-siam-blue` */
 export const heroGradient = {
   colors: [siam.blue.dark, siam.blue.light, siam.blue.DEFAULT] as const,
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+};
+
+/** Gold gradient for striking accent CTAs (matches the SiamEZ yellow palette). */
+export const goldGradient = {
+  colors: [siam.yellow.light, siam.yellow.DEFAULT, siam.yellow.dark] as const,
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 1 },
+};
+
+/** Brighter blue gradient for primary CTAs / accents. */
+export const brandGradient = {
+  colors: [siam.blue.bright, siam.blue.DEFAULT, siam.blue.dark] as const,
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 };
