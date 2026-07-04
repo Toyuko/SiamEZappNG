@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ThemePicker } from '../../components/ui/ThemePicker';
@@ -82,18 +83,20 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader
-          title={t('tabs.profile')}
-          subtitle={isGuest ? t('profile.guestSubtitle') : t('profile.heroSubtitle')}
-          primaryCta={
-            isGuest
-              ? { label: t('cta.getStarted'), onPress: () => router.replace('/(auth)/signup') }
-              : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
-          }
-          secondaryCta={
-            isGuest ? { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') } : undefined
-          }
-        />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader
+            title={t('tabs.profile')}
+            subtitle={isGuest ? t('profile.guestSubtitle') : t('profile.heroSubtitle')}
+            primaryCta={
+              isGuest
+                ? { label: t('cta.getStarted'), onPress: () => router.replace('/(auth)/signup') }
+                : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
+            }
+            secondaryCta={
+              isGuest ? { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') } : undefined
+            }
+          />
+        </FadeInView>
 
         {!isGuest ? <TrustStats /> : null}
 
@@ -103,7 +106,7 @@ export default function ProfileScreen() {
               {t('profile.signInLink')}
             </Text>
             <View className="mt-4">
-              <Button label={t('auth.signIn')} onPress={() => router.replace('/(auth)/login')} />
+              <Button label={t('auth.signIn')} gradient onPress={() => router.replace('/(auth)/login')} />
             </View>
           </Card>
         ) : (

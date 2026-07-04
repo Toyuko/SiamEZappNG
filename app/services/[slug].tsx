@@ -7,11 +7,13 @@ import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout'
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { serviceCatalog } from '../../features/services/services.data';
 import { getServiceDescription, getServiceTitle } from '../../features/services/service-display';
+import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
@@ -40,7 +42,7 @@ export default function ServiceDetailScreen() {
   }
 
   const openContact = async () => {
-    const url = 'https://siam-e-zweb-ng.vercel.app/contact';
+    const url = `${appConfig.webBaseUrl}/contact`;
     const canOpen = await Linking.canOpenURL(url);
     if (!canOpen) {
       Alert.alert(t('serviceDetail.cannotOpenLink'), t('serviceDetail.tryAgainLater'));
@@ -50,7 +52,7 @@ export default function ServiceDetailScreen() {
   };
 
   const openWebsiteService = async () => {
-    const url = `https://siam-e-zweb-ng.vercel.app/en/services/${service.slug}`;
+    const url = `${appConfig.webBaseUrl}/en/services/${service.slug}`;
     const canOpen = await Linking.canOpenURL(url);
     if (!canOpen) {
       Alert.alert(t('serviceDetail.cannotOpenLink'), t('serviceDetail.tryAgainLater'));
@@ -66,13 +68,17 @@ export default function ServiceDetailScreen() {
           <Button label={t('serviceDetail.backToServicesLower')} variant="secondary" size="md" fullWidth={false} onPress={() => router.back()} />
         </Card>
 
-        <PageHeader
-          title={getServiceTitle(service, language)}
-          subtitle={getServiceDescription(service, language)}
-          rightSlot={<Ionicons name={service.icon} size={32} color="#ffffff" accessibilityIgnoresInvertColors />}
-        />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader
+            title={getServiceTitle(service, language)}
+            subtitle={getServiceDescription(service, language)}
+            rightSlot={<Ionicons name={service.icon} size={32} color="#ffffff" accessibilityIgnoresInvertColors />}
+          />
+        </FadeInView>
 
-        <TrustStats />
+        <FadeInView delay={100}>
+          <TrustStats />
+        </FadeInView>
 
         <Section title={t('serviceDetail.overview')}>
           <Card>
@@ -152,6 +158,7 @@ export default function ServiceDetailScreen() {
                 <View className="mt-4">
                   <Button
                     label={t('cta.bookNow')}
+                    gradient
                     onPress={() =>
                       router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })
                     }
@@ -218,6 +225,7 @@ export default function ServiceDetailScreen() {
 
         <Button
           label={t('cta.bookNow')}
+          gradient
           onPress={() => router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })}
         />
         <Button label={t('serviceDetail.contactUs')} variant="secondary" onPress={() => void openContact()} />

@@ -1,12 +1,12 @@
 {
   "name": "siamezappng",
   "version": "1.0.0",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "scripts": {
-    "start": "CI=0 expo start",
-    "android": "CI=0 expo run:android",
-    "ios": "CI=0 expo run:ios",
-    "web": "CI=0 expo start --web",
+    "start": "cross-env CI=0 expo start",
+    "android": "cross-env CI=0 expo run:android",
+    "ios": "cross-env CI=0 expo run:ios",
+    "web": "cross-env CI=0 expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -67,6 +67,7 @@
     "@types/react": "~19.2.2",
     "@vitest/coverage-v8": "^4.1.5",
     "babel-preset-expo": "^55.0.12",
+    "cross-env": "^10.1.0",
     "serve": "^14.2.6",
     "typescript": "~5.9.2",
     "vitest": "^4.1.5"

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { LoadingState } from '../../components/ui/loading-state';
 import { MetricCard } from '../../components/ui/metric-card';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -65,26 +66,34 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader
-          title={t('dashboard.title')}
-          subtitle={t('dashboard.subtitle')}
-          primaryCta={{ label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }}
-        />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader
+            title={t('dashboard.title')}
+            subtitle={t('dashboard.subtitle')}
+            primaryCta={{ label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }}
+          />
+        </FadeInView>
 
-        <TrustStats />
+        <FadeInView delay={100}>
+          <TrustStats />
+        </FadeInView>
 
-        <View className="flex-row gap-3">
-          <MetricCard title={t('dashboard.activeCases')} value={activeCases} />
-          <MetricCard title={t('dashboard.pendingInvoices')} value={pendingInvoices} />
-        </View>
+        <FadeInView delay={170}>
+          <View className="flex-row gap-3">
+            <MetricCard title={t('dashboard.activeCases')} value={activeCases} />
+            <MetricCard title={t('dashboard.pendingInvoices')} value={pendingInvoices} />
+          </View>
+        </FadeInView>
 
-        <Section title={t('dashboard.recentActivity')} subtitle={t('dashboard.recentActivitySubtitle')}>
-          <Card>
-            <Text className="text-sm leading-5" style={{ color: colors.muted }}>
-              {activeCases > 0 ? t('dashboard.activityWithCases') : t('dashboard.activityNoCases')}
-            </Text>
-          </Card>
-        </Section>
+        <FadeInView delay={240}>
+          <Section title={t('dashboard.recentActivity')} subtitle={t('dashboard.recentActivitySubtitle')}>
+            <Card>
+              <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+                {activeCases > 0 ? t('dashboard.activityWithCases') : t('dashboard.activityNoCases')}
+              </Text>
+            </Card>
+          </Section>
+        </FadeInView>
       </ScrollView>
     </SafeAreaView>
   );

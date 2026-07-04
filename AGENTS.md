@@ -8,6 +8,18 @@ monorepo). It is frontend-only and consumes a remote backend
 local database or in-repo backend to run. Standard commands live in
 `package.json` scripts — refer to them rather than reinventing.
 
+### Backend connection
+
+The app talks to the live SiamEZ web backend at `https://siam-e-zweb-ng.vercel.app`
+(same as `main`). Values are in the tracked `.env` and mirrored in
+`.cursor/environment.json` for Cloud Agents:
+
+- `EXPO_PUBLIC_API_URL` / `EXPO_PUBLIC_API_BASE_URL` — REST API base (`/api/*` paths)
+- `EXPO_PUBLIC_WEB_BASE_URL` — website pages (OAuth, sales HTML scrape, deep links)
+
+Do not point these at `localhost` unless you are intentionally testing against a
+local SiamEZwebNG instance.
+
 ### What runs in this headless cloud VM
 
 - Native targets (`npm run ios` / `npm run android`) need Xcode / Android SDK +

@@ -312,8 +312,19 @@ export function JobBoardScreen({ nestedInScrollView = false, isSpecialMember = f
   }, []);
 
   useEffect(() => {
-    const subscription = subscribeToJobBoard(handleNewJob, { isSpecialMember });
+    let cancelled = false;
+    let subscription: Awaited<ReturnType<typeof subscribeToJobBoard>> = null;
+
+    void subscribeToJobBoard(handleNewJob, { isSpecialMember }).then((sub) => {
+      if (cancelled) {
+        sub?.unsubscribe();
+        return;
+      }
+      subscription = sub;
+    });
+
     return () => {
+      cancelled = true;
       subscription?.unsubscribe();
     };
   }, [handleNewJob, isSpecialMember]);

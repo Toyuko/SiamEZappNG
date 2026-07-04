@@ -354,7 +354,7 @@ export default function BookScreen() {
           </Text>
           <View className="mt-5 gap-3">
             {isGuest ? (
-              <Button label={t('book.createAccount')} onPress={() => router.replace('/(auth)/signup')} />
+              <Button label={t('book.createAccount')} gradient onPress={() => router.replace('/(auth)/signup')} />
             ) : null}
             <Button
               label={t('book.trackCase')}
@@ -581,10 +581,11 @@ export default function BookScreen() {
               </View>
               <View className="flex-1">
                 {step < 3 ? (
-                  <Button label={primaryLabel} onPress={goNext} />
+                  <Button label={primaryLabel} gradient onPress={goNext} />
                 ) : (
                   <Button
                     label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
+                    gradient
                     onPress={() => void submitBooking()}
                     disabled={bookingMutation.isPending}
                   />

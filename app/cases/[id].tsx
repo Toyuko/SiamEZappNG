@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
+import { FadeInView } from '../../components/ui/FadeInView';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useCase } from '../../hooks/use-case';
@@ -38,25 +39,30 @@ export default function CaseDetailScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <View style={{ padding: 16, gap: spacing.sectionGap }}>
-        <PageHeader title={t('caseDetail.title')} subtitle={t('caseDetail.caseId', { id })} />
+        <FadeInView delay={0} distance={22}>
+          <PageHeader title={t('caseDetail.title')} subtitle={t('caseDetail.caseId', { id })} />
+        </FadeInView>
 
-        <Card>
-          <Text className="font-bold" style={{ color: colors.foreground }}>
-            {data?.title ?? t('caseDetail.untitled')}
-          </Text>
-          <Text className="mt-2 text-sm leading-5" style={{ color: colors.muted }}>
-            {data?.serviceType ?? t('caseDetail.serviceTypeUnavailable')}
-          </Text>
-          <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
-            {t('cases.status')}: {String(data?.status ?? 'UNKNOWN')}
-          </Text>
-          <View className="mt-4">
-            <Button
-              label={t('tracking.pageTitle')}
-              onPress={() => router.push(`/client/tracking/${id}`)}
-            />
-          </View>
-        </Card>
+        <FadeInView delay={90}>
+          <Card>
+            <Text className="font-bold" style={{ color: colors.foreground }}>
+              {data?.title ?? t('caseDetail.untitled')}
+            </Text>
+            <Text className="mt-2 text-sm leading-5" style={{ color: colors.muted }}>
+              {data?.serviceType ?? t('caseDetail.serviceTypeUnavailable')}
+            </Text>
+            <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
+              {t('cases.status')}: {String(data?.status ?? 'UNKNOWN')}
+            </Text>
+            <View className="mt-4">
+              <Button
+                label={t('tracking.pageTitle')}
+                gradient
+                onPress={() => router.push(`/client/tracking/${id}`)}
+              />
+            </View>
+          </Card>
+        </FadeInView>
       </View>
     </SafeAreaView>
   );
