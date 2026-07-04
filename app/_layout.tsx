@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import '../global.css';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -15,10 +16,10 @@ import {
 
 import { AppProviders } from '../components/providers/app-providers';
 import { VoiceFirstProvider } from '../components/voice/VoiceFirstProvider';
-import { LoadingState } from '../components/ui/loading-state';
+import { LaunchAnimation } from '../components/ui/LaunchAnimation';
 import { useAuth } from '../hooks/use-auth';
+import { LaunchAnimationProvider } from '../hooks/use-launch-animation';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
-import { t } from '../lib/i18n/i18n';
 import { installDefaultFont } from '../lib/theme/install-default-font';
 import { useAuthStore } from '../store/auth-store';
 
@@ -42,6 +43,15 @@ function RootNavigator() {
   });
   const isE2E = process.env.EXPO_PUBLIC_E2E === 'true';
   const { checkForUpdate } = useAutoUpdate();
+  const isReady = !isBootstrapping && (fontsLoaded || isE2E);
+  const [launchComplete, setLaunchComplete] = useState(isE2E);
+  const launchVariant = accessToken && !isGuest ? 'brief' : 'full';
+
+  const launchContext = useMemo(
+    () => ({ launchComplete: launchComplete || isE2E }),
+    [isE2E, launchComplete],
+  );
+  const handleLaunchComplete = useCallback(() => setLaunchComplete(true), []);
 
   useEffect(() => {
     void bootstrapSession();
@@ -98,11 +108,16 @@ function RootNavigator() {
     }
   }, [accessToken, isBootstrapping, isFreelancer, isGuest, router, segments, userRole]);
 
-  if (isBootstrapping || (!fontsLoaded && !isE2E)) {
-    return <LoadingState label={t('common.loading')} />;
-  }
-
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <LaunchAnimationProvider value={launchContext}>
+      <View style={{ flex: 1 }}>
+        {isReady ? <Stack screenOptions={{ headerShown: false }} /> : null}
+        {!launchComplete ? (
+          <LaunchAnimation ready={isReady} variant={launchVariant} onComplete={handleLaunchComplete} />
+        ) : null}
+      </View>
+    </LaunchAnimationProvider>
+  );
 }
 
 export default function RootLayout() {
