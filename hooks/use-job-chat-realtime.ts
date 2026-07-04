@@ -25,7 +25,7 @@ export function useJobChatRealtime({
   onSync,
 }: UseJobChatRealtimeOptions) {
   const [isLive, setIsLive] = useState(false);
-  const subscriptionRef = useRef<ReturnType<typeof subscribeToJobChat>>(null);
+  const subscriptionRef = useRef<Awaited<ReturnType<typeof subscribeToJobChat>>>(null);
   const onMessageRef = useRef(onMessage);
   const onSyncRef = useRef(onSync);
   const participantRef = useRef(participant);
@@ -42,13 +42,23 @@ export function useJobChatRealtime({
     [],
   );
 
-  const setupSubscription = useCallback(() => {
-    subscriptionRef.current?.unsubscribe();
+  const setupSubscription = useCallback(
+    (cancelled?: () => boolean) => {
+      subscriptionRef.current?.unsubscribe();
+      subscriptionRef.current = null;
+      setIsLive(false);
 
-    const subscription = subscribeToJobChat(jobId, handlePusherMessage, realtime);
-    subscriptionRef.current = subscription;
-    setIsLive(subscription != null);
-  }, [handlePusherMessage, jobId, realtime]);
+      void subscribeToJobChat(jobId, handlePusherMessage, realtime).then((subscription) => {
+        if (cancelled?.()) {
+          subscription?.unsubscribe();
+          return;
+        }
+        subscriptionRef.current = subscription;
+        setIsLive(subscription != null);
+      });
+    },
+    [handlePusherMessage, jobId, realtime],
+  );
 
   useEffect(() => {
     if (!enabled || !jobId) {
@@ -58,7 +68,8 @@ export function useJobChatRealtime({
       return;
     }
 
-    setupSubscription();
+    let cancelled = false;
+    setupSubscription(() => cancelled);
 
     const pollTimer = setInterval(() => {
       void onSyncRef.current?.();
@@ -67,11 +78,12 @@ export function useJobChatRealtime({
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
         void onSyncRef.current?.();
-        setupSubscription();
+        setupSubscription(() => cancelled);
       }
     });
 
     return () => {
+      cancelled = true;
       clearInterval(pollTimer);
       appStateSubscription.remove();
       subscriptionRef.current?.unsubscribe();

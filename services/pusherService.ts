@@ -1,4 +1,4 @@
-import Pusher from 'pusher-js/react-native';
+import { Platform } from 'react-native';
 
 import { pusherPayloadToDto } from '../lib/chat/pusher-payload';
 import { appConfig } from '../lib/config';
@@ -13,15 +13,41 @@ import {
   PUBLIC_JOB_BOARD_CHANNEL,
 } from '../types/job-board';
 
-let pusherClient: Pusher | null = null;
-let privatePusherClient: Pusher | null = null;
+type PusherConstructor = typeof import('pusher-js/react-native').default;
+type PusherClient = InstanceType<PusherConstructor>;
+
+let pusherCtorPromise: Promise<PusherConstructor | null> | null = null;
+let pusherClient: PusherClient | null = null;
+let privatePusherClient: PusherClient | null = null;
 let privatePusherSignature: string | null = null;
 
-export function getPusherClient(): Pusher | null {
+async function loadPusherConstructor(): Promise<PusherConstructor | null> {
+  if (Platform.OS === 'web') {
+    return null;
+  }
+
+  if (!pusherCtorPromise) {
+    pusherCtorPromise = import('pusher-js/react-native')
+      .then((module) => module.default)
+      .catch((error) => {
+        console.warn('[pusher] Native realtime unavailable:', error);
+        return null;
+      });
+  }
+
+  return pusherCtorPromise;
+}
+
+async function getPusherClient(): Promise<PusherClient | null> {
   const key = process.env.EXPO_PUBLIC_PUSHER_KEY?.trim();
   const cluster = process.env.EXPO_PUBLIC_PUSHER_CLUSTER?.trim();
 
   if (!key || !cluster) {
+    return null;
+  }
+
+  const Pusher = await loadPusherConstructor();
+  if (!Pusher) {
     return null;
   }
 
@@ -44,11 +70,11 @@ export type SubscribeToJobBoardOptions = {
  * Subscribes to `public-job-board` (and optionally `private-special-jobs`)
  * and listens for `new-job-posted` events.
  */
-export function subscribeToJobBoard(
+export async function subscribeToJobBoard(
   onNewJob: (job: JobBoardFeedItem) => void,
   options?: SubscribeToJobBoardOptions,
-): JobBoardSubscription | null {
-  const pusher = getPusherClient();
+): Promise<JobBoardSubscription | null> {
+  const pusher = await getPusherClient();
   if (!pusher) {
     return null;
   }
@@ -58,7 +84,7 @@ export function subscribeToJobBoard(
   const publicChannel = pusher.subscribe(PUBLIC_JOB_BOARD_CHANNEL);
   publicChannel.bind(JOB_BOARD_NEW_JOB_EVENT, handler);
 
-  let specialChannel: ReturnType<Pusher['subscribe']> | null = null;
+  let specialChannel: ReturnType<PusherClient['subscribe']> | null = null;
   if (options?.isSpecialMember) {
     specialChannel = pusher.subscribe(PRIVATE_SPECIAL_JOBS_CHANNEL);
     specialChannel.bind(JOB_BOARD_NEW_JOB_EVENT, handler);
@@ -88,9 +114,16 @@ function resolvePusherCredentials(realtime?: JobChatRealtimeConfig | null) {
 }
 
 /** Pusher client with private-channel auth (Bearer token). */
-export function getPrivatePusherClient(realtime?: JobChatRealtimeConfig | null): Pusher | null {
+async function getPrivatePusherClient(
+  realtime?: JobChatRealtimeConfig | null,
+): Promise<PusherClient | null> {
   const credentials = resolvePusherCredentials(realtime);
   if (!credentials) {
+    return null;
+  }
+
+  const Pusher = await loadPusherConstructor();
+  if (!Pusher) {
     return null;
   }
 
@@ -141,12 +174,12 @@ export type SubscribeToJobChannelHandlers = {
 /**
  * Subscribes to `private-job-{jobId}` for `tracking-updated` and `new-message` events.
  */
-export function subscribeToJobChannel(
+export async function subscribeToJobChannel(
   jobId: string,
   handlers: SubscribeToJobChannelHandlers,
   realtime?: JobChatRealtimeConfig | null,
-): JobChannelSubscription | null {
-  const pusher = getPrivatePusherClient(realtime);
+): Promise<JobChannelSubscription | null> {
+  const pusher = await getPrivatePusherClient(realtime);
   if (!pusher) {
     return null;
   }
@@ -190,12 +223,12 @@ export function subscribeToJobChannel(
 /**
  * Subscribes to `private-job-{jobId}-chat` and listens for `new-message` events.
  */
-export function subscribeToJobChat(
+export async function subscribeToJobChat(
   jobId: string,
   onMessage: (message: JobChatMessageDto) => void,
   realtime?: JobChatRealtimeConfig | null,
-): JobChatSubscription | null {
-  const pusher = getPrivatePusherClient(realtime);
+): Promise<JobChatSubscription | null> {
+  const pusher = await getPrivatePusherClient(realtime);
   if (!pusher) {
     return null;
   }

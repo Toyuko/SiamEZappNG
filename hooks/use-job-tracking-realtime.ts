@@ -53,7 +53,7 @@ export function useJobTrackingRealtime({
   const [isLive, setIsLive] = useState(false);
   const [toasts, setToasts] = useState<TrackingMessageToast[]>([]);
   const toastIdRef = useRef(0);
-  const subscriptionRef = useRef<ReturnType<typeof subscribeToJobChannel>>(null);
+  const subscriptionRef = useRef<Awaited<ReturnType<typeof subscribeToJobChannel>>>(null);
 
   const dismissToast = useCallback((id: string) => {
     setToasts((previous) => previous.filter((toast) => toast.id !== id));
@@ -105,38 +105,49 @@ export function useJobTrackingRealtime({
     [isChatFocused, onNewMessageWhileChatFocused, pushToast, user?.id],
   );
 
-  const setupSubscription = useCallback(() => {
-    subscriptionRef.current?.unsubscribe();
+  const setupSubscription = useCallback(
+    (cancelled?: () => boolean) => {
+      subscriptionRef.current?.unsubscribe();
+      subscriptionRef.current = null;
+      setIsLive(false);
 
-    const subscription = subscribeToJobChannel(
-      jobId,
-      {
-        onTrackingUpdated: applyTrackingUpdate,
-        onNewMessage: handleNewMessage,
-      },
-      realtime,
-    );
-
-    subscriptionRef.current = subscription;
-    setIsLive(subscription != null);
-  }, [applyTrackingUpdate, handleNewMessage, jobId, realtime]);
+      void subscribeToJobChannel(
+        jobId,
+        {
+          onTrackingUpdated: applyTrackingUpdate,
+          onNewMessage: handleNewMessage,
+        },
+        realtime,
+      ).then((subscription) => {
+        if (cancelled?.()) {
+          subscription?.unsubscribe();
+          return;
+        }
+        subscriptionRef.current = subscription;
+        setIsLive(subscription != null);
+      });
+    },
+    [applyTrackingUpdate, handleNewMessage, jobId, realtime],
+  );
 
   useEffect(() => {
     if (!enabled || !jobId) {
       return;
     }
 
-    setupSubscription();
+    let cancelled = false;
+    setupSubscription(() => cancelled);
 
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
         void silentRefetch();
         onAppForeground?.();
-        setupSubscription();
+        setupSubscription(() => cancelled);
       }
     });
 
     return () => {
+      cancelled = true;
       appStateSubscription.remove();
       subscriptionRef.current?.unsubscribe();
       subscriptionRef.current = null;

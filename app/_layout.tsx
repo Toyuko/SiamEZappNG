@@ -1,9 +1,9 @@
-import 'react-native-gesture-handler';
 import '../global.css';
 import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { enableScreens } from 'react-native-screens';
 
 import {
@@ -107,10 +107,12 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <AppProviders>
-      <VoiceFirstProvider>
-        <RootNavigator />
-      </VoiceFirstProvider>
-    </AppProviders>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProviders>
+        <VoiceFirstProvider>
+          <RootNavigator />
+        </VoiceFirstProvider>
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 }
