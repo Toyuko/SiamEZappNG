@@ -129,7 +129,7 @@ export default function LoginScreen() {
                 {t('auth.welcomeSubtitle')}
               </Text>
 
-              <SocialButton kind="google-outline" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
+              <SocialButton kind="google" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
               <SocialButton kind="line" label={t('auth.continueWithLine')} onPress={() => loginWithProvider('line')} />
               <SocialButton kind="facebook" label={t('auth.continueWithFacebook')} onPress={() => loginWithProvider('facebook')} />
               <SocialButton
