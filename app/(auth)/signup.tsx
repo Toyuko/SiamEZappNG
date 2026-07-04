@@ -4,27 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { ApiError } from '../../lib/api';
-import {
-  AuthField,
-  AuthLogo,
-  AuthSubmitButton,
-  AuthSwitchLink,
-  OrDivider,
-  SocialButton,
-  useAuthColors,
-} from '../../components/auth/auth-ui';
-import { FadeInView } from '../../components/ui/FadeInView';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useAuth } from '../../hooks/use-auth';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
+import { useTheme } from '../../lib/theme/theme';
 
 type AccountType = 'customer' | 'freelancer';
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { colors, pageBackground } = useAuthColors();
-  const { signUpMutation, loginWithProvider } = useAuth();
+  const { colors } = useTheme();
+  const { signUpMutation } = useAuth();
   const [accountType, setAccountType] = useState<AccountType>('customer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -46,32 +40,16 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: pageBackground }}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
         <PageHeader title={t('auth.createAccount')} subtitle="Sign up to track cases, documents, and payments." />
 
-        <FadeInView distance={22} scaleFrom={0.98}>
-          <View
-            style={{
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-              borderWidth: 1,
-              borderRadius: radius.xl,
-              padding: spacing.cardPadding + 4,
-            }}
-          >
-            <View style={{ marginBottom: 16 }}>
-              <AuthLogo />
-            </View>
-            <SocialButton kind="google" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
-            <SocialButton kind="line" label={t('auth.continueWithLine')} onPress={() => loginWithProvider('line')} />
-
-            <OrDivider label={t('auth.orContinueWith')} />
-
-            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground, marginBottom: 8 }}>
+        <Card>
+          <View className="gap-3">
+            <Text className="text-sm font-medium" style={{ color: colors.foreground }}>
               {t('auth.accountType')}
             </Text>
-            <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
+            <View className="flex-row gap-3">
               {(['customer', 'freelancer'] as const).map((type) => {
                 const selected = accountType === type;
                 return (
@@ -80,36 +58,17 @@ export default function SignUpScreen() {
                     onPress={() => setAccountType(type)}
                     style={{
                       flex: 1,
-                      minHeight: 50,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 8,
-                      borderRadius: radius.button,
-                      borderWidth: selected ? 2 : 1,
+                      minHeight: 48,
+                      borderRadius: radius.lg,
+                      borderWidth: 2,
                       borderColor: selected ? colors.primary : colors.border,
                       backgroundColor: selected ? `${colors.primary}12` : colors.card,
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       paddingHorizontal: 12,
                     }}
                   >
-                    <View
-                      style={{
-                        width: 18,
-                        height: 18,
-                        borderRadius: 9,
-                        borderWidth: 2,
-                        borderColor: selected ? colors.primary : colors.border,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {selected ? (
-                        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary }} />
-                      ) : null}
-                    </View>
-                    <Text
-                      style={{ fontSize: 14, fontWeight: '600', color: selected ? colors.primary : colors.muted }}
-                      numberOfLines={1}
-                    >
+                    <Text className="text-sm font-semibold" style={{ color: selected ? colors.primary : colors.muted }}>
                       {type === 'customer' ? t('auth.accountTypeCustomer') : t('auth.accountTypeFreelancer')}
                     </Text>
                   </Pressable>
@@ -117,50 +76,32 @@ export default function SignUpScreen() {
               })}
             </View>
 
-            <AuthField label={t('auth.fullName')} placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
-            <AuthField
-              label={t('auth.email')}
-              placeholder={t('auth.email')}
-              value={email}
-              onChangeText={setEmail}
+            <Input placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
+            <Input
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="email"
               textContentType="emailAddress"
+              placeholder={t('auth.email')}
+              value={email}
+              onChangeText={setEmail}
             />
-            <AuthField
-              label={t('auth.phone')}
-              placeholder={t('auth.phone')}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-            <AuthField
-              label={t('auth.password')}
+            <Input keyboardType="phone-pad" placeholder={t('auth.phone')} value={phone} onChangeText={setPhone} />
+            <Input
               placeholder={t('auth.password')}
-              value={password}
-              onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               autoComplete="new-password"
               textContentType="newPassword"
+              value={password}
+              onChangeText={setPassword}
             />
-
-            <AuthSubmitButton
-              label={signUpMutation.isPending ? t('auth.creatingAccount') : t('auth.createAccount')}
-              onPress={handleSignUp}
-              loading={signUpMutation.isPending}
-            />
-
-            <AuthSwitchLink
-              prompt={t('auth.haveAccountPrompt')}
-              actionLabel={t('auth.signIn')}
-              onPress={() => router.replace('/(auth)/login')}
-            />
+            <Button label={signUpMutation.isPending ? t('auth.creatingAccount') : t('cta.getStarted')} onPress={handleSignUp} />
+            <Button label={t('auth.backToLogin')} variant="secondary" onPress={() => router.replace('/(auth)/login')} />
           </View>
-        </FadeInView>
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );

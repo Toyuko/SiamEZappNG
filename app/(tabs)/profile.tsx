@@ -6,14 +6,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { ThemePicker } from '../../components/ui/ThemePicker';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { useAuth } from '../../hooks/use-auth';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
-import { useTheme } from '../../lib/theme/theme';
+import { useTheme, type ThemeMode } from '../../lib/theme/theme';
+import { useThemeStore } from '../../lib/theme/useThemeStore';
 import { useAuthStore } from '../../store/auth-store';
 
 type RowItemProps = {
@@ -67,6 +67,10 @@ export default function ProfileScreen() {
   const { logout } = useAuth();
   const { user, isGuest } = useAuthStore();
   const { colors } = useTheme();
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const language = useLanguageStore((state) => state.language);
+  const setLanguage = useLanguageStore((state) => state.setLanguage);
   const [pushEnabled, setPushEnabled] = useState(true);
   const [caseUpdatesEnabled, setCaseUpdatesEnabled] = useState(true);
   const [paymentRemindersEnabled, setPaymentRemindersEnabled] = useState(true);
@@ -132,21 +136,47 @@ export default function ProfileScreen() {
 
             <Card>
               <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
-                {t('settings.title')}
+                Preferences
               </Text>
-              <View className="mt-4 gap-4">
-                <View className="flex-row items-center justify-between gap-3">
-                  <Text className="text-sm font-medium" style={{ color: colors.muted }}>
-                    {t('settings.theme')}
-                  </Text>
-                  <ThemePicker />
-                </View>
-                <View className="flex-row items-center justify-between gap-3">
-                  <Text className="text-sm font-medium" style={{ color: colors.muted }}>
-                    {t('settings.language')}
-                  </Text>
-                  <LanguageToggle />
-                </View>
+              <Text className="mt-3 text-sm font-medium" style={{ color: colors.muted }}>
+                {t('settings.theme')}
+              </Text>
+              <View className="mt-2 flex-row flex-wrap gap-2">
+                {(['light', 'dark', 'system'] as ThemeMode[]).map((mode) => (
+                  <Pressable
+                    key={mode}
+                    className="rounded-full px-4 py-2"
+                    style={{
+                      backgroundColor: themeMode === mode ? colors.primary : colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                    }}
+                    onPress={() => setTheme(mode)}
+                  >
+                    <Text style={{ color: themeMode === mode ? '#ffffff' : colors.foreground }}>{t(`settings.${mode}`)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text className="mt-4 text-sm font-medium" style={{ color: colors.muted }}>
+                {t('settings.language')}
+              </Text>
+              <View className="mt-2 flex-row flex-wrap gap-2">
+                {(['en', 'th'] as const).map((lang) => (
+                  <Pressable
+                    key={lang}
+                    className="rounded-full px-4 py-2"
+                    style={{
+                      backgroundColor: language === lang ? colors.primary : colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                    }}
+                    onPress={() => setLanguage(lang)}
+                  >
+                    <Text style={{ color: language === lang ? '#ffffff' : colors.foreground }}>
+                      {lang === 'en' ? t('settings.english') : t('settings.thai')}
+                    </Text>
+                  </Pressable>
+                ))}
               </View>
             </Card>
 
