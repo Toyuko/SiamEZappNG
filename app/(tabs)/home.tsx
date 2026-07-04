@@ -6,12 +6,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { FadeInView } from '../../components/ui/FadeInView';
-import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { ServiceSearchTrigger } from '../../components/search/ServiceSearchTrigger';
-import { ThemePicker } from '../../components/ui/ThemePicker';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { TestimonialCard } from '../../components/ui/TestimonialCard';
 import { TrustStats } from '../../components/ui/TrustStats';
@@ -19,8 +16,9 @@ import { getFeaturedServices } from '../../features/services/services.data';
 import { getServiceDescription, getServiceTitle } from '../../features/services/service-display';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
-import { useTheme } from '../../lib/theme/theme';
+import { useTheme, type ThemeMode } from '../../lib/theme/theme';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
+import { useThemeStore } from '../../lib/theme/useThemeStore';
 import { useAuthStore } from '../../store/auth-store';
 
 const TESTIMONIAL_CAROUSEL_GAP = 8;
@@ -39,7 +37,10 @@ export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const isGuest = useAuthStore((state) => state.isGuest);
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const setTheme = useThemeStore((state) => state.setTheme);
   const language = useLanguageStore((state) => state.language);
+  const setLanguage = useLanguageStore((state) => state.setLanguage);
   const [preferencesExpanded, setPreferencesExpanded] = useState(false);
   const { width: windowWidth } = useWindowDimensions();
   const testimonialCardWidth = Math.min(windowWidth - spacing.screenPaddingX * 2 - 36, 300);
@@ -138,14 +139,12 @@ export default function HomeScreen() {
           paddingBottom: 40 + VOICE_FAB_SCROLL_EXTRA,
         }}
       >
-        <FadeInView delay={0} distance={22}>
-          <PageHeader
-            badge={t('home.badge')}
-            title={t('home.title')}
-            subtitle={t('home.subtitle')}
-            primaryCta={{ label: t('cta.getStarted'), onPress: () => router.push('/(auth)/signup') }}
-          />
-        </FadeInView>
+        <PageHeader
+          badge={t('home.badge')}
+          title={t('home.title')}
+          subtitle={t('home.subtitle')}
+          primaryCta={{ label: t('cta.getStarted'), onPress: () => router.push('/(auth)/signup') }}
+        />
 
         {isGuest ? (
           <Card>
@@ -170,27 +169,53 @@ export default function HomeScreen() {
               <Ionicons name={preferencesExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={colors.muted} />
             </Pressable>
             {preferencesExpanded ? (
-              <View className="mt-4 gap-4">
-                <View className="flex-row items-center justify-between gap-3">
-                  <Text className="text-sm font-medium" style={{ color: colors.muted }}>
-                    {t('settings.theme')}
-                  </Text>
-                  <ThemePicker />
+              <View className="mt-3 gap-0">
+                <Text className="text-sm font-medium" style={{ color: colors.muted }}>
+                  {t('settings.theme')}
+                </Text>
+                <View className="mt-2 flex-row flex-wrap gap-2">
+                  {(['light', 'dark', 'system'] as ThemeMode[]).map((mode) => (
+                    <Pressable
+                      key={mode}
+                      className="rounded-full px-4 py-2"
+                      style={{
+                        backgroundColor: themeMode === mode ? colors.primary : colors.card,
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                      }}
+                      onPress={() => setTheme(mode)}
+                    >
+                      <Text style={{ color: themeMode === mode ? '#ffffff' : colors.foreground }}>{t(`settings.${mode}`)}</Text>
+                    </Pressable>
+                  ))}
                 </View>
-                <View className="flex-row items-center justify-between gap-3">
-                  <Text className="text-sm font-medium" style={{ color: colors.muted }}>
-                    {t('settings.language')}
-                  </Text>
-                  <LanguageToggle />
+                <Text className="mt-4 text-sm font-medium" style={{ color: colors.muted }}>
+                  {t('settings.language')}
+                </Text>
+                <View className="mt-2 flex-row flex-wrap gap-2">
+                  {(['en', 'th'] as const).map((lang) => (
+                    <Pressable
+                      key={lang}
+                      className="rounded-full px-4 py-2"
+                      style={{
+                        backgroundColor: language === lang ? colors.primary : colors.card,
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                      }}
+                      onPress={() => setLanguage(lang)}
+                    >
+                      <Text style={{ color: language === lang ? '#ffffff' : colors.foreground }}>
+                        {lang === 'en' ? t('settings.english') : t('settings.thai')}
+                      </Text>
+                    </Pressable>
+                  ))}
                 </View>
               </View>
             ) : null}
           </Card>
         ) : null}
 
-        <FadeInView delay={120}>
-          <TrustStats />
-        </FadeInView>
+        <TrustStats />
 
         <Section title={t('trust.whatClientsSay')} subtitle={t('trust.testimonialSubtitle')}>
           <ScrollView
@@ -227,27 +252,24 @@ export default function HomeScreen() {
           </ScrollView>
         </Section>
 
-        <FadeInView delay={200}>
-          <Card>
-            <Text className="text-lg font-bold tracking-tight" style={{ color: colors.foreground }}>
-              {t('home.findService')}
-            </Text>
-            <Text className="mt-1.5 text-sm leading-5" style={{ color: colors.muted }}>
-              {t('home.searchServices')}
-            </Text>
-            <View className="mt-3">
-              <ServiceSearchTrigger placeholder={t('home.searchServices')} />
-            </View>
-            <View className="mt-4">
-              <Button label={t('cta.bookNow')} gradient onPress={() => router.push('/(tabs)/book')} />
-            </View>
-          </Card>
-        </FadeInView>
+        <Card>
+          <Text className="text-lg font-bold tracking-tight" style={{ color: colors.foreground }}>
+            {t('home.findService')}
+          </Text>
+          <Text className="mt-1.5 text-sm leading-5" style={{ color: colors.muted }}>
+            {t('home.searchServices')}
+          </Text>
+          <View className="mt-3">
+            <ServiceSearchTrigger placeholder={t('home.searchServices')} />
+          </View>
+          <View className="mt-4">
+            <Button label={t('cta.bookNow')} onPress={() => router.push('/(tabs)/book')} />
+          </View>
+        </Card>
 
         <Section title={t('home.popularServices')} subtitle={t('home.popularServicesSubtitle')}>
-          {featuredServices.map((service, serviceIndex) => (
-            <FadeInView key={service.slug} delay={260 + serviceIndex * 90} distance={20} scaleFrom={0.96}>
-            <Card>
+          {featuredServices.map((service) => (
+            <Card key={service.slug}>
               <Ionicons name={service.icon} size={28} color={colors.primary} accessibilityIgnoresInvertColors />
               <Text className="mt-2 text-base font-bold" style={{ color: colors.foreground }}>
                 {getServiceTitle(service, language)}
@@ -258,7 +280,6 @@ export default function HomeScreen() {
               <View className="mt-4 gap-3">
                 <Button
                   label={t('cta.bookNow')}
-                  gradient
                   onPress={() =>
                     router.push({ pathname: '/(tabs)/book', params: { serviceSlug: service.slug } })
                   }
@@ -270,7 +291,6 @@ export default function HomeScreen() {
                 />
               </View>
             </Card>
-            </FadeInView>
           ))}
           <Button variant="secondary" onPress={() => router.push('/(tabs)/services')}>
             <View className="flex-row items-center justify-center gap-2">

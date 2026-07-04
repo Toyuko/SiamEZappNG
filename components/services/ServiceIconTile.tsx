@@ -1,16 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Text, View } from 'react-native';
 
 import { getServiceShortTitle } from '../../features/services/service-display';
 import type { ServiceItem } from '../../features/services/services.types';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
+import { radius } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
-import {
-  SERVICE_ICON_GRADIENT,
-  SERVICE_ICON_GRADIENT_END,
-  SERVICE_ICON_GRADIENT_START,
-} from './service-icon-gradient';
+import { SERVICE_ICON_SURFACE } from './service-icon-surface';
 
 type ServiceIconTileProps = {
   service: ServiceItem;
@@ -22,9 +18,8 @@ export function ServiceIconTile({ service, tileSize, onPress }: ServiceIconTileP
   const { colors, isDark } = useTheme();
   const language = useLanguageStore((state) => state.language);
   const title = getServiceShortTitle(service, language);
-  const gradient = SERVICE_ICON_GRADIENT[service.category];
+  const tint = SERVICE_ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
   const iconBox = Math.min(58, Math.round(tileSize * 0.78));
-  const boxRadius = Math.round(iconBox * 0.3);
 
   return (
     <Pressable
@@ -34,36 +29,28 @@ export function ServiceIconTile({ service, tileSize, onPress }: ServiceIconTileP
       style={({ pressed }) => ({
         width: tileSize,
         opacity: pressed ? 0.78 : 1,
-        transform: [{ scale: pressed ? 0.95 : 1 }],
         alignItems: 'center',
         paddingBottom: 2,
       })}
     >
       <View style={{ width: iconBox, height: iconBox, position: 'relative' }}>
-        <LinearGradient
-          colors={[...gradient.colors]}
-          start={SERVICE_ICON_GRADIENT_START}
-          end={SERVICE_ICON_GRADIENT_END}
+        <View
           style={{
             width: iconBox,
             height: iconBox,
-            borderRadius: boxRadius,
+            borderRadius: radius.lg,
             alignItems: 'center',
             justifyContent: 'center',
-            shadowColor: gradient.shadow,
-            shadowOffset: { width: 0, height: 5 },
-            shadowOpacity: isDark ? 0.5 : 0.32,
-            shadowRadius: 8,
-            elevation: 5,
+            backgroundColor: tint,
           }}
         >
           <Ionicons
             name={service.icon}
             size={Math.round(iconBox * 0.46)}
-            color={gradient.foreground}
+            color={colors.primary}
             accessibilityIgnoresInvertColors
           />
-        </LinearGradient>
+        </View>
         {service.featured ? (
           <View
             style={{

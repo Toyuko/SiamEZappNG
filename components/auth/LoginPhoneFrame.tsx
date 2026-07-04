@@ -3,9 +3,8 @@ import type { ReactNode } from 'react';
 import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '../../lib/theme/theme';
-
 const FRAME_BG = '#111827';
+const SCREEN_BG = '#ffffff';
 const STATUS_TIME = '3:05';
 
 type LoginPhoneFrameProps = {
@@ -15,7 +14,6 @@ type LoginPhoneFrameProps = {
 export function LoginPhoneFrame({ children }: LoginPhoneFrameProps) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useTheme();
   const showOuterBezel = Platform.OS === 'web' && width >= 520;
   const phoneWidth = showOuterBezel ? Math.min(390, width - 48) : width;
 
@@ -23,7 +21,7 @@ export function LoginPhoneFrame({ children }: LoginPhoneFrameProps) {
     <View
       style={[
         styles.root,
-        { backgroundColor: showOuterBezel ? FRAME_BG : colors.background, paddingTop: showOuterBezel ? 24 : 0 },
+        { backgroundColor: showOuterBezel ? FRAME_BG : SCREEN_BG, paddingTop: showOuterBezel ? 24 : 0 },
       ]}
     >
       <View
@@ -31,23 +29,22 @@ export function LoginPhoneFrame({ children }: LoginPhoneFrameProps) {
           styles.phone,
           showOuterBezel && styles.phoneBezel,
           {
-            backgroundColor: colors.background,
             width: showOuterBezel ? phoneWidth : '100%',
             maxWidth: showOuterBezel ? phoneWidth : undefined,
             paddingTop: showOuterBezel ? 0 : insets.top,
           },
         ]}
       >
-        <View style={[styles.statusBar, { backgroundColor: colors.background }]}>
-          <Text style={[styles.statusTime, { color: colors.foreground }]}>{STATUS_TIME}</Text>
-          <View style={[styles.dynamicIsland, { backgroundColor: isDark ? '#000000' : '#000000' }]} />
+        <View style={styles.statusBar}>
+          <Text style={styles.statusTime}>{STATUS_TIME}</Text>
+          <View style={styles.dynamicIsland} />
           <View style={styles.statusIcons}>
-            <Ionicons name="cellular" size={16} color={colors.foreground} />
-            <Ionicons name="wifi" size={16} color={colors.foreground} />
-            <Ionicons name="battery-full" size={18} color={colors.foreground} />
+            <Ionicons name="cellular" size={16} color="#111827" />
+            <Ionicons name="wifi" size={16} color="#111827" />
+            <Ionicons name="battery-full" size={18} color="#111827" />
           </View>
         </View>
-        <View style={[styles.screenContent, { backgroundColor: colors.background }]}>{children}</View>
+        <View style={styles.screenContent}>{children}</View>
       </View>
     </View>
   );
@@ -60,6 +57,7 @@ const styles = StyleSheet.create({
   },
   phone: {
     flex: 1,
+    backgroundColor: SCREEN_BG,
     overflow: 'hidden',
   },
   phoneBezel: {
@@ -75,10 +73,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 28,
     position: 'relative',
+    backgroundColor: SCREEN_BG,
   },
   statusTime: {
     fontSize: 15,
     fontWeight: '600',
+    color: '#111827',
     letterSpacing: -0.2,
     minWidth: 48,
   },
@@ -102,5 +102,6 @@ const styles = StyleSheet.create({
   },
   screenContent: {
     flex: 1,
+    backgroundColor: SCREEN_BG,
   },
 });

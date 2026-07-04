@@ -6,27 +6,16 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { enableScreens } from 'react-native-screens';
 
-import {
-  Geist_400Regular,
-  Geist_500Medium,
-  Geist_600SemiBold,
-  Geist_700Bold,
-} from '@expo-google-fonts/geist';
-
 import { AppProviders } from '../components/providers/app-providers';
 import { VoiceFirstProvider } from '../components/voice/VoiceFirstProvider';
 import { LoadingState } from '../components/ui/loading-state';
 import { useAuth } from '../hooks/use-auth';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
 import { t } from '../lib/i18n/i18n';
-import { installDefaultFont } from '../lib/theme/install-default-font';
 import { useAuthStore } from '../store/auth-store';
 
 // Work around Android Fabric mount race in some navigation transitions.
 enableScreens(false);
-
-// Apply Geist as the default font on native (web uses global.css).
-installDefaultFont();
 
 function RootNavigator() {
   const router = useRouter();
@@ -34,8 +23,6 @@ function RootNavigator() {
   const { bootstrapSession } = useAuth();
   const { accessToken, isGuest, isBootstrapping, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
-  // Non-blocking: Geist applies as soon as it loads (web also wires it via CSS).
-  useFonts({ Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold });
   const [fontsLoaded, fontError] = useFonts({
     ...Ionicons.font,
     ...MaterialCommunityIcons.font,
