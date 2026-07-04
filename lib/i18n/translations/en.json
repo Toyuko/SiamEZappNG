@@ -718,5 +718,76 @@
     "send": "Send",
     "live": "Live",
     "connecting": "Connecting…"
+  },
+  "tutorial": {
+    "skip": "Skip",
+    "done": "Get started",
+    "stepOf": "Step %{current} of %{total}",
+    "guest": {
+      "welcome": {
+        "title": "Welcome to SiamEZ",
+        "description": "Your guide to Thai services — marriage registration, visas, translations, licenses, and more. This quick tour shows you around."
+      },
+      "explore": {
+        "title": "Find services",
+        "description": "Use the search bar on Home to browse services. Tap a service card to see details, pricing, and how to book."
+      },
+      "tabs": {
+        "title": "Navigate with tabs",
+        "description": "Use the bottom tabs to explore Sales listings, send a Contact inquiry, or open Account to sign in and unlock booking."
+      },
+      "voice": {
+        "title": "Voice search",
+        "description": "Tap the microphone button to search by voice. Say what you need — for example, \"visa extension\" — and jump straight to matching services."
+      },
+      "account": {
+        "title": "Sign in to do more",
+        "description": "Create an account or sign in from the Account tab to book services, upload documents, and track your cases."
+      }
+    },
+    "client": {
+      "welcome": {
+        "title": "Welcome to your client portal",
+        "description": "Manage bookings, cases, documents, and payments in one place. Here is a quick overview of the essentials."
+      },
+      "dashboard": {
+        "title": "Your dashboard",
+        "description": "Open Dashboard from More to see active cases, invoices, and quick actions. It is your home base for ongoing work."
+      },
+      "book": {
+        "title": "Book a service",
+        "description": "Use the Book tab to start a new request. Pick a service, add details, and upload documents — your progress is saved automatically."
+      },
+      "cases": {
+        "title": "Track your cases",
+        "description": "The Cases tab lists everything in progress. Open a case to follow the timeline, approve updates, and chat with your team."
+      },
+      "more": {
+        "title": "More tools",
+        "description": "Open More for Documents, Profile, and settings. Change language or theme anytime from Profile."
+      }
+    },
+    "freelancer": {
+      "welcome": {
+        "title": "Welcome to the freelancer portal",
+        "description": "Find jobs, update clients, and track your earnings. This short tour covers the basics."
+      },
+      "jobs": {
+        "title": "Browse open jobs",
+        "description": "Your Freelancer tab shows available jobs matched to your skills. Pull to refresh for the latest listings."
+      },
+      "accept": {
+        "title": "Preview and accept",
+        "description": "Tap a job to preview details before accepting. Once accepted, it moves to your active jobs list."
+      },
+      "tracking": {
+        "title": "Update progress",
+        "description": "Use Track & Trace to post updates, photos, and status changes. Clients see your progress in real time."
+      },
+      "earnings": {
+        "title": "Track earnings",
+        "description": "View revenue and subscription status on your dashboard. Complete jobs and get client approval to grow your earnings."
+      }
+    }
   }
 }
