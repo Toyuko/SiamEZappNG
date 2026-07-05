@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -37,6 +37,14 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
   const isFull = variant === 'full';
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const completedRef = useRef(false);
+  const notifyComplete = useCallback(() => {
+    if (completedRef.current) {
+      return;
+    }
+    completedRef.current = true;
+    onCompleteRef.current();
+  }, []);
 
   const overlay = useSharedValue(1);
   const logoScale = useSharedValue(0.9);
@@ -66,14 +74,21 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
         -1,
         true,
       );
-      return;
+      return () => {
+        cancelAnimation(logoScale);
+      };
     }
 
-    const finish = () => {
-      runOnJS(() => onCompleteRef.current())();
+    const finish = (finished?: boolean) => {
+      'worklet';
+      if (finished === false) {
+        return;
+      }
+      runOnJS(notifyComplete)();
     };
 
     cancelAnimation(logoScale);
+    cancelAnimation(overlay);
 
     if (isFull) {
       logoScale.value = withSequence(
@@ -109,21 +124,32 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
         exitDelay,
         withTiming(1.08, { duration: FULL_EXIT_MS, easing: Easing.inOut(Easing.cubic) }),
       );
-      return;
+    } else {
+      logoScale.value = withSequence(
+        withTiming(1.04, { duration: 320, easing: Easing.out(Easing.cubic) }),
+        withTiming(1, { duration: 220, easing: Easing.inOut(Easing.quad) }),
+      );
+      overlay.value = withDelay(
+        380,
+        withTiming(0, { duration: BRIEF_EXIT_MS, easing: Easing.inOut(Easing.cubic) }, finish),
+      );
     }
 
-    logoScale.value = withSequence(
-      withTiming(1.04, { duration: 320, easing: Easing.out(Easing.cubic) }),
-      withTiming(1, { duration: 220, easing: Easing.inOut(Easing.quad) }),
-    );
-    overlay.value = withDelay(
-      380,
-      withTiming(0, { duration: BRIEF_EXIT_MS, easing: Easing.inOut(Easing.cubic) }, finish),
-    );
+    return () => {
+      cancelAnimation(logoScale);
+      cancelAnimation(overlay);
+      cancelAnimation(ringScale);
+      cancelAnimation(ringOpacity);
+      cancelAnimation(titleOpacity);
+      cancelAnimation(titleY);
+      cancelAnimation(taglineOpacity);
+      cancelAnimation(taglineY);
+    };
   }, [
     isFull,
     logoOpacity,
     logoScale,
+    notifyComplete,
     overlay,
     ready,
     ringOpacity,

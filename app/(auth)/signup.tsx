@@ -24,7 +24,7 @@ type AccountType = 'customer' | 'freelancer';
 export default function SignUpScreen() {
   const router = useRouter();
   const { colors, pageBackground } = useAuthColors();
-  const { signUpMutation, loginWithProvider } = useAuth();
+  const { signUpMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [accountType, setAccountType] = useState<AccountType>('customer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -65,6 +65,15 @@ export default function SignUpScreen() {
             </View>
             <SocialButton kind="google" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
             <SocialButton kind="line" label={t('auth.continueWithLine')} onPress={() => loginWithProvider('line')} />
+            <SocialButton kind="facebook" label={t('auth.continueWithFacebook')} onPress={() => loginWithProvider('facebook')} />
+            <SocialButton
+              kind="guest"
+              label={t('auth.continueAsGuest')}
+              onPress={() => {
+                continueAsGuest();
+                router.replace('/(tabs)/home');
+              }}
+            />
 
             <OrDivider label={t('auth.orContinueWith')} />
 

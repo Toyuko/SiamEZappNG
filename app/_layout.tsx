@@ -43,7 +43,8 @@ function RootNavigator() {
   });
   const isE2E = process.env.EXPO_PUBLIC_E2E === 'true';
   const { checkForUpdate } = useAutoUpdate();
-  const isReady = !isBootstrapping && (fontsLoaded || isE2E);
+  // Keep the navigator mounted; only gate the launch overlay on bootstrap/fonts.
+  const isReady = !isBootstrapping && (fontsLoaded || Boolean(fontError) || isE2E);
   const [launchComplete, setLaunchComplete] = useState(isE2E);
   const launchVariant = accessToken && !isGuest ? 'brief' : 'full';
 
@@ -53,13 +54,26 @@ function RootNavigator() {
   );
   const handleLaunchComplete = useCallback(() => setLaunchComplete(true), []);
 
+  // Fallback: never leave the launch overlay blocking the app if the animation callback fails.
+  useEffect(() => {
+    if (launchComplete || !isReady) {
+      return;
+    }
+    const fallbackMs = launchVariant === 'brief' ? 4_000 : 8_000;
+    const timeout = setTimeout(() => setLaunchComplete(true), fallbackMs);
+    return () => clearTimeout(timeout);
+  }, [isReady, launchComplete, launchVariant]);
+
   useEffect(() => {
     void bootstrapSession();
   }, [bootstrapSession]);
 
   useEffect(() => {
+    if (!launchComplete) {
+      return;
+    }
     void checkForUpdate();
-  }, [checkForUpdate]);
+  }, [checkForUpdate, launchComplete]);
 
   useEffect(() => {
     if (fontError && __DEV__) {
@@ -111,7 +125,7 @@ function RootNavigator() {
   return (
     <LaunchAnimationProvider value={launchContext}>
       <View style={{ flex: 1 }}>
-        {isReady ? <Stack screenOptions={{ headerShown: false }} /> : null}
+        <Stack screenOptions={{ headerShown: false }} />
         {!launchComplete ? (
           <LaunchAnimation ready={isReady} variant={launchVariant} onComplete={handleLaunchComplete} />
         ) : null}
