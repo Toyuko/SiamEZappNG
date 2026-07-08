@@ -198,6 +198,18 @@
     "allServices": "All Services",
     "serviceCount": "%{count} services",
     "estimatedTime": "Estimated time",
+    "processingTime": "Processing time",
+    "documents": "Documents",
+    "documentCount": "%{count} required",
+    "featuredServices": "Featured services",
+    "swipeToExplore": "Swipe to explore",
+    "categoriesButton": "Categories",
+    "clearCategoryFilter": "Clear category filter",
+    "categoryCardHint": "Browse services in this category",
+    "categoriesPage": {
+      "title": "Categories",
+      "subtitle": "Browse services by category"
+    },
     "emptyTitle": "No services found",
     "emptyHint": "Try a different search or clear filters to see all services.",
     "viewDetails": "Details"
