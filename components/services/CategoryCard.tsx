@@ -8,7 +8,7 @@ import { getCategoryLabel } from '../../features/services/service-display';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import type { ServiceCategoryId } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
-import { radius, shadows, spacing } from '../../lib/theme/tokens';
+import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import {
   SERVICE_ICON_GRADIENT,
@@ -18,20 +18,101 @@ import {
 
 type CategoryCardProps = {
   categoryId: ServiceCategoryId;
+  cardHeight?: number;
+  cardWidth?: number;
+  portrait?: boolean;
+  onPress?: (categoryId: ServiceCategoryId) => void;
 };
 
-export function CategoryCard({ categoryId }: CategoryCardProps) {
+export function CategoryCard({ categoryId, cardHeight, cardWidth, portrait = false, onPress }: CategoryCardProps) {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const config = SERVICE_CATEGORIES.find((item) => item.id === categoryId)!;
   const gradient = SERVICE_ICON_GRADIENT[categoryId];
   const label = getCategoryLabel(categoryId);
   const serviceCount = getServicesByCategory(categoryId).length;
-  const shadowStyle = isDark ? shadows.cardDark : shadows.cardLight;
 
   const openCategory = () => {
+    if (onPress) {
+      onPress(categoryId);
+      return;
+    }
     router.push({ pathname: '/(tabs)/services', params: { category: categoryId } });
   };
+
+  if (portrait && cardHeight != null && cardWidth != null) {
+    const heroHeight = Math.round(cardHeight * 0.38);
+    const bodyHeight = cardHeight - heroHeight;
+
+    return (
+      <Pressable
+        onPress={openCategory}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}, ${t('services.serviceCount', { count: serviceCount })}`}
+        style={({ pressed }) => ({
+          width: cardWidth,
+          height: cardHeight,
+          borderRadius: radius.lg,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+          overflow: 'hidden',
+          opacity: pressed ? 0.92 : 1,
+        })}
+      >
+        <LinearGradient
+          colors={[...gradient.colors]}
+          start={SERVICE_ICON_GRADIENT_START}
+          end={SERVICE_ICON_GRADIENT_END}
+          style={{
+            width: cardWidth,
+            height: heroHeight,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons
+            name={config.icon}
+            size={Math.max(22, heroHeight * 0.4)}
+            color={gradient.foreground}
+            accessibilityIgnoresInvertColors
+          />
+        </LinearGradient>
+
+        <View
+          style={{
+            width: cardWidth,
+            height: bodyHeight,
+            paddingHorizontal: spacing.stackSm,
+            paddingVertical: spacing.stackSm,
+            justifyContent: 'space-between',
+          }}
+        >
+          <View>
+            <Text
+              style={{ fontSize: 11, fontWeight: '700', lineHeight: 14, color: colors.foreground }}
+              numberOfLines={3}
+            >
+              {label}
+            </Text>
+            <Text
+              style={{ fontSize: 9, lineHeight: 12, color: colors.muted, marginTop: 4 }}
+              numberOfLines={2}
+            >
+              {t('services.categoryCardHint')}
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 9, fontWeight: '600', color: colors.primary }}>
+              {t('services.serviceCount', { count: serviceCount })}
+            </Text>
+            <Ionicons name="chevron-forward" size={14} color={colors.muted} />
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable
@@ -47,7 +128,6 @@ export function CategoryCard({ categoryId }: CategoryCardProps) {
           borderColor: colors.border,
           backgroundColor: colors.card,
           overflow: 'hidden',
-          ...shadowStyle,
         }}
       >
         <LinearGradient
@@ -64,22 +144,22 @@ export function CategoryCard({ categoryId }: CategoryCardProps) {
             name={config.icon}
             size={40}
             color={gradient.foreground}
-            style={{ opacity: 0.9 }}
             accessibilityIgnoresInvertColors
           />
         </LinearGradient>
 
         <View style={{ padding: spacing.cardPaddingCompact, gap: spacing.stackSm }}>
-          <View className="flex-row items-center justify-between gap-2">
-            <Text className="flex-1 text-base font-bold leading-5" style={{ color: colors.foreground }} numberOfLines={2}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <Text
+              style={{ flex: 1, fontSize: 16, fontWeight: '700', lineHeight: 20, color: colors.foreground }}
+              numberOfLines={2}
+            >
               {label}
             </Text>
             <Ionicons name="chevron-forward" size={18} color={colors.muted} />
           </View>
-          <Text className="text-xs leading-4" style={{ color: colors.muted }}>
-            {t('services.categoryCardHint')}
-          </Text>
-          <Text className="text-[11px] font-semibold" style={{ color: colors.primary }}>
+          <Text style={{ fontSize: 12, lineHeight: 16, color: colors.muted }}>{t('services.categoryCardHint')}</Text>
+          <Text style={{ fontSize: 11, fontWeight: '600', color: colors.primary }}>
             {t('services.serviceCount', { count: serviceCount })}
           </Text>
         </View>

@@ -113,7 +113,79 @@
     "sponsored": "Sponsored",
     "title": "Advertise with SiamEZ",
     "subtitle": "Reach thousands of clients — your ad could be here.",
-    "cta": "Learn more"
+    "cta": "Learn more",
+    "mock": {
+      "kristieLtd": {
+        "advertiser": "Kristie Ltd.",
+        "title": "Luxury Lifestyle Concierge",
+        "subtitle": "Bespoke experiences, premium events & exclusive services across Thailand.",
+        "offer": "SiamEZ partner perks",
+        "cta": "Explore"
+      },
+      "healthCheckup": {
+        "advertiser": "Bangkok Hospital",
+        "title": "Expat Health Checkup Package",
+        "subtitle": "Full blood work, doctor consult & English report — book this week.",
+        "offer": "฿2,999 — Save ฿1,500",
+        "cta": "Book now"
+      },
+      "airportTransfer": {
+        "advertiser": "SiamEZ Ride",
+        "title": "Premium Airport Transfer",
+        "subtitle": "Suvarnabhumi or Don Mueang pickup with English-speaking driver.",
+        "offer": "20% off first ride",
+        "cta": "Get quote"
+      },
+      "expatInsurance": {
+        "advertiser": "AXA Thailand",
+        "title": "Expat Health Insurance",
+        "subtitle": "Hospital network nationwide. Visa-compliant plans from ฿12,000/yr.",
+        "offer": "Free quote in 24 hrs",
+        "cta": "Compare plans"
+      },
+      "drivingLicense": {
+        "advertiser": "Thai Drive Academy",
+        "title": "Thai Driving License for Expats",
+        "subtitle": "English instructors, BTS pickup & same-day test booking support.",
+        "offer": "฿4,500 all-inclusive",
+        "cta": "Start course"
+      },
+      "visaExtension": {
+        "advertiser": "Siam Legal Partners",
+        "title": "Visa & Work Permit Support",
+        "subtitle": "Tourist, ED & retirement extensions — documents reviewed in 48 hrs.",
+        "offer": "Free eligibility check",
+        "cta": "Consult now"
+      },
+      "certifiedTranslation": {
+        "advertiser": "Bangkok Translators",
+        "title": "Certified Document Translation",
+        "subtitle": "Birth certs, marriage licenses & contracts — embassy-ready in 2 days.",
+        "offer": "From ฿350/page",
+        "cta": "Upload docs"
+      },
+      "homeDeepClean": {
+        "advertiser": "Sparkle Home TH",
+        "title": "Move-In Deep Cleaning",
+        "subtitle": "Condo & house deep clean with eco products — English-speaking team.",
+        "offer": "15% off first booking",
+        "cta": "Book clean"
+      },
+      "weddingPlanner": {
+        "advertiser": "Siam Celebrations",
+        "title": "Destination Wedding Planning",
+        "subtitle": "Beach, temple or rooftop — full coordination for expat couples.",
+        "offer": "Free venue shortlist",
+        "cta": "Plan event"
+      },
+      "companyRegistration": {
+        "advertiser": "ThaiBiz Setup Co.",
+        "title": "Thai Company Registration",
+        "subtitle": "Ltd. registration, VAT & BOI guidance — English accountant on call.",
+        "offer": "฿25,000 flat fee",
+        "cta": "Get started"
+      }
+    }
   },
   "launch": {
     "tagline": "Trusted services across Thailand"
@@ -212,7 +284,8 @@
     },
     "emptyTitle": "No services found",
     "emptyHint": "Try a different search or clear filters to see all services.",
-    "viewDetails": "Details"
+    "viewDetails": "Details",
+    "moreDetails": "More Details"
   },
   "search": {
     "title": "Search services",

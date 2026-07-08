@@ -1,22 +1,43 @@
+import { useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { CategoryCard } from '../../components/services/CategoryCard';
-import { AdSlot } from '../../components/ui/AdSlot';
-import { SERVICE_CATEGORIES } from '../../features/services/services.types';
-import { t } from '../../lib/i18n/i18n';
-import { spacing } from '../../lib/theme/tokens';
-import { useTheme } from '../../lib/theme/theme';
+import { CategoryCarousel } from '../components/services/CategoryCarousel';
+import { ServiceCarousel } from '../components/services/ServiceCarousel';
+import { MockAdPanel } from '../components/ui/MockAdPanel';
+import { getMockAdForCategory } from '../features/ads/mock-ads';
+import { getCategoryLabel } from '../features/services/service-display';
+import { getServicesByCategory } from '../features/services/services.data';
+import type { ServiceCategoryId } from '../features/services/services.types';
+import { t } from '../lib/i18n/i18n';
+import { radius, spacing } from '../lib/theme/tokens';
+import { useTheme } from '../lib/theme/theme';
+
+/** Share of screen below the page header reserved for the category carousel row. */
+const CAROUSEL_HEIGHT_FRACTION = 0.38;
+/** Share of screen below the page header reserved for the ad panel. */
+const AD_HEIGHT_FRACTION = 0.30;
+const PAGE_HEADER_HEIGHT = 72;
 
 export default function CategoriesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { height: windowHeight } = useWindowDimensions();
+  const [selectedCategory, setSelectedCategory] = useState<ServiceCategoryId | null>(null);
+  const contentHeight = windowHeight - PAGE_HEADER_HEIGHT - 100;
+  const carouselHeight = Math.round(contentHeight * (CAROUSEL_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
+  const adHeight = Math.round(contentHeight * (AD_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
+  const categoryServices = useMemo(
+    () => (selectedCategory ? getServicesByCategory(selectedCategory) : []),
+    [selectedCategory],
+  );
+  const mockAd = selectedCategory ? getMockAdForCategory(selectedCategory) : undefined;
 
   return (
     <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
-      <View className="flex-1" style={{ paddingHorizontal: spacing.screenPaddingX }}>
+      <View style={{ flex: 1, paddingHorizontal: spacing.screenPaddingX }}>
         <View
           style={{
             flexDirection: 'row',
@@ -45,27 +66,43 @@ export default function CategoriesScreen() {
             <Ionicons name="chevron-back" size={22} color={colors.foreground} />
           </Pressable>
           <View style={{ flex: 1, gap: 2 }}>
-            <Text className="text-2xl font-bold tracking-tight" style={{ color: colors.foreground }}>
-              {t('services.categoriesPage.title')}
-            </Text>
-            <Text className="text-sm leading-5" style={{ color: colors.muted }}>
-              {t('services.categoriesPage.subtitle')}
-            </Text>
+            <Text style={{ fontSize: 24, fontWeight: '700', color: colors.foreground }}>{t('services.categoriesPage.title')}</Text>
+            <Text style={{ fontSize: 14, lineHeight: 20, color: colors.muted }}>{t('services.categoriesPage.subtitle')}</Text>
           </View>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ gap: spacing.stackMd, paddingBottom: spacing.stackLg }}
-        >
-          {SERVICE_CATEGORIES.map((category) => (
-            <CategoryCard key={category.id} categoryId={category.id} />
-          ))}
-        </ScrollView>
+        {selectedCategory ? (
+          <Pressable
+            onPress={() => setSelectedCategory(null)}
+            accessibilityRole="button"
+            accessibilityLabel={t('services.clearCategoryFilter')}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.88 : 1,
+              alignSelf: 'flex-start',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              marginBottom: spacing.stackSm,
+              borderRadius: radius.full,
+              backgroundColor: colors.primary,
+            })}
+          >
+            <Text className="text-xs font-semibold" style={{ color: '#ffffff' }}>
+              {getCategoryLabel(selectedCategory)}
+            </Text>
+            <Ionicons name="close" size={14} color="#ffffff" />
+          </Pressable>
+        ) : null}
 
-        <View style={{ paddingVertical: spacing.stackMd }}>
-          <AdSlot />
-        </View>
+        {selectedCategory ? (
+          <ServiceCarousel services={categoryServices} carouselHeight={carouselHeight} />
+        ) : (
+          <CategoryCarousel carouselHeight={carouselHeight} onCategoryPress={setSelectedCategory} />
+        )}
+        <View style={{ height: spacing.stackMd }} />
+        <MockAdPanel key={selectedCategory ?? 'all'} height={adHeight} ad={mockAd} />
       </View>
     </SafeAreaView>
   );
