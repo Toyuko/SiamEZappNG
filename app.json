@@ -67,9 +67,12 @@
         {
           "microphonePermission": "Allow SiamEZ to use the microphone for voice search.",
           "speechRecognitionPermission": "Allow SiamEZ to use speech recognition for voice search.",
-          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
         }
-      ]
+      ],
+      "expo-video"
     ]
   }
 }
