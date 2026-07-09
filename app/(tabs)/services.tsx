@@ -9,7 +9,7 @@ import { ServiceCarousel } from '../../components/services/ServiceCarousel';
 import { ServiceSearchBar } from '../../components/services/ServiceSearchBar';
 import { ServicesScreenHeader } from '../../components/services/ServicesScreenHeader';
 import { MockAdPanel } from '../../components/ui/MockAdPanel';
-import { getMockAdForCategory } from '../../features/ads/mock-ads';
+import { DEFAULT_MOCK_AD, getImageAdHeight, getMockAdForCategory } from '../../features/ads/mock-ads';
 import { filterServicesByQuery, getCategoryLabel } from '../../features/services/service-display';
 import { getActiveServices } from '../../features/services/services.data';
 import { shuffleServices } from '../../features/services/shuffle-services';
@@ -31,7 +31,7 @@ function isServiceCategoryId(value: string): value is ServiceCategoryId {
 export default function ServicesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { height: windowHeight } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const language = useLanguageStore((state) => state.language);
   const { category: categoryParam } = useLocalSearchParams<{ category?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +57,7 @@ export default function ServicesScreen() {
       ? t('services.allServices')
       : getCategoryLabel(activeCategory);
 
-  const mockAd = activeCategory !== 'all' ? getMockAdForCategory(activeCategory) : undefined;
+  const mockAd = activeCategory !== 'all' ? getMockAdForCategory(activeCategory) : DEFAULT_MOCK_AD;
 
   const clearCategoryFilter = () => {
     setActiveCategory('all');
@@ -65,12 +65,15 @@ export default function ServicesScreen() {
   };
 
   const contentHeight = windowHeight - PAGE_HEADER_HEIGHT - 100;
+  const adWidth = windowWidth - spacing.screenPaddingX * 2;
   const carouselHeight = Math.round(
     contentHeight * (CAROUSEL_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)),
   );
-  const adHeight = Math.round(
+  const gradientAdHeight = Math.round(
     contentHeight * (AD_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)),
   );
+  const adHeight =
+    mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || gradientAdHeight : gradientAdHeight;
 
   return (
     <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
@@ -135,7 +138,7 @@ export default function ServicesScreen() {
         <View style={{ paddingBottom: spacing.stackMd }}>
           <ServiceCarousel services={filteredServices} carouselHeight={carouselHeight} />
           <View style={{ height: spacing.stackMd }} />
-          <MockAdPanel key={activeCategory} height={adHeight} ad={mockAd} />
+          <MockAdPanel key={activeCategory} width={adWidth} height={adHeight} ad={mockAd} />
         </View>
       </View>
     </SafeAreaView>

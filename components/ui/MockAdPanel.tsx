@@ -1,101 +1,56 @@
 import { useMemo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, useWindowDimensions, View } from 'react-native';
 
-import { pickRandomMockAd, type MockAdConfig } from '../../features/ads/mock-ads';
+import { DEFAULT_MOCK_AD, type MockAdConfig } from '../../features/ads/mock-ads';
 import { t } from '../../lib/i18n/i18n';
-import { radius, siam } from '../../lib/theme/tokens';
+import { radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 type MockAdPanelProps = {
   height: number;
+  width?: number;
   ad?: MockAdConfig;
 };
 
-function SponsoredBadge() {
+function SponsoredBadge({ compact = false }: { compact?: boolean }) {
   return (
     <View
       style={{
         backgroundColor: 'rgba(255,255,255,0.92)',
         borderRadius: radius.full,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingHorizontal: compact ? 7 : 8,
+        paddingVertical: compact ? 2 : 3,
       }}
     >
-      <Text style={{ fontSize: 9, fontWeight: '800', letterSpacing: 0.6, color: '#64748b' }}>
+      <Text style={{ fontSize: compact ? 8 : 9, fontWeight: '800', letterSpacing: 0.6, color: '#64748b' }}>
         {t('ads.sponsored').toUpperCase()}
       </Text>
     </View>
   );
 }
 
-function ImageAdPanel({ ad, height, colors }: { ad: MockAdConfig; height: number; colors: ReturnType<typeof useTheme>['colors'] }) {
+function ImageAdPanel({ ad, width, height }: { ad: MockAdConfig; width: number; height: number }) {
   return (
-    <View style={{ width: '100%', height: '100%', backgroundColor: '#0a0a0a' }}>
+    <View style={{ width, height, backgroundColor: '#0a0a0a' }}>
       <Image
         source={ad.image}
-        style={{ width: '100%', height: '100%' }}
-        resizeMode="cover"
+        style={{ width, height }}
+        resizeMode="contain"
         accessibilityIgnoresInvertColors
       />
 
-      <LinearGradient
-        colors={['rgba(0,0,0,0.55)', 'transparent', 'rgba(0,0,0,0.85)']}
-        locations={[0, 0.45, 1]}
+      <View
+        pointerEvents="none"
         style={{
           position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
-          padding: 16,
-          justifyContent: 'space-between',
+          top: 10,
+          left: 10,
         }}
       >
-        <SponsoredBadge />
-
-        <View>
-          <Text style={{ fontSize: 11, fontWeight: '600', color: 'rgba(212,175,55,0.95)', letterSpacing: 0.4 }}>
-            {t(ad.advertiserKey)}
-          </Text>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#f5e6b8', marginTop: 4 }} numberOfLines={2}>
-            {t(ad.titleKey)}
-          </Text>
-          <Text
-            style={{ fontSize: 12, lineHeight: 17, color: 'rgba(255,255,255,0.88)', marginTop: 4 }}
-            numberOfLines={2}
-          >
-            {t(ad.subtitleKey)}
-          </Text>
-
-          <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'rgba(212,175,55,0.92)',
-                borderRadius: radius.sm,
-                paddingHorizontal: 10,
-                paddingVertical: 8,
-              }}
-            >
-              <Text style={{ fontSize: 12, fontWeight: '800', color: '#1a1208' }} numberOfLines={1}>
-                {t(ad.offerKey)}
-              </Text>
-            </View>
-            <View
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.95)',
-                borderRadius: radius.full,
-                paddingHorizontal: 16,
-                paddingVertical: 10,
-              }}
-            >
-              <Text style={{ fontSize: 12, fontWeight: '700', color: colors.primary }}>{t(ad.ctaKey)}</Text>
-            </View>
-          </View>
-        </View>
-      </LinearGradient>
+        <SponsoredBadge compact />
+      </View>
     </View>
   );
 }
@@ -173,16 +128,18 @@ function GradientAdPanel({ ad, colors }: { ad: MockAdConfig; colors: ReturnType<
   );
 }
 
-export function MockAdPanel({ height, ad: adProp }: MockAdPanelProps) {
+export function MockAdPanel({ height, width: widthProp, ad: adProp }: MockAdPanelProps) {
   const { colors } = useTheme();
-  const ad = useMemo(() => adProp ?? pickRandomMockAd(), [adProp]);
+  const { width: windowWidth } = useWindowDimensions();
+  const ad = useMemo(() => adProp ?? DEFAULT_MOCK_AD, [adProp]);
+  const panelWidth = widthProp ?? windowWidth - spacing.screenPaddingX * 2;
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${t('ads.sponsored')}: ${t(ad.titleKey)}`}
       style={({ pressed }) => ({
-        width: '100%',
+        width: panelWidth,
         height,
         borderRadius: radius.xl,
         overflow: 'hidden',
@@ -190,10 +147,11 @@ export function MockAdPanel({ height, ad: adProp }: MockAdPanelProps) {
         borderWidth: 1,
         borderColor: colors.border,
         flexShrink: 0,
+        alignSelf: 'center',
       })}
     >
       {ad.variant === 'image' ? (
-        <ImageAdPanel ad={ad} height={height} colors={colors} />
+        <ImageAdPanel ad={ad} width={panelWidth} height={height} />
       ) : (
         <GradientAdPanel ad={ad} colors={colors} />
       )}

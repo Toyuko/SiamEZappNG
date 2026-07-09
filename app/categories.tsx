@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { CategoryCarousel } from '../components/services/CategoryCarousel';
 import { ServiceCarousel } from '../components/services/ServiceCarousel';
 import { MockAdPanel } from '../components/ui/MockAdPanel';
-import { getMockAdForCategory } from '../features/ads/mock-ads';
+import { DEFAULT_MOCK_AD, getImageAdHeight, getMockAdForCategory } from '../features/ads/mock-ads';
 import { getCategoryLabel } from '../features/services/service-display';
 import { getServicesByCategory } from '../features/services/services.data';
 import type { ServiceCategoryId } from '../features/services/services.types';
@@ -24,16 +24,19 @@ const PAGE_HEADER_HEIGHT = 72;
 export default function CategoriesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { height: windowHeight } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategoryId | null>(null);
   const contentHeight = windowHeight - PAGE_HEADER_HEIGHT - 100;
+  const adWidth = windowWidth - spacing.screenPaddingX * 2;
   const carouselHeight = Math.round(contentHeight * (CAROUSEL_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
-  const adHeight = Math.round(contentHeight * (AD_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
+  const gradientAdHeight = Math.round(contentHeight * (AD_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
   const categoryServices = useMemo(
     () => (selectedCategory ? getServicesByCategory(selectedCategory) : []),
     [selectedCategory],
   );
-  const mockAd = selectedCategory ? getMockAdForCategory(selectedCategory) : undefined;
+  const mockAd = selectedCategory ? getMockAdForCategory(selectedCategory) : DEFAULT_MOCK_AD;
+  const adHeight =
+    mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || gradientAdHeight : gradientAdHeight;
 
   return (
     <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
@@ -102,7 +105,7 @@ export default function CategoriesScreen() {
           <CategoryCarousel carouselHeight={carouselHeight} onCategoryPress={setSelectedCategory} />
         )}
         <View style={{ height: spacing.stackMd }} />
-        <MockAdPanel key={selectedCategory ?? 'all'} height={adHeight} ad={mockAd} />
+        <MockAdPanel key={selectedCategory ?? 'all'} width={adWidth} height={adHeight} ad={mockAd} />
       </View>
     </SafeAreaView>
   );

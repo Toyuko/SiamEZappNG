@@ -1,4 +1,4 @@
-import type { ImageSourcePropType } from 'react-native';
+import { Image, type ImageSourcePropType } from 'react-native';
 
 import type { ServiceCategoryId } from '../services/services.types';
 import { KRISTIE_LTD_AD_IMAGE } from './ad-images';
@@ -21,6 +21,8 @@ export type MockAdConfig = {
   icon?: 'medkit' | 'airplane' | 'shield-checkmark' | 'car' | 'document-text' | 'language' | 'home' | 'sparkles' | 'briefcase';
   gradient?: readonly [string, string];
   image?: ImageSourcePropType;
+  /** Width / height — used to size image ads so the creative fits edge-to-edge. */
+  imageAspectRatio?: number;
   advertiserKey: string;
   titleKey: string;
   subtitleKey: string;
@@ -33,6 +35,7 @@ export const MOCK_ADS: MockAdConfig[] = [
     id: 'kristieLtd',
     variant: 'image',
     image: KRISTIE_LTD_AD_IMAGE,
+    imageAspectRatio: 1024 / 426,
     advertiserKey: 'ads.mock.kristieLtd.advertiser',
     titleKey: 'ads.mock.kristieLtd.title',
     subtitleKey: 'ads.mock.kristieLtd.subtitle',
@@ -155,6 +158,28 @@ const CATEGORY_AD_MAP: Record<ServiceCategoryId, MockAdId> = {
 
 export function getMockAdById(id: MockAdId): MockAdConfig {
   return MOCK_AD_BY_ID[id];
+}
+
+export function getImageAdHeight(ad: MockAdConfig, width: number): number {
+  if (ad.variant !== 'image' || !ad.image) {
+    return 0;
+  }
+
+  const source = Image.resolveAssetSource(ad.image);
+  const aspectRatio =
+    source?.width && source?.height ? source.width / source.height : ad.imageAspectRatio;
+
+  if (!aspectRatio) {
+    return 0;
+  }
+
+  return Math.round(width / aspectRatio);
+}
+
+export const DEFAULT_MOCK_AD: MockAdConfig = MOCK_AD_BY_ID.kristieLtd;
+
+export function getDefaultMockAd(): MockAdConfig {
+  return DEFAULT_MOCK_AD;
 }
 
 export function getMockAdForCategory(categoryId: ServiceCategoryId): MockAdConfig {
