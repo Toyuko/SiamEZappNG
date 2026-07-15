@@ -18,6 +18,7 @@ import {
   toSelectOptions,
   type BookingReqFieldId,
 } from '../../features/bookings/booking-fields';
+import { BOOKING_DRAFT_PREFIX } from '../../features/bookings/booking-drafts';
 import { serviceCatalog } from '../../features/services/services.data';
 import { useCreateBooking } from '../../hooks/use-create-booking';
 import { useUploadDocument } from '../../hooks/use-upload-document';
@@ -26,7 +27,6 @@ import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
 
-const BOOKING_DRAFT_PREFIX = '@booking-draft:';
 const WHATSAPP_BOOKING_URL = 'https://wa.me/66643438768';
 
 type WizardStep = 1 | 2 | 3;

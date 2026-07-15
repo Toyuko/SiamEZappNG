@@ -18,6 +18,9 @@ type CategoryCardProps = {
   onPress?: (categoryId: ServiceCategoryId) => void;
 };
 
+/** Match ServiceCarouselCard portrait body reserve so hero images share the same height. */
+const PORTRAIT_BODY_RESERVED_HEIGHT = 94;
+
 export function CategoryCard({ categoryId, cardHeight, cardWidth, portrait = false, onPress }: CategoryCardProps) {
   const router = useRouter();
   const { colors } = useTheme();
@@ -34,7 +37,7 @@ export function CategoryCard({ categoryId, cardHeight, cardWidth, portrait = fal
   };
 
   if (portrait && cardHeight != null && cardWidth != null) {
-    const heroHeight = Math.round(cardHeight * 0.38);
+    const heroHeight = Math.max(cardHeight - PORTRAIT_BODY_RESERVED_HEIGHT, Math.round(cardHeight * 0.5));
     const bodyHeight = cardHeight - heroHeight;
 
     return (

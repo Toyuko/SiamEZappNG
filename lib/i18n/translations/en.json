@@ -241,7 +241,38 @@
     "popularServices": "Popular Services",
     "popularServicesSubtitle": "Selected services most requested by our clients.",
     "viewService": "View service",
-    "viewAllServices": "View all services"
+    "viewAllServices": "View all services",
+    "browseServices": "Browse services",
+    "readyTitle": "Ready when you are",
+    "readySubtitle": "Explore the full catalog, book a service, or find a trusted freelancer.",
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "Three simple steps from need to done.",
+      "step1Title": "Choose a service",
+      "step1Body": "Browse the catalog and pick what you need — visas, documents, licenses, and more.",
+      "step2Title": "Book online",
+      "step2Body": "Share a few details and submit. We'll confirm next steps by message or email.",
+      "step3Title": "Track your case",
+      "step3Body": "Follow progress, upload documents, and stay updated until everything is complete."
+    },
+    "hub": {
+      "badge": "Your hub",
+      "greeting": "Welcome back, %{name}",
+      "subtitle": "Pick up where you left off, check cases that need you, and jump to what matters.",
+      "needsAttention": "Needs your attention",
+      "needsAttentionSubtitle": "Items waiting on you right now.",
+      "pendingDocuments": "%{count} documents pending review",
+      "pendingDocumentsHint": "Open Documents to check status or upload more.",
+      "resumeBooking": "Continue booking",
+      "recentCases": "Recent cases",
+      "recentCasesSubtitle": "Your latest case activity.",
+      "noCasesSubtitle": "Start a booking to open your first case.",
+      "emptyCases": "You don't have any cases yet. Book a service to get started.",
+      "viewAllCases": "View all cases",
+      "shortcuts": "Shortcuts",
+      "shortcutsSubtitle": "Jump to common destinations.",
+      "freelancers": "Freelancers"
+    }
   },
   "services": {
     "title": "Services",

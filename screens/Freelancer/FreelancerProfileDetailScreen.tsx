@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Image,
   Pressable,
+  ScrollView,
   Share,
   Text,
   View,
