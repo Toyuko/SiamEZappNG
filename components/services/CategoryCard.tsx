@@ -1,20 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { CATEGORY_IMAGES } from '../../features/services/category-images';
 import { getServicesByCategory } from '../../features/services/services.data';
 import { getCategoryLabel } from '../../features/services/service-display';
-import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import type { ServiceCategoryId } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
-import {
-  SERVICE_ICON_GRADIENT,
-  SERVICE_ICON_GRADIENT_END,
-  SERVICE_ICON_GRADIENT_START,
-} from './service-icon-gradient';
 
 type CategoryCardProps = {
   categoryId: ServiceCategoryId;
@@ -27,10 +21,9 @@ type CategoryCardProps = {
 export function CategoryCard({ categoryId, cardHeight, cardWidth, portrait = false, onPress }: CategoryCardProps) {
   const router = useRouter();
   const { colors } = useTheme();
-  const config = SERVICE_CATEGORIES.find((item) => item.id === categoryId)!;
-  const gradient = SERVICE_ICON_GRADIENT[categoryId];
   const label = getCategoryLabel(categoryId);
   const serviceCount = getServicesByCategory(categoryId).length;
+  const heroImage = CATEGORY_IMAGES[categoryId];
 
   const openCategory = () => {
     if (onPress) {
@@ -60,24 +53,12 @@ export function CategoryCard({ categoryId, cardHeight, cardWidth, portrait = fal
           opacity: pressed ? 0.92 : 1,
         })}
       >
-        <LinearGradient
-          colors={[...gradient.colors]}
-          start={SERVICE_ICON_GRADIENT_START}
-          end={SERVICE_ICON_GRADIENT_END}
-          style={{
-            width: cardWidth,
-            height: heroHeight,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Ionicons
-            name={config.icon}
-            size={Math.max(22, heroHeight * 0.4)}
-            color={gradient.foreground}
-            accessibilityIgnoresInvertColors
-          />
-        </LinearGradient>
+        <Image
+          source={heroImage}
+          accessibilityIgnoresInvertColors
+          style={{ width: cardWidth, height: heroHeight }}
+          resizeMode="cover"
+        />
 
         <View
           style={{
@@ -130,23 +111,12 @@ export function CategoryCard({ categoryId, cardHeight, cardWidth, portrait = fal
           overflow: 'hidden',
         }}
       >
-        <LinearGradient
-          colors={[gradient.colors[0], gradient.colors[1]]}
-          start={SERVICE_ICON_GRADIENT_START}
-          end={SERVICE_ICON_GRADIENT_END}
-          style={{
-            height: 88,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Ionicons
-            name={config.icon}
-            size={40}
-            color={gradient.foreground}
-            accessibilityIgnoresInvertColors
-          />
-        </LinearGradient>
+        <Image
+          source={heroImage}
+          accessibilityIgnoresInvertColors
+          style={{ width: '100%', height: 88 }}
+          resizeMode="cover"
+        />
 
         <View style={{ padding: spacing.cardPaddingCompact, gap: spacing.stackSm }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
