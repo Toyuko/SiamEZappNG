@@ -96,6 +96,21 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
+        name="services"
+        options={{
+          title: t('tabs.services'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={LayoutGrid}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...hideForCorporate,
+        }}
+      />
+      <Tabs.Screen
         name="home"
         options={{
           title: t('tabs.home'),
@@ -108,21 +123,6 @@ export default function TabsLayout() {
             />
           ),
           ...hideForCorporate,
-        }}
-      />
-      <Tabs.Screen
-        name="services"
-        options={{
-          title: t('tabs.services'),
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon
-              focused={focused}
-              Icon={LayoutGrid}
-              activeColor={colors.primary}
-              inactiveColor={colors.mutedText}
-            />
-          ),
-          ...hideWhenMember,
         }}
       />
       <Tabs.Screen

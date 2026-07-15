@@ -138,7 +138,7 @@ function RootNavigator() {
       } else if (isFreelancer) {
         router.replace('/(tabs)/freelancer');
       } else {
-        router.replace('/(tabs)/dashboard');
+        router.replace('/(tabs)/services');
       }
       return;
     }

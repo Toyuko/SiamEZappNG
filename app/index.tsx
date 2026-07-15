@@ -19,7 +19,7 @@ export default function Index() {
     if (isFreelancer) {
       return <Redirect href="/(tabs)/freelancer" />;
     }
-    return <Redirect href="/(tabs)/dashboard" />;
+    return <Redirect href="/(tabs)/services" />;
   }
-  return <Redirect href={isGuest ? '/(tabs)/home' : '/(auth)/login'} />;
+  return <Redirect href={isGuest ? '/(tabs)/services' : '/(auth)/login'} />;
 }
