@@ -241,6 +241,13 @@ export default function HomeScreen() {
             <View className="mt-4">
               <Button label={t('cta.bookNow')} gradient onPress={() => router.push('/(tabs)/book')} />
             </View>
+            <View className="mt-3">
+              <Button
+                label={t('freelancer.publicProfile.directory.title')}
+                variant="secondary"
+                onPress={() => router.push('/freelancers')}
+              />
+            </View>
           </Card>
         </FadeInView>
 

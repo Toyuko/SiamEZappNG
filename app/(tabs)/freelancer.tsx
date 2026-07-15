@@ -8,6 +8,7 @@ import { JobBoardScreen } from '../../screens/Freelancer/JobBoardScreen';
 import { RevenueTracker } from '../../components/freelancer/revenue-tracker';
 import { SubscriptionCard } from '../../components/freelancer/subscription-card';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -94,6 +95,22 @@ export default function FreelancerScreen() {
             }
             variant={profile?.verificationStatus === 'verified' ? 'success' : 'info'}
           />
+          <View className="flex-row flex-wrap gap-2">
+            <Button
+              label={t('freelancer.publicProfile.settings.title')}
+              variant="secondary"
+              size="md"
+              fullWidth={false}
+              onPress={() => router.push('/freelancers/settings')}
+            />
+            <Button
+              label={t('freelancer.publicProfile.directory.title')}
+              variant="secondary"
+              size="md"
+              fullWidth={false}
+              onPress={() => router.push('/freelancers')}
+            />
+          </View>
         </View>
 
         {data?.revenue ? <RevenueTracker revenue={data.revenue} /> : null}

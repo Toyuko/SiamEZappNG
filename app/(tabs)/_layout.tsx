@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import {
   Briefcase,
+  Building2,
   Calendar,
   Car,
   CircleUserRound,
@@ -10,12 +11,14 @@ import {
   Home,
   LayoutGrid,
   Mail,
+  Megaphone,
   Menu,
   User,
   type LucideIcon,
 } from 'lucide-react-native';
 import { View } from 'react-native';
 
+import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
@@ -59,10 +62,16 @@ export default function TabsLayout() {
   const { colors } = useTheme();
   const { isGuest, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
+  const isCorporate = isCorporateRole(userRole, user?.role);
   const hideWhenGuest: { href: null } | Record<string, never> = isGuest ? { href: null } : {};
   const hideWhenMember: { href: null } | Record<string, never> = isGuest ? {} : { href: null };
   const hideFreelancerTabForClient: { href: null } | Record<string, never> =
-    isFreelancer ? {} : { href: null };
+    isFreelancer && !isCorporate ? {} : { href: null };
+  /** Corporate portal: Insights / Jobs / Ads / Profile — hide standard member tabs. */
+  const hideForCorporate: { href: null } | Record<string, never> = isCorporate ? { href: null } : {};
+  const showOnlyCorporate: { href: null } | Record<string, never> = isCorporate ? {} : { href: null };
+  const hideMemberTabsForCorporate: { href: null } | Record<string, never> =
+    isGuest || isCorporate ? { href: null } : {};
 
   return (
     <Tabs
@@ -98,6 +107,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
+          ...hideForCorporate,
         }}
       />
       <Tabs.Screen
@@ -127,6 +137,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
+          ...hideForCorporate,
         }}
       />
       <Tabs.Screen
@@ -141,7 +152,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
-          ...hideWhenGuest,
+          ...hideMemberTabsForCorporate,
         }}
       />
       <Tabs.Screen
@@ -161,6 +172,66 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="corporate"
+        options={{
+          title: t('tabs.corporate'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Gauge}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...showOnlyCorporate,
+        }}
+      />
+      <Tabs.Screen
+        name="corporate-jobs"
+        options={{
+          title: t('tabs.corporateJobs'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Briefcase}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...showOnlyCorporate,
+        }}
+      />
+      <Tabs.Screen
+        name="corporate-ads"
+        options={{
+          title: t('tabs.corporateAds'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Megaphone}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...showOnlyCorporate,
+        }}
+      />
+      <Tabs.Screen
+        name="corporate-profile"
+        options={{
+          title: t('tabs.corporateProfile'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Building2}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...showOnlyCorporate,
+        }}
+      />
+      <Tabs.Screen
         name="contact"
         options={{
           title: t('tabs.contact'),
@@ -173,6 +244,7 @@ export default function TabsLayout() {
             />
           ),
           ...hideWhenMember,
+          ...hideForCorporate,
         }}
       />
       <Tabs.Screen
@@ -202,7 +274,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
-          ...hideWhenGuest,
+          ...hideMemberTabsForCorporate,
         }}
       />
       <Tabs.Screen
@@ -247,7 +319,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
-          ...hideWhenGuest,
+          ...hideMemberTabsForCorporate,
         }}
       />
       <Tabs.Screen
@@ -263,6 +335,7 @@ export default function TabsLayout() {
             />
           ),
           ...hideWhenMember,
+          ...hideForCorporate,
         }}
       />
     </Tabs>

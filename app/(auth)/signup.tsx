@@ -19,7 +19,17 @@ import { useAuth } from '../../hooks/use-auth';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 
-type AccountType = 'customer' | 'freelancer';
+type AccountType = 'customer' | 'freelancer' | 'corporate';
+
+function accountTypeLabel(type: AccountType) {
+  if (type === 'customer') {
+    return t('auth.accountTypeCustomer');
+  }
+  if (type === 'freelancer') {
+    return t('auth.accountTypeFreelancer');
+  }
+  return t('auth.accountTypeCorporate');
+}
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -80,15 +90,16 @@ export default function SignUpScreen() {
             <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground, marginBottom: 8 }}>
               {t('auth.accountType')}
             </Text>
-            <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
-              {(['customer', 'freelancer'] as const).map((type) => {
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+              {(['customer', 'freelancer', 'corporate'] as const).map((type) => {
                 const selected = accountType === type;
                 return (
                   <Pressable
                     key={type}
                     onPress={() => setAccountType(type)}
                     style={{
-                      flex: 1,
+                      flexGrow: 1,
+                      flexBasis: '30%',
                       minHeight: 50,
                       flexDirection: 'row',
                       alignItems: 'center',
@@ -119,7 +130,7 @@ export default function SignUpScreen() {
                       style={{ fontSize: 14, fontWeight: '600', color: selected ? colors.primary : colors.muted }}
                       numberOfLines={1}
                     >
-                      {type === 'customer' ? t('auth.accountTypeCustomer') : t('auth.accountTypeFreelancer')}
+                      {accountTypeLabel(type)}
                     </Text>
                   </Pressable>
                 );

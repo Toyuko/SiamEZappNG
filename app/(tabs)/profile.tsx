@@ -124,6 +124,20 @@ export default function ProfileScreen() {
               <View className="mt-2">
                 <RowItem icon="person-outline" label="Edit profile" onPress={() => comingSoon('Edit profile')} />
                 <Divider />
+                <RowItem
+                  icon="briefcase-outline"
+                  label={t('freelancer.publicProfile.settings.title')}
+                  subtitle={t('freelancer.publicProfile.settings.subtitle')}
+                  onPress={() => router.push('/freelancers/settings')}
+                />
+                <Divider />
+                <RowItem
+                  icon="people-outline"
+                  label={t('freelancer.publicProfile.directory.title')}
+                  subtitle={t('freelancer.publicProfile.directory.subtitle')}
+                  onPress={() => router.push('/freelancers')}
+                />
+                <Divider />
                 <RowItem icon="mail-outline" label="Change email" onPress={() => comingSoon('Change email')} />
                 <Divider />
                 <RowItem icon="lock-closed-outline" label="Change password" onPress={() => comingSoon('Change password')} />

@@ -13,7 +13,15 @@ type MoreLink = {
   label: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
-  path: '/(tabs)/dashboard' | '/(tabs)/documents' | '/(tabs)/services' | '/(tabs)/sales' | '/(tabs)/contact' | '/(tabs)/profile';
+  path:
+    | '/(tabs)/dashboard'
+    | '/(tabs)/documents'
+    | '/(tabs)/services'
+    | '/(tabs)/sales'
+    | '/(tabs)/contact'
+    | '/(tabs)/profile'
+    | '/freelancers'
+    | '/freelancers/settings';
 };
 
 const MORE_LINKS: MoreLink[] = [
@@ -34,6 +42,12 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'Browse available services',
     icon: 'grid-outline',
     path: '/(tabs)/services',
+  },
+  {
+    label: 'Freelancers',
+    subtitle: 'Browse public freelancer profiles',
+    icon: 'people-outline',
+    path: '/freelancers',
   },
   {
     label: 'Sales Inventory',

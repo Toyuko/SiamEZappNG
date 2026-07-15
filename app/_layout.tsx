@@ -20,6 +20,7 @@ import { LaunchAnimation } from '../components/ui/LaunchAnimation';
 import { useAuth } from '../hooks/use-auth';
 import { LaunchAnimationProvider } from '../hooks/use-launch-animation';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
+import { isCorporateRole } from '../lib/auth/role';
 import { installDefaultFont } from '../lib/theme/install-default-font';
 import { useAuthStore } from '../store/auth-store';
 
@@ -35,6 +36,7 @@ function RootNavigator() {
   const { bootstrapSession } = useAuth();
   const { accessToken, isGuest, isBootstrapping, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
+  const isCorporate = isCorporateRole(userRole, user?.role);
   // Non-blocking: Geist applies as soon as it loads (web also wires it via CSS).
   useFonts({ Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold });
   const [fontsLoaded, fontError] = useFonts({
@@ -89,6 +91,11 @@ function RootNavigator() {
     const isProtectedRoute = segments[0] !== '(auth)';
     const inAuthGroup = segments[0] === '(auth)';
     const [topLevel, tabRoute] = segments as string[];
+    const isCorporateTab =
+      tabRoute === 'corporate' ||
+      tabRoute === 'corporate-jobs' ||
+      tabRoute === 'corporate-ads' ||
+      tabRoute === 'corporate-profile';
     const isSensitiveRoute =
       topLevel === 'cases' ||
       topLevel === 'client' ||
@@ -101,7 +108,8 @@ function RootNavigator() {
           tabRoute === 'cases' ||
           tabRoute === 'documents' ||
           tabRoute === 'profile' ||
-          tabRoute === 'freelancer'));
+          tabRoute === 'freelancer' ||
+          isCorporateTab));
     const isAuthenticated = Boolean(accessToken) && !isGuest;
 
     if (!accessToken && !isGuest && isProtectedRoute) {
@@ -116,11 +124,25 @@ function RootNavigator() {
       router.replace('/(tabs)/dashboard');
       return;
     }
-    if (isAuthenticated && inAuthGroup) {
+    if (isAuthenticated && !isCorporate && isCorporateTab) {
       router.replace(isFreelancer ? '/(tabs)/freelancer' : '/(tabs)/dashboard');
       return;
     }
-  }, [accessToken, isBootstrapping, isFreelancer, isGuest, router, segments, userRole]);
+    if (isAuthenticated && isCorporate && (topLevel === 'freelancer' || tabRoute === 'freelancer')) {
+      router.replace('/(tabs)/corporate');
+      return;
+    }
+    if (isAuthenticated && inAuthGroup) {
+      if (isCorporate) {
+        router.replace('/(tabs)/corporate');
+      } else if (isFreelancer) {
+        router.replace('/(tabs)/freelancer');
+      } else {
+        router.replace('/(tabs)/dashboard');
+      }
+      return;
+    }
+  }, [accessToken, isBootstrapping, isCorporate, isFreelancer, isGuest, router, segments, userRole]);
 
   return (
     <LaunchAnimationProvider value={launchContext}>

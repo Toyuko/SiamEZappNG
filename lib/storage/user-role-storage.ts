@@ -16,7 +16,8 @@ export async function getUserRole(): Promise<UserRole | null> {
     return inMemoryRole;
   }
   const stored = await SecureStore.getItemAsync(ROLE_KEY);
-  inMemoryRole = stored === 'client' || stored === 'freelancer' ? stored : null;
+  inMemoryRole =
+    stored === 'client' || stored === 'freelancer' || stored === 'corporate' ? stored : null;
   return inMemoryRole;
 }
 

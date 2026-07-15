@@ -17,7 +17,7 @@ export type SignUpPayload = {
   phone?: string;
   password: string;
   /** Matches SiamEZ web `accountType` on POST /api/auth/register */
-  accountType?: 'customer' | 'freelancer';
+  accountType?: 'customer' | 'freelancer' | 'corporate';
 };
 
 function normalizeEmail(email: string) {
