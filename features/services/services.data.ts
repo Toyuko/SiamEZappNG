@@ -556,6 +556,80 @@ const rawServiceCatalog: RawServiceItem[] = [
     consultationNote: 'Free initial 15-minute call with our experts.',
   },
   {
+    slug: 'real-estate-services',
+    icon: 'business-outline',
+    title: 'Real Estate Services',
+    shortDescription:
+      'Your property, our priority — buy, sell, rent, or invest with a trusted real estate partner in Thailand.',
+    fullDescription:
+      'SiamEZ Real Estate Services makes property simple, safe, and stress-free. Whether you want to buy, sell, rent, or invest, our bilingual Thai & English speaking team guides you from first viewing through negotiation and transfer. We cover Bangkok and properties nationwide, with transparent service and local know-how so you can find your next dream property with confidence.',
+    benefits: [
+      'Bilingual Thai & English coordinators from viewing to transfer',
+      'Nationwide coverage with transparent, trusted support',
+    ],
+    overviewHighlights: [
+      {
+        title: 'Property Sales',
+        description: 'Find the perfect property for you — homes, condos, and more matched to your goals and budget.',
+      },
+      {
+        title: 'Property Rentals',
+        description: 'Wide selection of homes and condos for rent, with viewing support and lease guidance.',
+      },
+      {
+        title: 'Investment Advice',
+        description: 'Smart guidance for high-return opportunities across Bangkok and Thailand.',
+      },
+      {
+        title: 'Full Support',
+        description: 'From viewing to transfer, we handle the process so you avoid stress and costly missteps.',
+      },
+      {
+        title: 'Nationwide Coverage',
+        description: 'Properties in Bangkok and all over Thailand — local reach with one trusted partner.',
+      },
+      {
+        title: 'Trusted & Reliable',
+        description: 'Professional, transparent service from a team that puts your satisfaction first.',
+      },
+    ],
+    steps: [
+      'Share your property goals — buy, sell, rent, or invest — plus budget, location preferences, and timeline',
+      'We match suitable listings or qualified buyers/tenants, then arrange viewings and market feedback',
+      'We negotiate on your behalf and coordinate contracts, deposits, and transfer preparation',
+      'From final checks to key handover or transfer day, we stay with you until the deal is done',
+    ],
+    requirements: [
+      'Tell us whether you want to buy, sell, rent, or invest — and your preferred timeline.',
+      'Share budget range, preferred areas (Bangkok or other provinces), and property type.',
+      'For sellers/landlords: property details, photos, ownership or lease documents, and target price.',
+      'Valid contact details (phone / LINE @siamez / WhatsApp) for viewings and offers.',
+      'Be ready for property viewings or document checks when needed.',
+    ],
+    requiredDocuments: [
+      'Passport / ID and contact details',
+      'Budget and preferred areas / property type',
+      'For buyers/investors: proof of funds when requested',
+      'For sellers/landlords: title deed (Chanote) or ownership documents, floor plans, and photos',
+      'Any existing listing agreements or agency paperwork',
+    ],
+    pricingPackages: [
+      {
+        name: 'Real estate services',
+        price: 'Quote-based',
+        ctaLabel: 'Request custom quote',
+        features: [
+          'Buy, sell, rent, or invest support',
+          'Shortlisting, viewings, and negotiation',
+          'Paperwork and transfer coordination',
+        ],
+      },
+    ],
+    processingTime: 'Quote within 24 hours',
+    rating: '4.9 / 5.0 based on 150+ reviews',
+    consultationNote: 'Free initial 15-minute call with our experts.',
+  },
+  {
     slug: 'private-driver-service',
     icon: 'person-circle-outline',
     title: 'Private Driver Service',

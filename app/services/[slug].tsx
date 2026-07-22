@@ -220,6 +220,16 @@ export default function ServiceDetailScreen() {
           label={t('cta.bookNow')}
           onPress={() => router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })}
         />
+        {service.slug === 'real-estate-services' ? (
+          <Button
+            label={t('realEstate.browseInventory')}
+            variant="secondary"
+            onPress={() => router.push('/(tabs)/real-estate')}
+          />
+        ) : null}
+        {service.slug === 'car-motorbike-finding-selling' ? (
+          <Button label={t('sales.title')} variant="secondary" onPress={() => router.push('/(tabs)/sales')} />
+        ) : null}
         <Button label={t('serviceDetail.contactUs')} variant="secondary" onPress={() => void openContact()} />
         <Button label={t('serviceDetail.viewWebsite')} variant="secondary" onPress={() => void openWebsiteService()} />
       </ScrollView>

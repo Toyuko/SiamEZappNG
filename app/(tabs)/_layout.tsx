@@ -141,6 +141,21 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="real-estate"
+        options={{
+          title: t('tabs.realEstate'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Building2}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+            />
+          ),
+          ...hideForCorporate,
+        }}
+      />
+      <Tabs.Screen
         name="book"
         options={{
           title: t('tabs.book'),

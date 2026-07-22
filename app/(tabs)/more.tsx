@@ -18,6 +18,7 @@ type MoreLink = {
     | '/(tabs)/documents'
     | '/(tabs)/services'
     | '/(tabs)/sales'
+    | '/(tabs)/real-estate'
     | '/(tabs)/contact'
     | '/(tabs)/profile'
     | '/freelancers'
@@ -54,6 +55,12 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'Browse, add, and manage listings',
     icon: 'car-sport-outline',
     path: '/(tabs)/sales',
+  },
+  {
+    label: 'Real Estate',
+    subtitle: 'Browse homes, condos, and land',
+    icon: 'home-outline',
+    path: '/(tabs)/real-estate',
   },
   {
     label: 'Contact',

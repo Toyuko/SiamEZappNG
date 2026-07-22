@@ -282,6 +282,8 @@ export default function BookScreen() {
       licenseStatus: req.licenseStatus,
       clearancePurpose: req.clearancePurpose,
       destinationCountry: req.destination,
+      requestType: req.requestType,
+      propertyType: req.propertyType,
       requirements: requirementFields.map((f) => t(f.labelKey)),
     };
     const payload = {
