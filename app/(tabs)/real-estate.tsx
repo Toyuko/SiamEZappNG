@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -23,6 +23,49 @@ import { radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
 import { useRealEstateStore } from '../../store/real-estate-store';
+
+type FilterSectionKey = 'listingType' | 'propertyType' | 'sellerKind' | 'more';
+
+function FilterSection({
+  label,
+  summary,
+  expanded,
+  onToggle,
+  children,
+}: {
+  label: string;
+  summary: string;
+  expanded: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View className="gap-2">
+      <Pressable
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel={label}
+        className="flex-row items-center justify-between gap-2 py-1"
+        style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
+      >
+        <View className="min-w-0 flex-1">
+          <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+            {label}
+          </Text>
+          {!expanded ? (
+            <Text className="mt-0.5 text-xs" numberOfLines={1} style={{ color: colors.muted }}>
+              {summary}
+            </Text>
+          ) : null}
+        </View>
+        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.muted} />
+      </Pressable>
+      {expanded ? children : null}
+    </View>
+  );
+}
 
 type FormState = {
   title: string;
@@ -122,11 +165,31 @@ export default function RealEstateScreen() {
   const [maxPrice, setMaxPrice] = useState('');
   const [minBeds, setMinBeds] = useState('');
   const [province, setProvince] = useState('');
+  const [expandedFilters, setExpandedFilters] = useState<Record<FilterSectionKey, boolean>>({
+    listingType: false,
+    propertyType: false,
+    sellerKind: false,
+    more: false,
+  });
 
   const [formState, setFormState] = useState<FormState>(defaultForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loadingRemote, setLoadingRemote] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const toggleFilterSection = (key: FilterSectionKey) => {
+    setExpandedFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const moreFiltersSummary = [
+    minPrice.trim() ? `${t('realEstate.minPrice')}: ${minPrice.trim()}` : null,
+    maxPrice.trim() ? `${t('realEstate.maxPrice')}: ${maxPrice.trim()}` : null,
+    minBeds.trim() ? `${t('realEstate.minBedrooms')}: ${minBeds.trim()}` : null,
+    province.trim() || null,
+    t(`realEstate.sort.${sort}`),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   const isEditing = editingId !== null;
   const currentUserId = user?.id ?? 'guest';
@@ -281,105 +344,138 @@ export default function RealEstateScreen() {
           <Card>
             <View className="gap-3">
               <Input placeholder={t('realEstate.searchPlaceholder')} value={search} onChangeText={setSearch} />
-              <View className="flex-row flex-wrap gap-2">
-                <Button
-                  label={t('realEstate.listingType.all')}
-                  size="md"
-                  variant={listingType === 'all' ? 'primary' : 'secondary'}
-                  onPress={() => setListingType('all')}
-                />
-                <Button
-                  label={t('realEstate.listingType.sale')}
-                  size="md"
-                  variant={listingType === 'sale' ? 'primary' : 'secondary'}
-                  onPress={() => setListingType('sale')}
-                />
-                <Button
-                  label={t('realEstate.listingType.rent')}
-                  size="md"
-                  variant={listingType === 'rent' ? 'primary' : 'secondary'}
-                  onPress={() => setListingType('rent')}
-                />
-              </View>
-              <View className="flex-row flex-wrap gap-2">
-                <Button
-                  label={t('realEstate.propertyType.all')}
-                  size="md"
-                  variant={propertyType === 'all' ? 'primary' : 'secondary'}
-                  onPress={() => setPropertyType('all')}
-                />
-                {PROPERTY_TYPES.map((type) => (
+              <FilterSection
+                label={t('realEstate.listingType.label')}
+                summary={t(`realEstate.listingType.${listingType}`)}
+                expanded={expandedFilters.listingType}
+                onToggle={() => toggleFilterSection('listingType')}
+              >
+                <View className="gap-2">
                   <Button
-                    key={type}
-                    label={t(`realEstate.propertyType.${type}`)}
+                    label={t('realEstate.listingType.all')}
                     size="md"
-                    variant={propertyType === type ? 'primary' : 'secondary'}
-                    onPress={() => setPropertyType(type)}
+                    variant={listingType === 'all' ? 'primary' : 'secondary'}
+                    onPress={() => setListingType('all')}
                   />
-                ))}
-              </View>
-              <View className="flex-row flex-wrap gap-2">
-                <Button
-                  label={t('realEstate.sellerKind.all')}
-                  size="md"
-                  variant={sellerKind === 'all' ? 'primary' : 'secondary'}
-                  onPress={() => setSellerKind('all')}
-                />
-                <Button
-                  label={t('realEstate.sellerKind.dealer')}
-                  size="md"
-                  variant={sellerKind === 'dealer' ? 'primary' : 'secondary'}
-                  onPress={() => setSellerKind('dealer')}
-                />
-                <Button
-                  label={t('realEstate.sellerKind.private')}
-                  size="md"
-                  variant={sellerKind === 'private' ? 'primary' : 'secondary'}
-                  onPress={() => setSellerKind('private')}
-                />
-              </View>
-              <View className="flex-row gap-2">
-                <Input
-                  className="flex-1"
-                  placeholder={t('realEstate.minPrice')}
-                  value={minPrice}
-                  onChangeText={setMinPrice}
-                  keyboardType="numeric"
-                />
-                <Input
-                  className="flex-1"
-                  placeholder={t('realEstate.maxPrice')}
-                  value={maxPrice}
-                  onChangeText={setMaxPrice}
-                  keyboardType="numeric"
-                />
-              </View>
-              <View className="flex-row gap-2">
-                <Input
-                  className="flex-1"
-                  placeholder={t('realEstate.minBedrooms')}
-                  value={minBeds}
-                  onChangeText={setMinBeds}
-                  keyboardType="numeric"
-                />
-                <Input
-                  className="flex-1"
-                  placeholder={t('realEstate.provincePlaceholder')}
-                  value={province}
-                  onChangeText={setProvince}
-                />
-              </View>
-              <View className="flex-row flex-wrap gap-2">
-                {(['latest', 'priceAsc', 'priceDesc', 'areaDesc', 'areaAsc'] as const).map((option) => (
                   <Button
-                    key={option}
-                    label={t(`realEstate.sort.${option}`)}
+                    label={t('realEstate.listingType.sale')}
                     size="md"
-                    variant={sort === option ? 'primary' : 'secondary'}
-                    onPress={() => setSort(option)}
+                    variant={listingType === 'sale' ? 'primary' : 'secondary'}
+                    onPress={() => setListingType('sale')}
                   />
-                ))}
-              </View>
+                  <Button
+                    label={t('realEstate.listingType.rent')}
+                    size="md"
+                    variant={listingType === 'rent' ? 'primary' : 'secondary'}
+                    onPress={() => setListingType('rent')}
+                  />
+                </View>
+              </FilterSection>
+              <FilterSection
+                label={t('realEstate.propertyType.label')}
+                summary={t(`realEstate.propertyType.${propertyType}`)}
+                expanded={expandedFilters.propertyType}
+                onToggle={() => toggleFilterSection('propertyType')}
+              >
+                <View className="gap-2">
+                  <Button
+                    label={t('realEstate.propertyType.all')}
+                    size="md"
+                    variant={propertyType === 'all' ? 'primary' : 'secondary'}
+                    onPress={() => setPropertyType('all')}
+                  />
+                  {PROPERTY_TYPES.map((type) => (
+                    <Button
+                      key={type}
+                      label={t(`realEstate.propertyType.${type}`)}
+                      size="md"
+                      variant={propertyType === type ? 'primary' : 'secondary'}
+                      onPress={() => setPropertyType(type)}
+                    />
+                  ))}
+                </View>
+              </FilterSection>
+              <FilterSection
+                label={t('realEstate.sellerKind.label')}
+                summary={t(`realEstate.sellerKind.${sellerKind}`)}
+                expanded={expandedFilters.sellerKind}
+                onToggle={() => toggleFilterSection('sellerKind')}
+              >
+                <View className="gap-2">
+                  <Button
+                    label={t('realEstate.sellerKind.all')}
+                    size="md"
+                    variant={sellerKind === 'all' ? 'primary' : 'secondary'}
+                    onPress={() => setSellerKind('all')}
+                  />
+                  <Button
+                    label={t('realEstate.sellerKind.dealer')}
+                    size="md"
+                    variant={sellerKind === 'dealer' ? 'primary' : 'secondary'}
+                    onPress={() => setSellerKind('dealer')}
+                  />
+                  <Button
+                    label={t('realEstate.sellerKind.private')}
+                    size="md"
+                    variant={sellerKind === 'private' ? 'primary' : 'secondary'}
+                    onPress={() => setSellerKind('private')}
+                  />
+                </View>
+              </FilterSection>
+              <FilterSection
+                label={t('realEstate.moreFilters')}
+                summary={moreFiltersSummary}
+                expanded={expandedFilters.more}
+                onToggle={() => toggleFilterSection('more')}
+              >
+                <View className="gap-2">
+                  <View className="flex-row gap-2">
+                    <Input
+                      className="flex-1"
+                      placeholder={t('realEstate.minPrice')}
+                      value={minPrice}
+                      onChangeText={setMinPrice}
+                      keyboardType="numeric"
+                    />
+                    <Input
+                      className="flex-1"
+                      placeholder={t('realEstate.maxPrice')}
+                      value={maxPrice}
+                      onChangeText={setMaxPrice}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View className="flex-row gap-2">
+                    <Input
+                      className="flex-1"
+                      placeholder={t('realEstate.minBedrooms')}
+                      value={minBeds}
+                      onChangeText={setMinBeds}
+                      keyboardType="numeric"
+                    />
+                    <Input
+                      className="flex-1"
+                      placeholder={t('realEstate.provincePlaceholder')}
+                      value={province}
+                      onChangeText={setProvince}
+                    />
+                  </View>
+                  <Text className="text-xs font-medium" style={{ color: colors.muted }}>
+                    {t('realEstate.sort.label')}
+                  </Text>
+                  <View className="gap-2">
+                    {(['latest', 'priceAsc', 'priceDesc', 'areaDesc', 'areaAsc'] as const).map((option) => (
+                      <Button
+                        key={option}
+                        label={t(`realEstate.sort.${option}`)}
+                        size="md"
+                        variant={sort === option ? 'primary' : 'secondary'}
+                        onPress={() => setSort(option)}
+                      />
+                    ))}
+                  </View>
+                </View>
+              </FilterSection>
             </View>
           </Card>
         </FadeInView>

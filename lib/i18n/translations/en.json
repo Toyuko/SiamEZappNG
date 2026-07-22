@@ -698,6 +698,7 @@
     "notFound": "Property not found.",
     "serviceTeaser": "Need help buying, selling, renting, or investing? Book Real Estate Services.",
     "bookService": "Book Real Estate Services",
+    "moreFilters": "Price, beds & sort",
     "listingType": {
       "label": "Listing type",
       "all": "Sale & rent",
@@ -735,6 +736,7 @@
       "sold": "Sold"
     },
     "sort": {
+      "label": "Sort by",
       "latest": "Latest",
       "priceAsc": "Price: Low to High",
       "priceDesc": "Price: High to Low",
