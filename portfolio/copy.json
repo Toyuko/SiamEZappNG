@@ -1,0 +1,41 @@
+{
+  "project": "SiamEZ Mobile",
+  "tagline": "Trusted Thai services, booking, and live job tracking in one app.",
+  "oneLiner": "A bilingual Thailand expat services marketplace (Expo + React Native) with booking, case tracking, voice search, and realtime freelancer jobs.",
+  "short": "SiamEZ is a production Expo/React Native app for expats and locals in Thailand. Clients browse and book services (visas, translations, driver’s licenses, and more), while freelancers pick up live jobs with chat and GPS track-and-trace. Built with role-based portals, Thai/English i18n, and a shared remote API.",
+  "medium": "SiamEZ is a multi-sided marketplace and client portal for professional services across Thailand. The mobile app (Expo SDK 55, React Native, TypeScript) lets guests and customers discover services, book online, manage cases and documents, and follow job progress with live chat and location updates. Freelancers get a realtime job board (Pusher), earnings/escrow flows, and Track & Trace. Corporates get hiring and ad tools. Adjacent marketplace surfaces cover vehicle sales and real estate listings.\n\nBuilt as a route-driven Expo Router client against the existing SiamEZ web backend, with NativeWind theming, Zustand session state, TanStack Query data fetching, voice-first search, and English/Thai localization.",
+  "features": [
+    "Multi-role portals: guest/client, freelancer, corporate",
+    "Service catalog, booking wizard, cases & documents",
+    "Realtime freelancer job board and chat (Pusher)",
+    "Job Track & Trace with timeline and live location",
+    "Voice-first search FAB + fuzzy navigation",
+    "Bilingual English / Thai i18n",
+    "Vehicle sales and real estate marketplace tabs"
+  ],
+  "stack": [
+    "Expo 55",
+    "React Native",
+    "TypeScript",
+    "Expo Router",
+    "NativeWind",
+    "Zustand",
+    "TanStack Query",
+    "Pusher",
+    "i18n-js",
+    "Vitest",
+    "Playwright"
+  ],
+  "links": {
+    "web": "https://siam-e-zweb-ng.vercel.app/en",
+    "apiDefault": "https://siam-e-zweb-ng.vercel.app"
+  },
+  "screenshots": [
+    { "file": "screenshots/01-login.png", "caption": "Auth — social login, guest mode, phone-framed web shell", "role": "hero" },
+    { "file": "screenshots/02-home.png", "caption": "Home — Expert Thai Services hero, trust stats, how-it-works", "role": "feature" },
+    { "file": "screenshots/07-real-estate.png", "caption": "Real estate listings with filters and property cards", "role": "feature" },
+    { "file": "screenshots/08-sales.png", "caption": "Vehicle sales inventory with search and sort", "role": "feature" },
+    { "file": "screenshots/09-contact.png", "caption": "Contact channels and service inquiry form", "role": "feature" },
+    { "file": "screenshots/11-web-companion.png", "caption": "Companion marketing website (same product ecosystem)", "role": "optional" }
+  ]
+}
