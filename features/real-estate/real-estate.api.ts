@@ -23,6 +23,7 @@ type PlatformProperty = {
   district: string | null;
   neighborhood?: string | null;
   priceAmount: number;
+  previousPriceAmount?: number | null;
   priceCurrency?: string;
   sellerKind: PropertySellerKind;
   furnished?: PropertyFurnished;
@@ -30,6 +31,8 @@ type PlatformProperty = {
   heroImageUrl: string;
   description?: string | null;
   isBoosted?: boolean;
+  boostExpiresAt?: string | null;
+  isVerified?: boolean;
   createdById?: string | null;
   createdAt?: string;
 };
@@ -59,6 +62,7 @@ function mapProperty(property: PlatformProperty): RealEstateListing {
     district: property.district,
     neighborhood: property.neighborhood ?? null,
     priceAmount: property.priceAmount,
+    previousPriceAmount: property.previousPriceAmount ?? null,
     priceCurrency: property.priceCurrency ?? 'THB',
     sellerKind: property.sellerKind,
     furnished: property.furnished ?? 'not_applicable',
@@ -67,6 +71,8 @@ function mapProperty(property: PlatformProperty): RealEstateListing {
     description: property.description ?? '',
     isBoosted: property.isBoosted,
     boostActive: property.isBoosted,
+    boostExpiresAt: property.boostExpiresAt ?? null,
+    isVerified: property.isVerified,
     createdAt: property.createdAt ?? new Date().toISOString(),
   };
 }

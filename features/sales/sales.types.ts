@@ -8,6 +8,7 @@ export type SalesListing = {
   make: string;
   model: string;
   priceAmount: number;
+  previousPriceAmount?: number | null;
   year: number;
   mileageKm: number;
   category: VehicleCategory;
@@ -15,6 +16,9 @@ export type SalesListing = {
   heroImageUrl: string;
   description: string;
   createdAt: string;
+  isBoosted?: boolean;
+  boostExpiresAt?: string | null;
+  isVerified?: boolean;
 };
 
 export type SalesFilters = {

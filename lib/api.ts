@@ -155,6 +155,11 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown, opti
   }
 
   if (!response.ok) {
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('retry-after');
+      const suffix = retryAfter ? ` Retry after ${retryAfter}s.` : '';
+      throw new ApiError(`Too many requests.${suffix}`, 429, data);
+    }
     const message = getErrorMessage(data, response.status);
     throw new ApiError(message, response.status, data);
   }

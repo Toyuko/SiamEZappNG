@@ -20,6 +20,9 @@ type MoreLink = {
     | '/(tabs)/life-events'
     | '/(tabs)/saved'
     | '/(tabs)/concierge'
+    | '/(tabs)/workflows'
+    | '/(tabs)/search'
+    | '/(tabs)/seller'
     | '/(tabs)/services'
     | '/(tabs)/sales'
     | '/(tabs)/real-estate'
@@ -38,9 +41,15 @@ const MORE_LINKS: MoreLink[] = [
   },
   {
     label: 'AI Concierge',
-    subtitle: 'Chat with the Platform Concierge',
+    subtitle: 'Journey-aware Platform Concierge',
     icon: 'chatbubbles-outline',
     path: '/(tabs)/concierge',
+  },
+  {
+    label: 'Search',
+    subtitle: 'Unified services, vehicles, and property search',
+    icon: 'search-outline',
+    path: '/(tabs)/search',
   },
   {
     label: 'Goals',
@@ -55,10 +64,22 @@ const MORE_LINKS: MoreLink[] = [
     path: '/(tabs)/life-events',
   },
   {
+    label: 'Workflows',
+    subtitle: 'Inspection, viewing, and template runs',
+    icon: 'git-network-outline',
+    path: '/(tabs)/workflows',
+  },
+  {
     label: 'Saved & Compare',
-    subtitle: 'Buyer hub for vehicles and properties',
+    subtitle: 'Buyer hub + saved searches',
     icon: 'bookmark-outline',
     path: '/(tabs)/saved',
+  },
+  {
+    label: 'Seller hub',
+    subtitle: 'Views, enquiries, listing performance',
+    icon: 'storefront-outline',
+    path: '/(tabs)/seller',
   },
   {
     label: 'Documents',

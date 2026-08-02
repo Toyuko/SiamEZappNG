@@ -110,6 +110,8 @@ function RootNavigator() {
           tabRoute === 'goals' ||
           tabRoute === 'life-events' ||
           tabRoute === 'saved' ||
+          tabRoute === 'workflows' ||
+          tabRoute === 'seller' ||
           tabRoute === 'profile' ||
           tabRoute === 'freelancer' ||
           isCorporateTab));

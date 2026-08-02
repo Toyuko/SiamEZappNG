@@ -336,6 +336,27 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="workflows"
+        options={{
+          title: 'Workflows',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="seller"
+        options={{
+          title: 'Seller',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.profile'),

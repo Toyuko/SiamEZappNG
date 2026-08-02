@@ -3,6 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ListingBadges } from '../../components/marketplace/ListingBadges';
+import { RelatedListingsSection } from '../../components/marketplace/RelatedListingsSection';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import {
@@ -100,6 +102,14 @@ export default function SalesDetailScreen() {
             <Text className="mt-1 text-xl font-semibold" style={{ color: colors.foreground }}>
               {listing.year} {listing.make} {listing.model}
             </Text>
+            <ListingBadges
+              createdAt={listing.createdAt}
+              priceAmount={listing.priceAmount}
+              previousPriceAmount={listing.previousPriceAmount}
+              isBoosted={listing.isBoosted}
+              boostExpiresAt={listing.boostExpiresAt}
+              isVerified={listing.isVerified}
+            />
 
             <View className="mt-4 rounded-xl border p-3" style={{ borderColor: colors.border }}>
               <Text className="text-xs uppercase tracking-wide" style={{ color: colors.muted }}>
@@ -177,6 +187,10 @@ export default function SalesDetailScreen() {
             </View>
           </Card>
         )}
+
+        {listingId ? (
+          <RelatedListingsSection listingType="vehicle" listingId={listingId} />
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

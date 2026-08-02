@@ -1,4 +1,5 @@
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -7,8 +8,12 @@ import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
-import { useMarketplaceEngagement } from '../../hooks/use-marketplace-engagement';
+import {
+  deleteSavedSearch,
+  fetchSavedSearches,
+} from '../../features/marketplace/saved-searches.api';
 import type { HubListingCard } from '../../features/marketplace/marketplace.types';
+import { useMarketplaceEngagement } from '../../hooks/use-marketplace-engagement';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
@@ -59,7 +64,16 @@ function ListingRow({
 export default function SavedHubScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const qc = useQueryClient();
   const engagement = useMarketplaceEngagement();
+  const searchesQuery = useQuery({
+    queryKey: ['saved-searches'],
+    queryFn: fetchSavedSearches,
+  });
+  const removeSearch = useMutation({
+    mutationFn: deleteSavedSearch,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['saved-searches'] }),
+  });
 
   if (engagement.isLoading) {
     return <LoadingState label="Loading saved listings…" />;
@@ -98,8 +112,46 @@ export default function SavedHubScreen() {
       >
         <PageHeader
           title="Saved & Compare"
-          subtitle={`${data?.savedCount ?? 0} saved · ${data?.compareCount ?? 0} in compare`}
+          subtitle={`${data?.savedCount ?? 0} saved · ${data?.compareCount ?? 0} in compare · Platform 2.1`}
         />
+
+        <Section title="Saved searches" subtitle="Filter presets synced with the website">
+          {(searchesQuery.data ?? []).length === 0 ? (
+            <Card>
+              <Text className="text-sm" style={{ color: colors.muted }}>
+                Save marketplace filters on the website or via API — they appear here.
+              </Text>
+            </Card>
+          ) : (
+            (searchesQuery.data ?? []).map((search) => (
+              <Card key={search.id}>
+                <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                  {search.name}
+                </Text>
+                <Text className="mt-1 text-xs uppercase tracking-wide" style={{ color: colors.muted }}>
+                  {search.listingType}
+                </Text>
+                <Pressable
+                  className="mt-2 self-start"
+                  onPress={() => {
+                    Alert.alert('Delete saved search?', search.name, [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: () => removeSearch.mutate(search.id),
+                      },
+                    ]);
+                  }}
+                >
+                  <Text className="text-xs font-semibold" style={{ color: colors.muted }}>
+                    Delete
+                  </Text>
+                </Pressable>
+              </Card>
+            ))
+          )}
+        </Section>
 
         <Section title="Saved" subtitle="Synced with the website buyer hub">
           {(data?.saved ?? []).length === 0 ? (

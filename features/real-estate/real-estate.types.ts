@@ -20,6 +20,7 @@ export type RealEstateListing = {
   district: string | null;
   neighborhood: string | null;
   priceAmount: number;
+  previousPriceAmount?: number | null;
   priceCurrency: string;
   sellerKind: PropertySellerKind;
   furnished: PropertyFurnished;
@@ -28,6 +29,8 @@ export type RealEstateListing = {
   description: string;
   isBoosted?: boolean;
   boostActive?: boolean;
+  boostExpiresAt?: string | null;
+  isVerified?: boolean;
   createdAt: string;
 };
 

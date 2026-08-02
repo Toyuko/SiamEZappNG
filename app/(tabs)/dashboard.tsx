@@ -108,6 +108,8 @@ export default function DashboardScreen() {
           <Card>
             <View className="gap-2">
               {[
+                { label: 'Concierge', path: '/(tabs)/concierge' as const, meta: 'Journey AI' },
+                { label: 'Search', path: '/(tabs)/search' as const, meta: 'Unified' },
                 { label: 'Goals', path: '/(tabs)/goals' as const, meta: `${activeGoals} active` },
                 {
                   label: 'Life Events',
@@ -115,10 +117,16 @@ export default function DashboardScreen() {
                   meta: `${activeLifeEvents} in progress`,
                 },
                 {
+                  label: 'Workflows',
+                  path: '/(tabs)/workflows' as const,
+                  meta: 'Templates & runs',
+                },
+                {
                   label: 'Saved & Compare',
                   path: '/(tabs)/saved' as const,
                   meta: `${savedCount} saved`,
                 },
+                { label: 'Seller hub', path: '/(tabs)/seller' as const, meta: 'Views & enquiries' },
                 { label: 'Documents', path: '/(tabs)/documents' as const, meta: 'Files & uploads' },
                 { label: 'Cases', path: '/(tabs)/cases' as const, meta: `${activeCases} open` },
               ].map((item) => (

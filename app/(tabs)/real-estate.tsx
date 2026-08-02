@@ -4,6 +4,7 @@ import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
+import { ListingBadges } from '../../components/marketplace/ListingBadges';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -592,6 +593,14 @@ export default function RealEstateScreen() {
                         ) : null}
                       </View>
                     </View>
+                    <ListingBadges
+                      createdAt={listing.createdAt}
+                      priceAmount={listing.priceAmount}
+                      previousPriceAmount={listing.previousPriceAmount}
+                      isBoosted={listing.isBoosted}
+                      boostExpiresAt={listing.boostExpiresAt}
+                      isVerified={listing.isVerified}
+                    />
                   </Card>
                 </Pressable>
               </FadeInView>

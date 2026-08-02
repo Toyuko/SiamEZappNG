@@ -3,6 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ListingBadges } from '../../components/marketplace/ListingBadges';
+import { RelatedListingsSection } from '../../components/marketplace/RelatedListingsSection';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import {
@@ -134,6 +136,14 @@ export default function RealEstateDetailScreen() {
                 {location}
               </Text>
             ) : null}
+            <ListingBadges
+              createdAt={listing.createdAt}
+              priceAmount={listing.priceAmount}
+              previousPriceAmount={listing.previousPriceAmount}
+              isBoosted={listing.isBoosted}
+              boostExpiresAt={listing.boostExpiresAt}
+              isVerified={listing.isVerified}
+            />
 
             <SpecRow label={t('realEstate.listingType.label')} value={t(`realEstate.listingType.${listing.listingType}`)} />
             <SpecRow
@@ -257,6 +267,10 @@ export default function RealEstateDetailScreen() {
             </View>
           </Card>
         )}
+
+        {listingId ? (
+          <RelatedListingsSection listingType="property" listingId={listingId} />
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

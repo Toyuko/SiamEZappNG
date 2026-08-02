@@ -9,12 +9,16 @@ type PlatformVehicle = {
   year: number;
   mileageKm: number;
   priceAmount: number;
+  previousPriceAmount?: number | null;
   category: VehicleCategory;
   status: string;
   heroImageUrl: string;
   description: string | null;
   createdById?: string | null;
   createdAt?: string;
+  isBoosted?: boolean;
+  boostExpiresAt?: string | null;
+  isVerified?: boolean;
 };
 
 type VehiclesPage = {
@@ -23,6 +27,12 @@ type VehiclesPage = {
   pageSize: number;
   total: number;
   totalPages: number;
+  bounds?: {
+    minPrice: number;
+    maxPrice: number;
+    minYear: number;
+    maxYear: number;
+  };
 };
 
 function mapStatus(status: string): ListingStatus {
@@ -41,15 +51,19 @@ function mapVehicle(vehicle: PlatformVehicle): SalesListing {
     year: vehicle.year,
     mileageKm: vehicle.mileageKm,
     priceAmount: vehicle.priceAmount,
+    previousPriceAmount: vehicle.previousPriceAmount ?? null,
     category: vehicle.category,
     status: mapStatus(vehicle.status),
     heroImageUrl: vehicle.heroImageUrl,
     description: vehicle.description ?? '',
     createdAt: vehicle.createdAt ?? new Date().toISOString(),
+    isBoosted: vehicle.isBoosted,
+    boostExpiresAt: vehicle.boostExpiresAt ?? null,
+    isVerified: vehicle.isVerified,
   };
 }
 
-/** Fetch published vehicle inventory from Platform JSON API (replaces HTML scrape). */
+/** Fetch published vehicle inventory from Platform JSON API. */
 export async function fetchWebsiteSalesListings(): Promise<SalesListing[]> {
   const response = await api.get<VehiclesPage | ApiEnvelope<VehiclesPage>>(
     '/api/v1/marketplace/vehicles?pageSize=100&sort=latest'
