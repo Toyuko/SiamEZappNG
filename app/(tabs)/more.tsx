@@ -16,6 +16,10 @@ type MoreLink = {
   path:
     | '/(tabs)/dashboard'
     | '/(tabs)/documents'
+    | '/(tabs)/goals'
+    | '/(tabs)/life-events'
+    | '/(tabs)/saved'
+    | '/(tabs)/concierge'
     | '/(tabs)/services'
     | '/(tabs)/sales'
     | '/(tabs)/real-estate'
@@ -31,6 +35,30 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'Overview of your account',
     icon: 'speedometer-outline',
     path: '/(tabs)/dashboard',
+  },
+  {
+    label: 'AI Concierge',
+    subtitle: 'Chat with the Platform Concierge',
+    icon: 'chatbubbles-outline',
+    path: '/(tabs)/concierge',
+  },
+  {
+    label: 'Goals',
+    subtitle: 'Track goals synced with the Platform',
+    icon: 'flag-outline',
+    path: '/(tabs)/goals',
+  },
+  {
+    label: 'Life Events',
+    subtitle: 'Journeys, checklists, and progress',
+    icon: 'trail-sign-outline',
+    path: '/(tabs)/life-events',
+  },
+  {
+    label: 'Saved & Compare',
+    subtitle: 'Buyer hub for vehicles and properties',
+    icon: 'bookmark-outline',
+    path: '/(tabs)/saved',
   },
   {
     label: 'Documents',

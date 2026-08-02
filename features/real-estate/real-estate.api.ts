@@ -1,5 +1,6 @@
-import { appConfig } from '../../lib/config';
+import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 import type {
+  PropertyFurnished,
   PropertyListingStatus,
   PropertyListingType,
   PropertySellerKind,
@@ -7,93 +8,85 @@ import type {
   RealEstateListing,
 } from './real-estate.types';
 
-type ParsedPropertyCard = {
+type PlatformProperty = {
   id: string;
   title: string;
-  heroImageUrl: string;
-  priceAmount: number;
-  priceCurrency?: string;
   propertyType: PropertyType;
   listingType: PropertyListingType;
   bedrooms: number | null;
   bathrooms: number | null;
   areaSqm: number;
+  landAreaSqm?: number | null;
+  floor?: number | null;
+  yearBuilt?: number | null;
   province: string;
   district: string | null;
-  status: PropertyListingStatus;
+  neighborhood?: string | null;
+  priceAmount: number;
+  priceCurrency?: string;
   sellerKind: PropertySellerKind;
+  furnished?: PropertyFurnished;
+  status: PropertyListingStatus;
+  heroImageUrl: string;
+  description?: string | null;
   isBoosted?: boolean;
-  boostActive?: boolean;
   createdById?: string | null;
   createdAt?: string;
-  description?: string;
 };
 
-function extractByRegex(html: string, pattern: RegExp) {
-  const match = html.match(pattern);
-  if (!match?.[1]) return null;
-  return match[1];
-}
+type PropertiesPage = {
+  items: PlatformProperty[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
 
-function parsePropertiesFromHtml(html: string): ParsedPropertyCard[] {
-  const rawJsonArray = extractByRegex(html, /"properties":(\[[\s\S]*?\]),"bounds":/);
-  if (rawJsonArray) {
-    try {
-      const parsed = JSON.parse(rawJsonArray.replace(/\$D/g, '')) as ParsedPropertyCard[];
-      if (Array.isArray(parsed)) return parsed;
-    } catch {
-      // Fall through to escaped payload parsing.
-    }
-  }
-
-  const escapedJsonArray = extractByRegex(html, /\\"properties\\":(\[[\s\S]*?\]),\\"bounds\\":/);
-  if (!escapedJsonArray) return [];
-
-  try {
-    const unescaped = escapedJsonArray.replace(/\$D/g, '').replace(/\\"/g, '"');
-    const parsed = JSON.parse(unescaped) as ParsedPropertyCard[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-export async function fetchWebsiteRealEstateListings(): Promise<RealEstateListing[]> {
-  const response = await fetch(`${appConfig.webBaseUrl}/en/real-estate`, {
-    method: 'GET',
-    headers: { Accept: 'text/html' },
-  });
-  if (!response.ok) {
-    throw new Error(`Unable to load website real estate inventory (${response.status})`);
-  }
-
-  const html = await response.text();
-  const properties = parsePropertiesFromHtml(html);
-
-  return properties.map((property) => ({
+function mapProperty(property: PlatformProperty): RealEstateListing {
+  return {
     id: property.id,
-    ownerId: property.createdById ?? 'seed-admin',
+    ownerId: property.createdById ?? 'platform',
     title: property.title,
     propertyType: property.propertyType,
     listingType: property.listingType,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     areaSqm: property.areaSqm,
-    landAreaSqm: null,
-    floor: null,
-    yearBuilt: null,
+    landAreaSqm: property.landAreaSqm ?? null,
+    floor: property.floor ?? null,
+    yearBuilt: property.yearBuilt ?? null,
     province: property.province,
     district: property.district,
-    neighborhood: null,
+    neighborhood: property.neighborhood ?? null,
     priceAmount: property.priceAmount,
     priceCurrency: property.priceCurrency ?? 'THB',
     sellerKind: property.sellerKind,
-    furnished: 'not_applicable',
-    status: property.status === 'pending_boost' ? 'available' : property.status,
+    furnished: property.furnished ?? 'not_applicable',
+    status: property.status,
     heroImageUrl: property.heroImageUrl,
     description: property.description ?? '',
     isBoosted: property.isBoosted,
-    boostActive: property.boostActive,
+    boostActive: property.isBoosted,
     createdAt: property.createdAt ?? new Date().toISOString(),
-  }));
+  };
+}
+
+/** Fetch published property inventory from Platform JSON API (replaces HTML scrape). */
+export async function fetchWebsiteRealEstateListings(): Promise<RealEstateListing[]> {
+  const response = await api.get<PropertiesPage | ApiEnvelope<PropertiesPage>>(
+    '/api/v1/marketplace/properties?pageSize=100&sort=latest'
+  );
+  const page = unwrapApiData(response);
+  return (page.items ?? []).map(mapProperty);
+}
+
+export async function fetchPropertyListingById(id: string): Promise<RealEstateListing | null> {
+  try {
+    const response = await api.get<PlatformProperty | ApiEnvelope<PlatformProperty>>(
+      `/api/v1/marketplace/properties/${id}`
+    );
+    return mapProperty(unwrapApiData(response));
+  } catch {
+    return null;
+  }
 }

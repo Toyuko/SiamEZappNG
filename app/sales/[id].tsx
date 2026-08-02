@@ -1,12 +1,20 @@
+import { useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import {
+  useCompareListing,
+  useMarketplaceEngagement,
+  useRecordListingView,
+  useSaveListing,
+} from '../../hooks/use-marketplace-engagement';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+import { useAuthStore } from '../../store/auth-store';
 import { useSalesStore } from '../../store/sales-store';
 
 function formatMoney(amount: number) {
@@ -31,8 +39,38 @@ export default function SalesDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
+  const isAuthenticated = Boolean(accessToken) && !isGuest;
   const listing = useSalesStore((state) => state.listings.find((item) => item.id === id));
   const categoryLabel = listing?.category === 'car' ? t('sales.categoryCars') : t('sales.categoryMotorcycles');
+  const engagement = useMarketplaceEngagement(isAuthenticated);
+  const saveListing = useSaveListing();
+  const compareListing = useCompareListing();
+  const recordView = useRecordListingView();
+
+  const listingId = typeof id === 'string' ? id : '';
+  const saved = useMemo(
+    () =>
+      (engagement.data?.saved ?? []).some(
+        (item) => item.listingType === 'vehicle' && item.listingId === listingId
+      ),
+    [engagement.data?.saved, listingId]
+  );
+  const inCompare = useMemo(
+    () =>
+      (engagement.data?.compare ?? []).some(
+        (item) => item.listingType === 'vehicle' && item.listingId === listingId
+      ),
+    [engagement.data?.compare, listingId]
+  );
+
+  useEffect(() => {
+    if (!isAuthenticated || !listingId) return;
+    recordView.mutate({ listingType: 'vehicle', listingId });
+    // Record once per listing open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, listingId]);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
@@ -92,6 +130,39 @@ export default function SalesDetailScreen() {
                 {t(`sales.status.${listing.status}`)}
               </Text>
             </View>
+
+            {isAuthenticated ? (
+              <View className="mt-4 flex-row gap-2">
+                <View className="flex-1">
+                  <Button
+                    label={saved ? 'Saved' : 'Save'}
+                    variant={saved ? 'secondary' : 'primary'}
+                    size="md"
+                    onPress={() =>
+                      saveListing.mutate({
+                        listingType: 'vehicle',
+                        listingId,
+                        saved: !saved,
+                      })
+                    }
+                  />
+                </View>
+                <View className="flex-1">
+                  <Button
+                    label={inCompare ? 'In compare' : 'Compare'}
+                    variant="secondary"
+                    size="md"
+                    onPress={() =>
+                      compareListing.mutate({
+                        listingType: 'vehicle',
+                        listingId,
+                        inCompare: !inCompare,
+                      })
+                    }
+                  />
+                </View>
+              </View>
+            ) : null}
 
             <View className="mt-4">
               <Text className="text-base font-semibold" style={{ color: colors.foreground }}>

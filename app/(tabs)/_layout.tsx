@@ -308,6 +308,34 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="goals"
+        options={{
+          title: 'Goals',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="life-events"
+        options={{
+          title: 'Life Events',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="saved"
+        options={{
+          title: 'Saved',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="concierge"
+        options={{
+          title: 'Concierge',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.profile'),

@@ -107,6 +107,9 @@ function RootNavigator() {
         (tabRoute === 'dashboard' ||
           tabRoute === 'cases' ||
           tabRoute === 'documents' ||
+          tabRoute === 'goals' ||
+          tabRoute === 'life-events' ||
+          tabRoute === 'saved' ||
           tabRoute === 'profile' ||
           tabRoute === 'freelancer' ||
           isCorporateTab));
