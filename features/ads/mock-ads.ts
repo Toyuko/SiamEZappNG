@@ -165,9 +165,14 @@ export function getImageAdHeight(ad: MockAdConfig, width: number): number {
     return 0;
   }
 
-  const source = Image.resolveAssetSource(ad.image);
-  const aspectRatio =
-    source?.width && source?.height ? source.width / source.height : ad.imageAspectRatio;
+  let aspectRatio = ad.imageAspectRatio;
+  const resolve = Image.resolveAssetSource;
+  if (typeof resolve === 'function') {
+    const source = resolve(ad.image);
+    if (source?.width && source?.height) {
+      aspectRatio = source.width / source.height;
+    }
+  }
 
   if (!aspectRatio) {
     return 0;
