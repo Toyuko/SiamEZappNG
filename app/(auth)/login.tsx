@@ -106,6 +106,8 @@ export default function LoginScreen() {
             paddingBottom: spacing.sectionGap + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
           <FadeInView distance={22} scaleFrom={0.98} style={{ width: '100%', alignSelf: 'center', maxWidth: 440 }}>

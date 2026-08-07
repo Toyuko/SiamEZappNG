@@ -4,8 +4,6 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   Text,
   View,
@@ -14,7 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { Camera, Paperclip, Send as SendIcon } from 'lucide-react-native';
 import { Bubble, GiftedChat, type IMessage } from 'react-native-gifted-chat';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
@@ -82,10 +80,12 @@ async function resolveChatMetaFallback(
 
 export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
   const { user, userRole, isGuest, accessToken } = useAuthStore();
   const currentUserId = user?.id ?? '';
 
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [meta, setMeta] = useState<JobChatMeta | null>(null);
   const [webParticipant, setWebParticipant] = useState<WebChatParticipant | null>(null);
@@ -352,7 +352,10 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }} edges={['top', 'left', 'right']}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: spacing.stackSm }}>
+      <View
+        style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: spacing.stackSm }}
+        onLayout={(event) => setHeaderHeight(event.nativeEvent.layout.height)}
+      >
         <PageHeader
           title={headerTitle}
           subtitle={headerSubtitle}
@@ -401,120 +404,116 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
         </View>
       </View>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
-      >
-        <GiftedChat
-          messages={messages}
-          onSend={(outgoing) => void onSend(outgoing)}
-          user={giftedUser}
-          placeholder={t('chat.placeholder')}
-          isSendButtonAlwaysVisible
-          renderAvatar={null}
-          keyboardAvoidingViewProps={{ enabled: false }}
-          messagesContainerStyle={chatTheme.wrapperStyle}
-          renderActions={() => (
-            <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 4, gap: 2 }}>
-              <Pressable
-                onPress={() => void pickImageAndSend('gallery')}
-                disabled={sending || uploading}
-                accessibilityRole="button"
-                accessibilityLabel={t('chat.attachTitle')}
-                style={{ padding: 8 }}
-              >
-                <Paperclip size={22} color={colors.primary} strokeWidth={2} />
-              </Pressable>
-              <Pressable
-                onPress={() => void pickImageAndSend('camera')}
-                disabled={sending || uploading}
-                accessibilityRole="button"
-                accessibilityLabel={t('tracking.takePhoto')}
-                style={{ padding: 8 }}
-              >
-                <Camera size={22} color={colors.primary} strokeWidth={2} />
-              </Pressable>
-            </View>
-          )}
-          renderSend={(props) => {
-            const canSend = Boolean(props.text?.trim());
-            const disabled = !canSend || sending || uploading;
+      <GiftedChat
+        messages={messages}
+        onSend={(outgoing) => void onSend(outgoing)}
+        user={giftedUser}
+        placeholder={t('chat.placeholder')}
+        isSendButtonAlwaysVisible
+        renderAvatar={null}
+        keyboardAvoidingViewProps={{
+          keyboardVerticalOffset: insets.top + headerHeight,
+        }}
+        messagesContainerStyle={chatTheme.wrapperStyle}
+        renderActions={() => (
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 4, gap: 2 }}>
+            <Pressable
+              onPress={() => void pickImageAndSend('gallery')}
+              disabled={sending || uploading}
+              accessibilityRole="button"
+              accessibilityLabel={t('chat.attachTitle')}
+              style={{ padding: 8 }}
+            >
+              <Paperclip size={22} color={colors.primary} strokeWidth={2} />
+            </Pressable>
+            <Pressable
+              onPress={() => void pickImageAndSend('camera')}
+              disabled={sending || uploading}
+              accessibilityRole="button"
+              accessibilityLabel={t('tracking.takePhoto')}
+              style={{ padding: 8 }}
+            >
+              <Camera size={22} color={colors.primary} strokeWidth={2} />
+            </Pressable>
+          </View>
+        )}
+        renderSend={(props) => {
+          const canSend = Boolean(props.text?.trim());
+          const disabled = !canSend || sending || uploading;
 
-            return (
-              <Pressable
-                onPress={() => {
-                  if (disabled || !props.onSend) {
-                    return;
-                  }
-                  props.onSend({ text: props.text?.trim() || ' ' }, true);
-                }}
-                disabled={disabled}
-                accessibilityRole="button"
-                accessibilityLabel={t('chat.send')}
-                style={{
-                  marginRight: 8,
-                  marginBottom: 6,
-                  backgroundColor: disabled ? (isDark ? '#475569' : '#94a3b8') : siam.blue.DEFAULT,
-                  borderRadius: 22,
-                  paddingHorizontal: 16,
-                  paddingVertical: 11,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 6,
-                  minWidth: 92,
-                  justifyContent: 'center',
-                  shadowColor: siam.blue.dark,
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: disabled ? 0 : 0.28,
-                  shadowRadius: 4,
-                  elevation: disabled ? 0 : 3,
-                }}
-              >
-                {uploading ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
-                ) : (
-                  <SendIcon size={18} color="#ffffff" strokeWidth={2.5} />
-                )}
-                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 15 }}>
-                  {uploading ? t('chat.uploading') : sending ? t('chat.sending') : t('chat.send')}
-                </Text>
-              </Pressable>
-            );
-          }}
-          renderBubble={(props) => (
-            <Bubble
-              {...props}
-              wrapperStyle={{
-                right: { backgroundColor: chatTheme.bubbleRight.backgroundColor },
-                left: { backgroundColor: chatTheme.bubbleLeft.backgroundColor },
+          return (
+            <Pressable
+              onPress={() => {
+                if (disabled || !props.onSend) {
+                  return;
+                }
+                props.onSend({ text: props.text?.trim() || ' ' }, true);
               }}
-              textStyle={{
-                right: { color: chatTheme.textRight.color },
-                left: { color: chatTheme.textLeft.color },
+              disabled={disabled}
+              accessibilityRole="button"
+              accessibilityLabel={t('chat.send')}
+              style={{
+                marginRight: 8,
+                marginBottom: 6,
+                backgroundColor: disabled ? (isDark ? '#475569' : '#94a3b8') : siam.blue.DEFAULT,
+                borderRadius: 22,
+                paddingHorizontal: 16,
+                paddingVertical: 11,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                minWidth: 92,
+                justifyContent: 'center',
+                shadowColor: siam.blue.dark,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: disabled ? 0 : 0.28,
+                shadowRadius: 4,
+                elevation: disabled ? 0 : 3,
               }}
+            >
+              {uploading ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <SendIcon size={18} color="#ffffff" strokeWidth={2.5} />
+              )}
+              <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 15 }}>
+                {uploading ? t('chat.uploading') : sending ? t('chat.sending') : t('chat.send')}
+              </Text>
+            </Pressable>
+          );
+        }}
+        renderBubble={(props) => (
+          <Bubble
+            {...props}
+            wrapperStyle={{
+              right: { backgroundColor: chatTheme.bubbleRight.backgroundColor },
+              left: { backgroundColor: chatTheme.bubbleLeft.backgroundColor },
+            }}
+            textStyle={{
+              right: { color: chatTheme.textRight.color },
+              left: { color: chatTheme.textLeft.color },
+            }}
+          />
+        )}
+        renderMessageImage={(props) => {
+          const uri = props.currentMessage?.image;
+          if (!uri) {
+            return null;
+          }
+          return (
+            <Image
+              source={{ uri }}
+              style={{ width: 200, height: 140, borderRadius: 12, margin: 4 }}
+              resizeMode="cover"
+              accessibilityLabel={t('tracking.viewAttachment')}
             />
-          )}
-          renderMessageImage={(props) => {
-            const uri = props.currentMessage?.image;
-            if (!uri) {
-              return null;
-            }
-            return (
-              <Image
-                source={{ uri }}
-                style={{ width: 200, height: 140, borderRadius: 12, margin: 4 }}
-                resizeMode="cover"
-                accessibilityLabel={t('tracking.viewAttachment')}
-              />
-            );
-          }}
-          textInputProps={{
-            style: { color: colors.foreground, fontSize: 16, lineHeight: 22 },
-            placeholderTextColor: colors.muted,
-          }}
-        />
-      </KeyboardAvoidingView>
+          );
+        }}
+        textInputProps={{
+          style: { color: colors.foreground, fontSize: 16, lineHeight: 22 },
+          placeholderTextColor: colors.muted,
+        }}
+      />
     </SafeAreaView>
   );
 }

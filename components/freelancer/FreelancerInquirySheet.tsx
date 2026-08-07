@@ -100,7 +100,7 @@ export function FreelancerInquirySheet({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <KeyboardAvoidingView
         style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(15, 23, 42, 0.45)' }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <Pressable style={{ flex: 1 }} onPress={handleClose} />
         <View

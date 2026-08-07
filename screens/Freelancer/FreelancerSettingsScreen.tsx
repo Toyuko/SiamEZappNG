@@ -241,6 +241,8 @@ export function FreelancerSettingsScreen() {
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
           contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 48 }}
         >
           <PageHeader
@@ -402,7 +404,7 @@ export function FreelancerSettingsScreen() {
       <Modal visible={serviceModalOpen} animationType="slide" transparent onRequestClose={() => setServiceModalOpen(false)}>
         <KeyboardAvoidingView
           style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(15, 23, 42, 0.45)' }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <Pressable style={{ flex: 1 }} onPress={() => setServiceModalOpen(false)} />
           <View

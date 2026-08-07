@@ -56,6 +56,8 @@ export default function UnifiedSearchScreen() {
           paddingBottom: 40,
         }}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets
       >
         <PageHeader
           title="Search"

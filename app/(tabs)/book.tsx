@@ -543,7 +543,12 @@ export default function BookScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 28 }}>
+      <ScrollView
+        contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 28 }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets
+      >
         {!submitted ? (
           <>
             <PageHeader

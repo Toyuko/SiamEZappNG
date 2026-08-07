@@ -105,7 +105,7 @@ export function ServiceDetailSheet({ service, visible, onClose }: ServiceDetailS
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.overlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel={t('common.back')} />

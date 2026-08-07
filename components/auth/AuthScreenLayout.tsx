@@ -32,6 +32,8 @@ export function AuthScreenLayout({ children, footer }: AuthScreenLayoutProps) {
             paddingBottom: spacing.sectionGap + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
           {children}

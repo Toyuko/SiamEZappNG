@@ -2,11 +2,14 @@ import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -62,6 +65,7 @@ function openDeepLink(router: ReturnType<typeof useRouter>, href: string) {
 
 export default function ConciergeScreen() {
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight();
   const { colors } = useTheme();
   const language = useLanguageStore((s) => s.language);
   const locale = language === 'th' ? 'th' : 'en';
@@ -144,27 +148,34 @@ export default function ConciergeScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-        <PageHeader
-          title="AI Concierge"
-          subtitle={
-            primaryGoal
-              ? `Journey focus: ${primaryGoal}`
-              : 'Platform 2.1 — journey memory, explained recommendations, deep links.'
-          }
-        />
-      </View>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? tabBarHeight : 0}
+      >
+        <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+          <PageHeader
+            title="AI Concierge"
+            subtitle={
+              primaryGoal
+                ? `Journey focus: ${primaryGoal}`
+                : 'Platform 2.1 — journey memory, explained recommendations, deep links.'
+            }
+          />
+        </View>
 
-      <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{
-          padding: 16,
-          gap: 10,
-          paddingBottom: 12,
-          flexGrow: 1,
-        }}
-        renderItem={({ item }) => (
+        <FlatList
+          data={messages}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          contentContainerStyle={{
+            padding: 16,
+            gap: 10,
+            paddingBottom: 12,
+            flexGrow: 1,
+          }}
+          renderItem={({ item }) => (
           <View
             className="max-w-[92%] rounded-2xl px-3 py-2.5"
             style={{
@@ -253,39 +264,40 @@ export default function ConciergeScreen() {
             ))}
           </View>
         }
-      />
-
-      <View
-        className="flex-row items-end gap-2 border-t px-3 py-3"
-        style={{ borderColor: colors.border, backgroundColor: colors.card }}
-      >
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          placeholder="Ask Concierge…"
-          placeholderTextColor={colors.muted}
-          multiline
-          className="max-h-28 flex-1 rounded-xl border px-3 py-2 text-sm"
-          style={{
-            borderColor: colors.border,
-            color: colors.foreground,
-            backgroundColor: colors.background,
-          }}
         />
-        <Pressable
-          onPress={() => void send(draft)}
-          disabled={sending}
-          className="h-11 items-center justify-center rounded-xl px-4"
-          style={{ backgroundColor: colors.primary, opacity: sending ? 0.6 : 1 }}
+
+        <View
+          className="flex-row items-end gap-2 border-t px-3 py-3"
+          style={{ borderColor: colors.border, backgroundColor: colors.card }}
         >
-          {sending ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className="text-sm font-semibold text-white">Send</Text>
-          )}
-        </Pressable>
-      </View>
-      <View style={{ height: spacing.stackSm }} />
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            placeholder="Ask Concierge…"
+            placeholderTextColor={colors.muted}
+            multiline
+            className="max-h-28 flex-1 rounded-xl border px-3 py-2 text-sm"
+            style={{
+              borderColor: colors.border,
+              color: colors.foreground,
+              backgroundColor: colors.background,
+            }}
+          />
+          <Pressable
+            onPress={() => void send(draft)}
+            disabled={sending}
+            className="h-11 items-center justify-center rounded-xl px-4"
+            style={{ backgroundColor: colors.primary, opacity: sending ? 0.6 : 1 }}
+          >
+            {sending ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-sm font-semibold text-white">Send</Text>
+            )}
+          </Pressable>
+        </View>
+        <View style={{ height: spacing.stackSm }} />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
