@@ -10,6 +10,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { useCases } from '../../hooks/use-cases';
+import { useDashboard } from '../../hooks/use-dashboard';
 import { useGoals } from '../../hooks/use-goals';
 import { useInvoices } from '../../hooks/use-invoices';
 import { useLifeEventRuns } from '../../hooks/use-life-events';
@@ -39,6 +40,7 @@ function toArray<T>(value: unknown): T[] {
 export default function DashboardScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const overviewQuery = useDashboard();
   const casesQuery = useCases();
   const invoicesQuery = useInvoices();
   const goalsQuery = useGoals();
@@ -46,17 +48,18 @@ export default function DashboardScreen() {
   const engagementQuery = useMarketplaceEngagement();
   const recommendationsQuery = useRecommendations();
 
-  const isLoading = casesQuery.isLoading || invoicesQuery.isLoading;
-  const isError = casesQuery.isError || invoicesQuery.isError;
-  const error = (casesQuery.error ?? invoicesQuery.error) as unknown;
+  const isLoading = overviewQuery.isLoading && (casesQuery.isLoading || invoicesQuery.isLoading);
+  const isError = overviewQuery.isError && casesQuery.isError && invoicesQuery.isError;
+  const error = (overviewQuery.error ?? casesQuery.error ?? invoicesQuery.error) as unknown;
   const cases = toArray<{ id: string }>(casesQuery.data);
   const invoices = toArray<{ status?: string }>(invoicesQuery.data);
-  const activeCases = cases.length;
-  const pendingInvoices = invoices.filter(
-    (invoice) =>
-      invoice.status !== 'PAID' &&
-      invoice.status !== 'paid'
-  ).length;
+  const activeCases = overviewQuery.data?.activeCases ?? cases.length;
+  const pendingInvoices =
+    overviewQuery.data?.pendingInvoices ??
+    invoices.filter(
+      (invoice) => invoice.status !== 'PAID' && invoice.status !== 'paid'
+    ).length;
+  const recentUpdates = overviewQuery.data?.recentUpdates ?? 0;
   const activeGoals = (goalsQuery.data ?? []).filter((g) => g.status === 'active').length;
   const activeLifeEvents = (lifeEventsQuery.data ?? []).filter((r) => r.status === 'active').length;
   const savedCount = engagementQuery.data?.savedCount ?? 0;
@@ -71,6 +74,7 @@ export default function DashboardScreen() {
       <ErrorState
         label={error instanceof Error ? error.message : t('dashboard.loadError')}
         onRetry={() => {
+          void overviewQuery.refetch();
           void casesQuery.refetch();
           void invoicesQuery.refetch();
         }}
@@ -174,7 +178,11 @@ export default function DashboardScreen() {
         <Section title={t('dashboard.recentActivity')} subtitle={t('dashboard.recentActivitySubtitle')}>
           <Card>
             <Text className="text-sm leading-5" style={{ color: colors.muted }}>
-              {activeCases > 0 ? t('dashboard.activityWithCases') : t('dashboard.activityNoCases')}
+              {recentUpdates > 0
+                ? `${recentUpdates} recent updates from your Platform workspace.`
+                : activeCases > 0
+                  ? t('dashboard.activityWithCases')
+                  : t('dashboard.activityNoCases')}
             </Text>
           </Card>
         </Section>

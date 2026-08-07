@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
@@ -16,6 +18,7 @@ import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function SellerScreen() {
+  const router = useRouter();
   const { colors } = useTheme();
   const analyticsQuery = useQuery({
     queryKey: ['seller-analytics'],
@@ -72,23 +75,47 @@ export default function SellerScreen() {
           </View>
         </View>
 
+        <View className="flex-row gap-2">
+          <View className="flex-1">
+            <Button label="Manage vehicles" variant="secondary" onPress={() => router.push('/(tabs)/sales')} />
+          </View>
+          <View className="flex-1">
+            <Button
+              label="Manage properties"
+              variant="secondary"
+              onPress={() => router.push('/(tabs)/real-estate')}
+            />
+          </View>
+        </View>
+
         <Section title="Listing performance">
           {(stats?.rows ?? []).length === 0 ? (
             <Card>
               <Text className="text-sm" style={{ color: colors.muted }}>
-                No owned listings yet. Create inventory on the website seller portal.
+                No owned listings yet. Create inventory from Vehicles or Real Estate tabs.
               </Text>
             </Card>
           ) : (
             (stats?.rows ?? []).map((row) => (
-              <Card key={`${row.listingType}-${row.listingId}`}>
-                <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
-                  {row.title}
-                </Text>
-                <Text className="mt-1 text-xs" style={{ color: colors.muted }}>
-                  {row.viewCount} views · {row.enquiryCount} enquiries · {row.listingType}
-                </Text>
-              </Card>
+              <Pressable
+                key={`${row.listingType}-${row.listingId}`}
+                onPress={() =>
+                  router.push(
+                    row.listingType === 'vehicle'
+                      ? `/sales/${row.listingId}`
+                      : `/real-estate/${row.listingId}`
+                  )
+                }
+              >
+                <Card>
+                  <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                    {row.title}
+                  </Text>
+                  <Text className="mt-1 text-xs" style={{ color: colors.muted }}>
+                    {row.viewCount} views · {row.enquiryCount} enquiries · {row.listingType}
+                  </Text>
+                </Card>
+              </Pressable>
             ))
           )}
         </Section>
@@ -102,17 +129,28 @@ export default function SellerScreen() {
             </Card>
           ) : (
             enquiries.map((item) => (
-              <Card key={item.id}>
-                <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
-                  {item.listingTitle ?? item.listingId}
-                </Text>
-                <Text className="mt-1 text-xs" style={{ color: colors.muted }}>
-                  {item.name} · {item.email}
-                </Text>
-                <Text className="mt-2 text-sm leading-5" style={{ color: colors.foreground }}>
-                  {item.message}
-                </Text>
-              </Card>
+              <Pressable
+                key={item.id}
+                onPress={() =>
+                  router.push(
+                    item.listingType === 'vehicle'
+                      ? `/sales/${item.listingId}`
+                      : `/real-estate/${item.listingId}`
+                  )
+                }
+              >
+                <Card>
+                  <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                    {item.listingTitle ?? item.listingId}
+                  </Text>
+                  <Text className="mt-1 text-xs" style={{ color: colors.muted }}>
+                    {item.name} · {item.email}
+                  </Text>
+                  <Text className="mt-2 text-sm leading-5" style={{ color: colors.foreground }}>
+                    {item.message}
+                  </Text>
+                </Card>
+              </Pressable>
             ))
           )}
         </Section>

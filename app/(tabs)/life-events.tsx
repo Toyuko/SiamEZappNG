@@ -13,6 +13,7 @@ import {
   useLifeEventRuns,
   useLifeEventsCatalog,
   useStartLifeEvent,
+  useUpdateLifeEventRunStatus,
   useUpdateLifeEventStep,
 } from '../../hooks/use-life-events';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
@@ -36,6 +37,7 @@ export default function LifeEventsScreen() {
   const runsQuery = useLifeEventRuns();
   const startEvent = useStartLifeEvent();
   const updateStep = useUpdateLifeEventStep();
+  const updateRunStatus = useUpdateLifeEventRunStatus();
 
   const activeRunIds = useMemo(
     () => new Set((runsQuery.data ?? []).map((r) => r.lifeEventId)),
@@ -98,6 +100,48 @@ export default function LifeEventsScreen() {
                   <Text className="mt-1 text-xs uppercase tracking-wide" style={{ color: colors.muted }}>
                     {run.status} · {pct}%
                   </Text>
+                  {run.status === 'active' ? (
+                    <View className="mt-2 flex-row gap-2">
+                      <View className="flex-1">
+                        <Button
+                          label="Complete"
+                          size="md"
+                          variant="secondary"
+                          onPress={() =>
+                            updateRunStatus.mutate(
+                              { progressId: run.id, status: 'completed' },
+                              {
+                                onError: (err) =>
+                                  Alert.alert(
+                                    'Could not update',
+                                    err instanceof Error ? err.message : 'Try again'
+                                  ),
+                              }
+                            )
+                          }
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Button
+                          label="Abandon"
+                          size="md"
+                          variant="secondary"
+                          onPress={() =>
+                            updateRunStatus.mutate(
+                              { progressId: run.id, status: 'abandoned' },
+                              {
+                                onError: (err) =>
+                                  Alert.alert(
+                                    'Could not update',
+                                    err instanceof Error ? err.message : 'Try again'
+                                  ),
+                              }
+                            )
+                          }
+                        />
+                      </View>
+                    </View>
+                  ) : null}
                   <View className="mt-3 gap-2">
                     {run.lifeEvent.steps.map((step) => {
                       const stepProgress = run.steps.find((s) => s.stepId === step.id);

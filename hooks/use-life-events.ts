@@ -4,9 +4,13 @@ import {
   fetchActiveLifeEvents,
   fetchMyLifeEventRuns,
   startLifeEvent,
+  updateLifeEventRunStatus,
   updateLifeEventStepStatus,
 } from '../features/life-events/life-events.api';
-import type { LifeEventStepStatus } from '../features/life-events/life-events.types';
+import type {
+  LifeEventRunStatus,
+  LifeEventStepStatus,
+} from '../features/life-events/life-events.types';
 
 export const lifeEventsCatalogKey = ['life-events', 'catalog'] as const;
 export const lifeEventRunsKey = ['life-events', 'runs'] as const;
@@ -49,6 +53,23 @@ export function useUpdateLifeEventStep() {
       stepId: string;
       status: LifeEventStepStatus;
     }) => updateLifeEventStepStatus(progressId, stepId, status),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: lifeEventRunsKey });
+      void qc.invalidateQueries({ queryKey: goalsQueryKey });
+    },
+  });
+}
+
+export function useUpdateLifeEventRunStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      progressId,
+      status,
+    }: {
+      progressId: string;
+      status: LifeEventRunStatus;
+    }) => updateLifeEventRunStatus(progressId, status),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: lifeEventRunsKey });
       void qc.invalidateQueries({ queryKey: goalsQueryKey });

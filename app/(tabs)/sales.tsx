@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -11,13 +12,19 @@ import { Card } from '../../components/ui/Card';
 import { FadeInView } from '../../components/ui/FadeInView';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { createSavedSearch } from '../../features/marketplace/saved-searches.api';
+import type { ListingStatus, SalesListing, VehicleCategory } from '../../features/sales/sales.types';
+import {
+  useCreateVehicleListing,
+  useDeleteVehicleListing,
+  useMyVehicleListings,
+  useSalesListings,
+  useUpdateVehicleListing,
+} from '../../hooks/use-sales-listings';
 import { t } from '../../lib/i18n/i18n';
 import { radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
-import { useSalesStore } from '../../store/sales-store';
-import type { ListingStatus, SalesListing, VehicleCategory } from '../../features/sales/sales.types';
-import { fetchWebsiteSalesListings } from '../../features/sales/sales.api';
 
 type FormState = {
   title: string;
@@ -73,11 +80,10 @@ export default function SalesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
-  const listings = useSalesStore((state) => state.listings);
-  const hydrateListings = useSalesStore((state) => state.hydrateListings);
-  const createListing = useSalesStore((state) => state.createListing);
-  const updateListing = useSalesStore((state) => state.updateListing);
-  const deleteListing = useSalesStore((state) => state.deleteListing);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
+  const isAuthenticated = Boolean(accessToken) && !isGuest;
+  const qc = useQueryClient();
 
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<'all' | VehicleCategory>('all');
@@ -89,67 +95,45 @@ export default function SalesScreen() {
 
   const [formState, setFormState] = useState<FormState>(defaultForm);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [loadingRemote, setLoadingRemote] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
 
+  const filters = useMemo(
+    () => ({
+      search,
+      category,
+      sort,
+      minPrice: parseInteger(minPrice) || undefined,
+      maxPrice: parseInteger(maxPrice) || undefined,
+      minYear: parseInteger(minYear) || undefined,
+      maxYear: parseInteger(maxYear) || undefined,
+      pageSize: 48,
+    }),
+    [category, maxPrice, maxYear, minPrice, minYear, search, sort]
+  );
+
+  const listingsQuery = useSalesListings(filters);
+  const myListingsQuery = useMyVehicleListings(isAuthenticated);
+  const createListing = useCreateVehicleListing();
+  const updateListing = useUpdateVehicleListing();
+  const deleteListing = useDeleteVehicleListing();
+  const saveSearch = useMutation({
+    mutationFn: createSavedSearch,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['saved-searches'] });
+      Alert.alert('Saved', 'Search saved to your Saved hub.');
+    },
+    onError: (e) =>
+      Alert.alert('Could not save search', e instanceof Error ? e.message : 'Try again'),
+  });
+
+  const listings = listingsQuery.data?.items ?? [];
+  const myListings = myListingsQuery.data ?? [];
   const isEditing = editingId !== null;
-  const currentUserId = user?.id ?? 'guest';
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      setLoadingRemote(true);
-      setLoadError(null);
-      try {
-        const remoteListings = await fetchWebsiteSalesListings();
-        if (!active) return;
-        if (remoteListings.length > 0) {
-          hydrateListings(remoteListings);
-        }
-      } catch (error) {
-        if (!active) return;
-        setLoadError(error instanceof Error ? error.message : 'Unable to sync website inventory.');
-      } finally {
-        if (active) {
-          setLoadingRemote(false);
-        }
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [hydrateListings]);
-
-  const filteredListings = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const minPriceValue = parseInteger(minPrice);
-    const maxPriceValue = parseInteger(maxPrice);
-    const minYearValue = parseInteger(minYear);
-    const maxYearValue = parseInteger(maxYear);
-
-    const filtered = listings.filter((listing) => {
-      const matchesSearch =
-        query.length === 0 ||
-        `${listing.make} ${listing.model} ${listing.title}`.toLowerCase().includes(query);
-      const matchesCategory = category === 'all' || listing.category === category;
-      const matchesPriceMin = minPriceValue <= 0 || listing.priceAmount >= minPriceValue;
-      const matchesPriceMax = maxPriceValue <= 0 || listing.priceAmount <= maxPriceValue;
-      const matchesYearMin = minYearValue <= 0 || listing.year >= minYearValue;
-      const matchesYearMax = maxYearValue <= 0 || listing.year <= maxYearValue;
-
-      return matchesSearch && matchesCategory && matchesPriceMin && matchesPriceMax && matchesYearMin && matchesYearMax;
-    });
-
-    return filtered.sort((a, b) => {
-      if (sort === 'priceAsc') return a.priceAmount - b.priceAmount;
-      if (sort === 'priceDesc') return b.priceAmount - a.priceAmount;
-      if (sort === 'yearAsc') return a.year - b.year;
-      if (sort === 'yearDesc') return b.year - a.year;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, [category, listings, maxPrice, maxYear, minPrice, minYear, search, sort]);
-
-  const myListings = useMemo(() => listings.filter((listing) => listing.ownerId === currentUserId), [currentUserId, listings]);
+  const loadingRemote = listingsQuery.isLoading;
+  const loadError = listingsQuery.isError
+    ? listingsQuery.error instanceof Error
+      ? listingsQuery.error.message
+      : 'Unable to sync website inventory.'
+    : null;
 
   const statusBadge = (status: ListingStatus) => {
     if (status === 'available') return { bg: colors.success, fg: '#ffffff' };
@@ -163,11 +147,8 @@ export default function SalesScreen() {
   };
 
   const submitForm = () => {
-    if (!user) {
-      return;
-    }
+    if (!user || !isAuthenticated) return;
     const payload = {
-      ownerId: currentUserId,
       title: formState.title.trim(),
       make: formState.make.trim(),
       model: formState.model.trim(),
@@ -184,12 +165,40 @@ export default function SalesScreen() {
       return;
     }
 
+    const onError = (e: unknown) =>
+      Alert.alert('Could not save listing', e instanceof Error ? e.message : 'Try again');
+
     if (editingId) {
-      updateListing(editingId, payload);
+      updateListing.mutate(
+        { id: editingId, input: payload },
+        { onSuccess: () => resetForm(), onError }
+      );
     } else {
-      createListing(payload);
+      createListing.mutate(payload, { onSuccess: () => resetForm(), onError });
     }
-    resetForm();
+  };
+
+  const handleSaveSearch = () => {
+    if (!isAuthenticated) {
+      Alert.alert('Sign in required', 'Log in to save this search.');
+      return;
+    }
+    const query: Record<string, string> = { sort };
+    if (search.trim()) query.search = search.trim();
+    if (category !== 'all') query.category = category;
+    if (minPrice.trim()) query.minPrice = minPrice.trim();
+    if (maxPrice.trim()) query.maxPrice = maxPrice.trim();
+    if (minYear.trim()) query.minYear = minYear.trim();
+    if (maxYear.trim()) query.maxYear = maxYear.trim();
+    const nameParts = [
+      category === 'all' ? 'Vehicles' : category === 'car' ? 'Cars' : 'Motorcycles',
+      search.trim() || null,
+    ].filter(Boolean);
+    saveSearch.mutate({
+      name: nameParts.join(' · ').slice(0, 80) || 'Vehicle search',
+      listingType: 'vehicle',
+      query,
+    });
   };
 
   return (
@@ -241,12 +250,18 @@ export default function SalesScreen() {
                 />
               ))}
             </View>
+            <Button
+              label={saveSearch.isPending ? 'Saving…' : 'Save this search'}
+              variant="secondary"
+              size="md"
+              onPress={handleSaveSearch}
+            />
           </View>
         </Card>
         </FadeInView>
 
         <View className="gap-3">
-          {filteredListings.map((listing, index) => {
+          {listings.map((listing, index) => {
             const badge = statusBadge(listing.status);
             return (
               <FadeInView key={listing.id} delay={Math.min(index * 60, 320)} distance={18} scaleFrom={0.98}>
@@ -322,7 +337,7 @@ export default function SalesScreen() {
               </FadeInView>
             );
           })}
-          {filteredListings.length === 0 ? (
+          {listings.length === 0 && !loadingRemote ? (
             <Card>
               <Text className="text-center text-sm" style={{ color: colors.muted }}>
                 {t('sales.empty')}
@@ -336,10 +351,10 @@ export default function SalesScreen() {
             {t('sales.manageTitle')}
           </Text>
           <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
-            {user ? t('sales.manageSubtitle') : t('sales.loginRequired')}
+            {isAuthenticated ? t('sales.manageSubtitle') : t('sales.loginRequired')}
           </Text>
 
-          {user ? (
+          {isAuthenticated ? (
             <View className="mt-4 gap-2">
               <Input label={t('sales.form.title')} value={formState.title} onChangeText={(value) => setFormState((prev) => ({ ...prev, title: value }))} />
               <View className="flex-row gap-2">
@@ -363,14 +378,24 @@ export default function SalesScreen() {
                 <Button label={t('sales.status.sold')} size="md" variant={formState.status === 'sold' ? 'primary' : 'secondary'} onPress={() => setFormState((prev) => ({ ...prev, status: 'sold' }))} />
               </View>
               <View className="mt-2 flex-row gap-2">
-                <Button label={isEditing ? t('sales.form.saveChanges') : t('sales.form.addListing')} gradient onPress={submitForm} />
+                <Button
+                  label={
+                    createListing.isPending || updateListing.isPending
+                      ? 'Saving…'
+                      : isEditing
+                        ? t('sales.form.saveChanges')
+                        : t('sales.form.addListing')
+                  }
+                  gradient
+                  onPress={submitForm}
+                />
                 {isEditing ? <Button label={t('sales.form.cancelEdit')} variant="secondary" onPress={resetForm} /> : null}
               </View>
             </View>
           ) : null}
         </Card>
 
-        {user ? (
+        {isAuthenticated ? (
           <View className="gap-2">
             <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
               {t('sales.myListings')}
@@ -396,7 +421,20 @@ export default function SalesScreen() {
                         setFormState(listingToForm(listing));
                       }}
                     />
-                    <Button size="md" label={t('sales.delete')} variant="secondary" onPress={() => deleteListing(listing.id)} />
+                    <Button
+                      size="md"
+                      label={t('sales.delete')}
+                      variant="secondary"
+                      onPress={() =>
+                        deleteListing.mutate(listing.id, {
+                          onError: (e) =>
+                            Alert.alert(
+                              'Could not delete',
+                              e instanceof Error ? e.message : 'Try again'
+                            ),
+                        })
+                      }
+                    />
                   </View>
                 </View>
               </Card>

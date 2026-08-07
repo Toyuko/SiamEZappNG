@@ -10,6 +10,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import {
   advanceWorkflowStep,
+  cancelWorkflow,
   fetchMyWorkflowRuns,
   fetchWorkflowTemplates,
   startWorkflow,
@@ -41,6 +42,10 @@ export default function WorkflowsScreen() {
   });
   const advance = useMutation({
     mutationFn: advanceWorkflowStep,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['workflow-runs'] }),
+  });
+  const cancel = useMutation({
+    mutationFn: cancelWorkflow,
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['workflow-runs'] }),
   });
 
@@ -108,6 +113,24 @@ export default function WorkflowsScreen() {
                   <Text className="mt-1 text-xs uppercase tracking-wide" style={{ color: colors.muted }}>
                     {run.status}
                   </Text>
+                  {run.status !== 'cancelled' && run.status !== 'completed' && run.status !== 'canceled' ? (
+                    <View className="mt-2">
+                      <Button
+                        label={cancel.isPending ? 'Cancelling…' : 'Cancel workflow'}
+                        variant="secondary"
+                        size="md"
+                        onPress={() =>
+                          cancel.mutate(run.id, {
+                            onError: (e) =>
+                              Alert.alert(
+                                'Could not cancel',
+                                e instanceof Error ? e.message : 'Try again'
+                              ),
+                          })
+                        }
+                      />
+                    </View>
+                  ) : null}
                   <View className="mt-3 gap-2">
                     {(run.steps ?? []).map((step) => {
                       const stepTitle =

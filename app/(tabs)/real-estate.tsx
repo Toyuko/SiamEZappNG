@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState, type ReactNode } from 'react';
+import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -11,7 +12,7 @@ import { Card } from '../../components/ui/Card';
 import { FadeInView } from '../../components/ui/FadeInView';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
-import { fetchWebsiteRealEstateListings } from '../../features/real-estate/real-estate.api';
+import { createSavedSearch } from '../../features/marketplace/saved-searches.api';
 import type {
   PropertyListingStatus,
   PropertyListingType,
@@ -19,11 +20,17 @@ import type {
   PropertyType,
   RealEstateListing,
 } from '../../features/real-estate/real-estate.types';
+import {
+  useCreatePropertyListing,
+  useDeletePropertyListing,
+  useMyPropertyListings,
+  useRealEstateListings,
+  useUpdatePropertyListing,
+} from '../../hooks/use-real-estate-listings';
 import { t } from '../../lib/i18n/i18n';
 import { radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
-import { useRealEstateStore } from '../../store/real-estate-store';
 
 type FilterSectionKey = 'listingType' | 'propertyType' | 'sellerKind' | 'more';
 
@@ -151,11 +158,10 @@ export default function RealEstateScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
-  const listings = useRealEstateStore((state) => state.listings);
-  const hydrateListings = useRealEstateStore((state) => state.hydrateListings);
-  const createListing = useRealEstateStore((state) => state.createListing);
-  const updateListing = useRealEstateStore((state) => state.updateListing);
-  const deleteListing = useRealEstateStore((state) => state.deleteListing);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
+  const isAuthenticated = Boolean(accessToken) && !isGuest;
+  const qc = useQueryClient();
 
   const [search, setSearch] = useState('');
   const [propertyType, setPropertyType] = useState<'all' | PropertyType>('all');
@@ -175,8 +181,46 @@ export default function RealEstateScreen() {
 
   const [formState, setFormState] = useState<FormState>(defaultForm);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [loadingRemote, setLoadingRemote] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const filters = useMemo(
+    () => ({
+      search,
+      propertyType,
+      listingType,
+      sellerKind,
+      sort,
+      minPrice: parseInteger(minPrice) || undefined,
+      maxPrice: parseInteger(maxPrice) || undefined,
+      minBedrooms: parseInteger(minBeds) || undefined,
+      province: province.trim() || undefined,
+      pageSize: 48,
+    }),
+    [listingType, maxPrice, minBeds, minPrice, propertyType, province, search, sellerKind, sort]
+  );
+
+  const listingsQuery = useRealEstateListings(filters);
+  const myListingsQuery = useMyPropertyListings(isAuthenticated);
+  const createListing = useCreatePropertyListing();
+  const updateListing = useUpdatePropertyListing();
+  const deleteListingMut = useDeletePropertyListing();
+  const saveSearch = useMutation({
+    mutationFn: createSavedSearch,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['saved-searches'] });
+      Alert.alert('Saved', 'Search saved to your Saved hub.');
+    },
+    onError: (e) =>
+      Alert.alert('Could not save search', e instanceof Error ? e.message : 'Try again'),
+  });
+
+  const filteredListings = listingsQuery.data?.items ?? [];
+  const myListings = myListingsQuery.data ?? [];
+  const loadingRemote = listingsQuery.isLoading;
+  const loadError = listingsQuery.isError
+    ? listingsQuery.error instanceof Error
+      ? listingsQuery.error.message
+      : 'Unable to sync website inventory.'
+    : null;
 
   const toggleFilterSection = (key: FilterSectionKey) => {
     setExpandedFilters((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -193,76 +237,6 @@ export default function RealEstateScreen() {
     .join(' · ');
 
   const isEditing = editingId !== null;
-  const currentUserId = user?.id ?? 'guest';
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      setLoadingRemote(true);
-      setLoadError(null);
-      try {
-        const remoteListings = await fetchWebsiteRealEstateListings();
-        if (!active) return;
-        if (remoteListings.length > 0) {
-          hydrateListings(remoteListings);
-        }
-      } catch (error) {
-        if (!active) return;
-        setLoadError(error instanceof Error ? error.message : 'Unable to sync website inventory.');
-      } finally {
-        if (active) {
-          setLoadingRemote(false);
-        }
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [hydrateListings]);
-
-  const filteredListings = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const provinceQuery = province.trim().toLowerCase();
-    const minPriceValue = parseInteger(minPrice);
-    const maxPriceValue = parseInteger(maxPrice);
-    const minBedsValue = parseInteger(minBeds);
-
-    const filtered = listings.filter((listing) => {
-      const haystack = `${listing.title} ${listing.province} ${listing.district ?? ''} ${listing.neighborhood ?? ''}`.toLowerCase();
-      const matchesSearch = query.length === 0 || haystack.includes(query);
-      const matchesType = propertyType === 'all' || listing.propertyType === propertyType;
-      const matchesListing = listingType === 'all' || listing.listingType === listingType;
-      const matchesSeller = sellerKind === 'all' || listing.sellerKind === sellerKind;
-      const matchesPriceMin = minPriceValue <= 0 || listing.priceAmount >= minPriceValue;
-      const matchesPriceMax = maxPriceValue <= 0 || listing.priceAmount <= maxPriceValue;
-      const matchesBeds =
-        minBedsValue <= 0 || (listing.bedrooms != null && listing.bedrooms >= minBedsValue);
-      const matchesProvince = provinceQuery.length === 0 || listing.province.toLowerCase().includes(provinceQuery);
-      return (
-        matchesSearch &&
-        matchesType &&
-        matchesListing &&
-        matchesSeller &&
-        matchesPriceMin &&
-        matchesPriceMax &&
-        matchesBeds &&
-        matchesProvince
-      );
-    });
-
-    return filtered.sort((a, b) => {
-      if (sort === 'priceAsc') return a.priceAmount - b.priceAmount;
-      if (sort === 'priceDesc') return b.priceAmount - a.priceAmount;
-      if (sort === 'areaAsc') return a.areaSqm - b.areaSqm;
-      if (sort === 'areaDesc') return b.areaSqm - a.areaSqm;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, [listingType, listings, maxPrice, minBeds, minPrice, propertyType, province, search, sellerKind, sort]);
-
-  const myListings = useMemo(
-    () => listings.filter((listing) => listing.ownerId === currentUserId),
-    [currentUserId, listings],
-  );
 
   const statusBadge = (status: PropertyListingStatus) => {
     if (status === 'available' || status === 'pending_boost') return { bg: colors.success, fg: '#ffffff' };
@@ -276,25 +250,18 @@ export default function RealEstateScreen() {
   };
 
   const submitForm = () => {
-    if (!user) return;
+    if (!user || !isAuthenticated) return;
     const payload = {
-      ownerId: currentUserId,
       title: formState.title.trim(),
       propertyType: formState.propertyType,
       listingType: formState.listingType,
       bedrooms: parseOptionalInteger(formState.bedrooms),
       bathrooms: parseOptionalInteger(formState.bathrooms),
       areaSqm: parseInteger(formState.areaSqm),
-      landAreaSqm: null,
-      floor: null,
-      yearBuilt: null,
       province: formState.province.trim(),
       district: formState.district.trim() || null,
-      neighborhood: null,
       priceAmount: parseInteger(formState.priceAmount),
-      priceCurrency: 'THB',
       sellerKind: formState.sellerKind,
-      furnished: 'not_applicable' as const,
       status: formState.status,
       heroImageUrl: formState.heroImageUrl.trim(),
       description: formState.description.trim(),
@@ -304,12 +271,41 @@ export default function RealEstateScreen() {
       return;
     }
 
+    const onError = (e: unknown) =>
+      Alert.alert('Could not save listing', e instanceof Error ? e.message : 'Try again');
+
     if (editingId) {
-      updateListing(editingId, payload);
+      updateListing.mutate(
+        { id: editingId, input: payload },
+        { onSuccess: () => resetForm(), onError }
+      );
     } else {
-      createListing(payload);
+      createListing.mutate(payload, { onSuccess: () => resetForm(), onError });
     }
-    resetForm();
+  };
+
+  const handleSaveSearch = () => {
+    if (!isAuthenticated) {
+      Alert.alert('Sign in required', 'Log in to save this search.');
+      return;
+    }
+    const query: Record<string, string> = { sort };
+    if (search.trim()) query.search = search.trim();
+    if (propertyType !== 'all') query.propertyType = propertyType;
+    if (listingType !== 'all') query.listingType = listingType;
+    if (sellerKind !== 'all') query.sellerKind = sellerKind;
+    if (minPrice.trim()) query.minPrice = minPrice.trim();
+    if (maxPrice.trim()) query.maxPrice = maxPrice.trim();
+    if (minBeds.trim()) query.minBedrooms = minBeds.trim();
+    if (province.trim()) query.province = province.trim();
+    saveSearch.mutate({
+      name: [listingType === 'all' ? 'Properties' : listingType, propertyType === 'all' ? null : propertyType, province.trim() || null]
+        .filter(Boolean)
+        .join(' · ')
+        .slice(0, 80) || 'Property search',
+      listingType: 'property',
+      query,
+    });
   };
 
   return (
@@ -477,6 +473,12 @@ export default function RealEstateScreen() {
                   </View>
                 </View>
               </FilterSection>
+              <Button
+                label={saveSearch.isPending ? 'Saving…' : 'Save this search'}
+                variant="secondary"
+                size="md"
+                onPress={handleSaveSearch}
+              />
             </View>
           </Card>
         </FadeInView>
@@ -620,10 +622,10 @@ export default function RealEstateScreen() {
             {t('realEstate.manageTitle')}
           </Text>
           <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
-            {user ? t('realEstate.manageSubtitle') : t('realEstate.loginRequired')}
+            {isAuthenticated ? t('realEstate.manageSubtitle') : t('realEstate.loginRequired')}
           </Text>
 
-          {user ? (
+          {isAuthenticated ? (
             <View className="mt-4 gap-2">
               <Input
                 label={t('realEstate.form.title')}
@@ -735,7 +737,13 @@ export default function RealEstateScreen() {
               </View>
               <View className="mt-2 flex-row gap-2">
                 <Button
-                  label={isEditing ? t('realEstate.form.saveChanges') : t('realEstate.form.addListing')}
+                  label={
+                    createListing.isPending || updateListing.isPending
+                      ? 'Saving…'
+                      : isEditing
+                        ? t('realEstate.form.saveChanges')
+                        : t('realEstate.form.addListing')
+                  }
                   gradient
                   onPress={submitForm}
                 />
@@ -747,7 +755,7 @@ export default function RealEstateScreen() {
           ) : null}
         </Card>
 
-        {user ? (
+        {isAuthenticated ? (
           <View className="gap-2">
             <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
               {t('realEstate.myListings')}
@@ -777,7 +785,15 @@ export default function RealEstateScreen() {
                       size="md"
                       label={t('realEstate.delete')}
                       variant="secondary"
-                      onPress={() => deleteListing(listing.id)}
+                      onPress={() =>
+                        deleteListingMut.mutate(listing.id, {
+                          onError: (e) =>
+                            Alert.alert(
+                              'Could not delete',
+                              e instanceof Error ? e.message : 'Try again'
+                            ),
+                        })
+                      }
                     />
                   </View>
                 </View>

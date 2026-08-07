@@ -119,7 +119,7 @@ export default function SavedHubScreen() {
           {(searchesQuery.data ?? []).length === 0 ? (
             <Card>
               <Text className="text-sm" style={{ color: colors.muted }}>
-                Save marketplace filters on the website or via API — they appear here.
+                Save marketplace filters from Vehicles or Real Estate — they appear here.
               </Text>
             </Card>
           ) : (
