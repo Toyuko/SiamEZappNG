@@ -9,6 +9,7 @@ import { serviceCatalog } from '../../features/services/services.data';
 import { useBookingDrafts } from '../../hooks/use-booking-drafts';
 import { useCases } from '../../hooks/use-cases';
 import { useDocuments } from '../../hooks/use-documents';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { useTheme } from '../../lib/theme/theme';
@@ -34,7 +35,11 @@ const QUICK_ACTIONS: QuickAction[] = [
   { key: 'documents', label: 'tabs.documents', icon: 'document-text-outline', href: '/(tabs)/documents' },
   { key: 'freelancers', label: 'home.hub.freelancers', icon: 'people-outline', href: '/freelancers' },
   { key: 'sales', label: 'tabs.sales', icon: 'car-outline', href: '/(tabs)/sales' },
+  { key: 'real-estate', label: 'tabs.realEstate', icon: 'home-outline', href: '/(tabs)/real-estate' },
+  { key: 'concierge', label: 'tabs.more', icon: 'chatbubbles-outline', href: '/(tabs)/concierge' },
 ];
+
+const SOFT_LAUNCH_QUICK_KEYS = new Set(['services', 'sales', 'real-estate', 'cases', 'documents', 'concierge']);
 
 function firstName(displayName: string): string {
   const trimmed = displayName.trim();
@@ -73,12 +78,16 @@ function CaseRow({ item }: { item: ClientCase }) {
 
 export function MemberHomeContent() {
   const router = useRouter();
+  const softLaunch = useSoftLaunch();
   const { colors } = useTheme();
   const language = useLanguageStore((state) => state.language);
   const user = useAuthStore((state) => state.user);
   const casesQuery = useCases();
   const documentsQuery = useDocuments();
   const { drafts } = useBookingDrafts(true);
+  const quickActions = softLaunch.enabled
+    ? QUICK_ACTIONS.filter((action) => SOFT_LAUNCH_QUICK_KEYS.has(action.key))
+    : QUICK_ACTIONS.filter((action) => action.key !== 'real-estate' && action.key !== 'concierge');
 
   const displayName = user?.name?.trim() || user?.email || t('common.unknownUser');
   const greetingName = firstName(String(displayName));
@@ -114,7 +123,11 @@ export function MemberHomeContent() {
           title={t('home.hub.greeting', { name: greetingName })}
           subtitle={t('home.hub.subtitle')}
           primaryCta={{ label: t('home.browseServices'), onPress: () => router.push('/(tabs)/services') }}
-          secondaryCta={{ label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }}
+          secondaryCta={
+            softLaunch.enabled
+              ? { label: 'Ask SiamEZ', onPress: () => router.push('/(tabs)/concierge') }
+              : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
+          }
         />
       </FadeInView>
 
@@ -207,12 +220,12 @@ export function MemberHomeContent() {
 
       <Section title={t('home.hub.shortcuts')} subtitle={t('home.hub.shortcutsSubtitle')}>
         <View className="flex-row flex-wrap" style={{ gap: 10 }}>
-          {QUICK_ACTIONS.map((action) => (
+          {quickActions.map((action) => (
             <Pressable
               key={action.key}
               onPress={() => router.push(action.href as never)}
               accessibilityRole="button"
-              accessibilityLabel={t(action.label)}
+              accessibilityLabel={action.key === 'concierge' ? 'Ask SiamEZ' : t(action.label)}
               className="items-center justify-center"
               style={({ pressed }) => ({
                 width: '31%',
@@ -233,7 +246,7 @@ export function MemberHomeContent() {
                 numberOfLines={2}
                 style={{ color: colors.foreground }}
               >
-                {t(action.label)}
+                {action.key === 'concierge' ? 'Ask SiamEZ' : t(action.label)}
               </Text>
             </Pressable>
           ))}

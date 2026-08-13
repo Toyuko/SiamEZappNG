@@ -12,6 +12,7 @@ import { Section } from '../ui/Section';
 import { TestimonialCard } from '../ui/TestimonialCard';
 import { ThemePicker } from '../ui/ThemePicker';
 import { TrustStats } from '../ui/TrustStats';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
@@ -37,6 +38,7 @@ const HOW_IT_WORKS_STEPS = [
 
 export function GuestHomeContent() {
   const router = useRouter();
+  const softLaunch = useSoftLaunch();
   const { colors } = useTheme();
   const language = useLanguageStore((state) => state.language);
   const [preferencesExpanded, setPreferencesExpanded] = useState(false);
@@ -253,12 +255,26 @@ export function GuestHomeContent() {
           </Text>
           <View className="mt-4 gap-3">
             <Button label={t('home.browseServices')} gradient onPress={() => router.push('/(tabs)/services')} />
-            <Button label={t('cta.bookNow')} variant="secondary" onPress={() => router.push('/(tabs)/book')} />
-            <Button
-              label={t('freelancer.publicProfile.directory.title')}
-              variant="secondary"
-              onPress={() => router.push('/freelancers')}
-            />
+            {softLaunch.enabled ? (
+              <>
+                <Button label={t('tabs.sales')} variant="secondary" onPress={() => router.push('/(tabs)/sales')} />
+                <Button
+                  label={t('tabs.realEstate')}
+                  variant="secondary"
+                  onPress={() => router.push('/(tabs)/real-estate')}
+                />
+                <Button label="Ask SiamEZ" variant="secondary" onPress={() => router.push('/(tabs)/concierge')} />
+              </>
+            ) : (
+              <>
+                <Button label={t('cta.bookNow')} variant="secondary" onPress={() => router.push('/(tabs)/book')} />
+                <Button
+                  label={t('freelancer.publicProfile.directory.title')}
+                  variant="secondary"
+                  onPress={() => router.push('/freelancers')}
+                />
+              </>
+            )}
           </View>
         </Card>
       </FadeInView>

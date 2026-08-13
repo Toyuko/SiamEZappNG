@@ -16,6 +16,7 @@ import { useInvoices } from '../../hooks/use-invoices';
 import { useLifeEventRuns } from '../../hooks/use-life-events';
 import { useMarketplaceEngagement } from '../../hooks/use-marketplace-engagement';
 import { useRecommendations } from '../../hooks/use-recommendations';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -39,6 +40,7 @@ function toArray<T>(value: unknown): T[] {
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const softLaunch = useSoftLaunch();
   const { colors } = useTheme();
   const overviewQuery = useDashboard();
   const casesQuery = useCases();
@@ -87,8 +89,16 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
         <PageHeader
           title={t('dashboard.title')}
-          subtitle="Your Platform workspace — goals, journeys, bookings, and saved listings."
-          primaryCta={{ label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }}
+          subtitle={
+            softLaunch.enabled
+              ? 'Your workspace — services, vehicles, property, and Ask SiamEZ.'
+              : 'Your Platform workspace — goals, journeys, bookings, and saved listings.'
+          }
+          primaryCta={
+            softLaunch.enabled
+              ? { label: 'Ask SiamEZ', onPress: () => router.push('/(tabs)/concierge') }
+              : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
+          }
         />
 
         <TrustStats />
@@ -100,40 +110,69 @@ export default function DashboardScreen() {
           <View className="min-w-[46%] flex-1">
             <MetricCard title={t('dashboard.pendingInvoices')} value={pendingInvoices} />
           </View>
-          <View className="min-w-[46%] flex-1">
-            <MetricCard title="Active goals" value={activeGoals} />
-          </View>
-          <View className="min-w-[46%] flex-1">
-            <MetricCard title="Life events" value={activeLifeEvents} />
-          </View>
+          {softLaunch.enabled ? null : (
+            <>
+              <View className="min-w-[46%] flex-1">
+                <MetricCard title="Active goals" value={activeGoals} />
+              </View>
+              <View className="min-w-[46%] flex-1">
+                <MetricCard title="Life events" value={activeLifeEvents} />
+              </View>
+            </>
+          )}
         </View>
 
         <Section title="Quick links" subtitle="Continue where you left off on web or mobile">
           <Card>
             <View className="gap-2">
               {[
-                { label: 'Concierge', path: '/(tabs)/concierge' as const, meta: 'Journey AI' },
-                { label: 'Search', path: '/(tabs)/search' as const, meta: 'Unified' },
-                { label: 'Goals', path: '/(tabs)/goals' as const, meta: `${activeGoals} active` },
+                { label: 'Ask SiamEZ', path: '/(tabs)/concierge' as const, meta: 'Concierge', softLaunch: true },
+                { label: 'Search', path: '/(tabs)/search' as const, meta: 'Unified', softLaunch: true },
+                {
+                  label: 'Goals',
+                  path: '/(tabs)/goals' as const,
+                  meta: `${activeGoals} active`,
+                  softLaunch: false,
+                },
                 {
                   label: 'Life Events',
                   path: '/(tabs)/life-events' as const,
                   meta: `${activeLifeEvents} in progress`,
+                  softLaunch: false,
                 },
                 {
                   label: 'Workflows',
                   path: '/(tabs)/workflows' as const,
                   meta: 'Templates & runs',
+                  softLaunch: false,
                 },
                 {
                   label: 'Saved & Compare',
                   path: '/(tabs)/saved' as const,
                   meta: `${savedCount} saved`,
+                  softLaunch: false,
                 },
-                { label: 'Seller hub', path: '/(tabs)/seller' as const, meta: 'Views & enquiries' },
-                { label: 'Documents', path: '/(tabs)/documents' as const, meta: 'Files & uploads' },
-                { label: 'Cases', path: '/(tabs)/cases' as const, meta: `${activeCases} open` },
-              ].map((item) => (
+                {
+                  label: 'Seller hub',
+                  path: '/(tabs)/seller' as const,
+                  meta: 'Views & enquiries',
+                  softLaunch: true,
+                },
+                {
+                  label: 'Documents',
+                  path: '/(tabs)/documents' as const,
+                  meta: 'Files & uploads',
+                  softLaunch: true,
+                },
+                {
+                  label: 'Cases',
+                  path: '/(tabs)/cases' as const,
+                  meta: `${activeCases} open`,
+                  softLaunch: true,
+                },
+              ]
+                .filter((item) => !softLaunch.enabled || item.softLaunch !== false)
+                .map((item) => (
                 <Pressable
                   key={item.path}
                   onPress={() => router.push(item.path)}
@@ -156,7 +195,9 @@ export default function DashboardScreen() {
           <Card>
             {suggestions.length === 0 ? (
               <Text className="text-sm leading-5" style={{ color: colors.muted }}>
-                Browse listings and set goals to unlock personalized suggestions.
+                {softLaunch.enabled
+                  ? 'Browse services, vehicles, and property to unlock personalized suggestions.'
+                  : 'Browse listings and set goals to unlock personalized suggestions.'}
               </Text>
             ) : (
               <View className="gap-3">

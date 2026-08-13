@@ -19,8 +19,10 @@ import { VoiceFirstProvider } from '../components/voice/VoiceFirstProvider';
 import { LaunchAnimation } from '../components/ui/LaunchAnimation';
 import { useAuth } from '../hooks/use-auth';
 import { LaunchAnimationProvider } from '../hooks/use-launch-animation';
+import { useSoftLaunch } from '../hooks/use-soft-launch';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
 import { isCorporateRole } from '../lib/auth/role';
+import { SOFT_LAUNCH_DEFERRED_ROUTES } from '../lib/soft-launch';
 import { installDefaultFont } from '../lib/theme/install-default-font';
 import { useAuthStore } from '../store/auth-store';
 
@@ -33,6 +35,7 @@ installDefaultFont();
 function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
+  const softLaunch = useSoftLaunch();
   const { bootstrapSession } = useAuth();
   const { accessToken, isGuest, isBootstrapping, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
@@ -116,6 +119,10 @@ function RootNavigator() {
           tabRoute === 'freelancer' ||
           isCorporateTab));
     const isAuthenticated = Boolean(accessToken) && !isGuest;
+    const deferredSoftLaunchRoute =
+      softLaunch.enabled &&
+      (SOFT_LAUNCH_DEFERRED_ROUTES.has(topLevel) ||
+        (topLevel === '(tabs)' && SOFT_LAUNCH_DEFERRED_ROUTES.has(tabRoute)));
 
     if (!accessToken && !isGuest && isProtectedRoute) {
       router.replace('/(auth)/login');
@@ -123,6 +130,10 @@ function RootNavigator() {
     }
     if (isGuest && isSensitiveRoute) {
       router.replace('/(auth)/login');
+      return;
+    }
+    if (deferredSoftLaunchRoute) {
+      router.replace('/(tabs)/services');
       return;
     }
     if (isAuthenticated && userRole === 'client' && (topLevel === 'freelancer' || tabRoute === 'freelancer')) {
@@ -147,7 +158,17 @@ function RootNavigator() {
       }
       return;
     }
-  }, [accessToken, isBootstrapping, isCorporate, isFreelancer, isGuest, router, segments, userRole]);
+  }, [
+    accessToken,
+    isBootstrapping,
+    isCorporate,
+    isFreelancer,
+    isGuest,
+    router,
+    segments,
+    softLaunch.enabled,
+    userRole,
+  ]);
 
   return (
     <LaunchAnimationProvider value={launchContext}>

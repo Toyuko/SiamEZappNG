@@ -18,6 +18,7 @@ import {
 } from 'lucide-react-native';
 import { View } from 'react-native';
 
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
 import { useTheme } from '../../lib/theme/theme';
@@ -60,6 +61,7 @@ function TabBarIcon({
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
   const { isGuest, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
   const isCorporate = isCorporateRole(userRole, user?.role);
@@ -72,6 +74,18 @@ export default function TabsLayout() {
   const showOnlyCorporate: { href: null } | Record<string, never> = isCorporate ? {} : { href: null };
   const hideMemberTabsForCorporate: { href: null } | Record<string, never> =
     isGuest || isCorporate ? { href: null } : {};
+  /** Soft-launch IA: Services / Vehicles / RE / Concierge — hide deferred primary tabs. */
+  const hideInSoftLaunch: { href: null } | Record<string, never> = softLaunch.enabled
+    ? { href: null }
+    : {};
+  /** Soft launch: guests need More (Ask SiamEZ / Search); Contact stays as guest tab. */
+  const hideMoreTab: { href: null } | Record<string, never> = isCorporate
+    ? { href: null }
+    : softLaunch.enabled
+      ? {}
+      : isGuest
+        ? { href: null }
+        : {};
 
   return (
     <Tabs
@@ -123,6 +137,7 @@ export default function TabsLayout() {
             />
           ),
           ...hideForCorporate,
+          ...hideInSoftLaunch,
         }}
       />
       <Tabs.Screen
@@ -168,6 +183,7 @@ export default function TabsLayout() {
             />
           ),
           ...hideMemberTabsForCorporate,
+          ...hideInSoftLaunch,
         }}
       />
       <Tabs.Screen
@@ -383,7 +399,7 @@ export default function TabsLayout() {
               inactiveColor={colors.mutedText}
             />
           ),
-          ...hideMemberTabsForCorporate,
+          ...hideMoreTab,
         }}
       />
       <Tabs.Screen

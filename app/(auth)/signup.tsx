@@ -16,6 +16,7 @@ import {
 import { FadeInView } from '../../components/ui/FadeInView';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useAuth } from '../../hooks/use-auth';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 
@@ -33,6 +34,7 @@ function accountTypeLabel(type: AccountType) {
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const softLaunch = useSoftLaunch();
   const { colors, pageBackground } = useAuthColors();
   const { signUpMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [accountType, setAccountType] = useState<AccountType>('customer');
@@ -47,7 +49,8 @@ export default function SignUpScreen() {
     }
     Keyboard.dismiss();
     try {
-      await signUpMutation.mutateAsync({ name, email, phone, password, accountType });
+      const resolvedType: AccountType = softLaunch.enabled ? 'customer' : accountType;
+      await signUpMutation.mutateAsync({ name, email, phone, password, accountType: resolvedType });
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'Unable to create account.';
@@ -87,55 +90,59 @@ export default function SignUpScreen() {
 
             <OrDivider label={t('auth.orContinueWith')} />
 
-            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground, marginBottom: 8 }}>
-              {t('auth.accountType')}
-            </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
-              {(['customer', 'freelancer', 'corporate'] as const).map((type) => {
-                const selected = accountType === type;
-                return (
-                  <Pressable
-                    key={type}
-                    onPress={() => setAccountType(type)}
-                    style={{
-                      flexGrow: 1,
-                      flexBasis: '30%',
-                      minHeight: 50,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 8,
-                      borderRadius: radius.button,
-                      borderWidth: selected ? 2 : 1,
-                      borderColor: selected ? colors.primary : colors.border,
-                      backgroundColor: selected ? `${colors.primary}12` : colors.card,
-                      paddingHorizontal: 12,
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: 18,
-                        height: 18,
-                        borderRadius: 9,
-                        borderWidth: 2,
-                        borderColor: selected ? colors.primary : colors.border,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {selected ? (
-                        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary }} />
-                      ) : null}
-                    </View>
-                    <Text
-                      style={{ fontSize: 14, fontWeight: '600', color: selected ? colors.primary : colors.muted }}
-                      numberOfLines={1}
-                    >
-                      {accountTypeLabel(type)}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            {softLaunch.enabled ? null : (
+              <>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground, marginBottom: 8 }}>
+                  {t('auth.accountType')}
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+                  {(['customer', 'freelancer', 'corporate'] as const).map((type) => {
+                    const selected = accountType === type;
+                    return (
+                      <Pressable
+                        key={type}
+                        onPress={() => setAccountType(type)}
+                        style={{
+                          flexGrow: 1,
+                          flexBasis: '30%',
+                          minHeight: 50,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 8,
+                          borderRadius: radius.button,
+                          borderWidth: selected ? 2 : 1,
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: selected ? `${colors.primary}12` : colors.card,
+                          paddingHorizontal: 12,
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: 9,
+                            borderWidth: 2,
+                            borderColor: selected ? colors.primary : colors.border,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {selected ? (
+                            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary }} />
+                          ) : null}
+                        </View>
+                        <Text
+                          style={{ fontSize: 14, fontWeight: '600', color: selected ? colors.primary : colors.muted }}
+                          numberOfLines={1}
+                        >
+                          {accountTypeLabel(type)}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </>
+            )}
 
             <AuthField label={t('auth.fullName')} placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
             <AuthField
