@@ -10,7 +10,11 @@ export function pusherPayloadToDto(payload: unknown, jobId: string): JobChatMess
   const nested = raw.message && typeof raw.message === 'object' ? (raw.message as Record<string, unknown>) : raw;
 
   const id = String(nested.id ?? nested._id ?? '');
-  const senderId = String(nested.senderId ?? nested.userId ?? nested.sender?.id ?? '');
+  const sender =
+    nested.sender && typeof nested.sender === 'object'
+      ? (nested.sender as Record<string, unknown>)
+      : null;
+  const senderId = String(nested.senderId ?? nested.userId ?? sender?.id ?? '');
   if (!id || !senderId) {
     return null;
   }
@@ -37,8 +41,8 @@ export function pusherPayloadToDto(payload: unknown, jobId: string): JobChatMess
     senderName:
       typeof nested.senderName === 'string'
         ? nested.senderName
-        : typeof nested.sender?.name === 'string'
-          ? nested.sender.name
+        : typeof sender?.name === 'string'
+          ? sender.name
           : null,
     attachmentUrl,
     attachmentName,

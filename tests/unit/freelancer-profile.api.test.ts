@@ -19,7 +19,7 @@ vi.mock('../../lib/api', () => ({
   ApiError: MockApiError,
   unwrapApiData: <T>(value: T) => {
     if (value && typeof value === 'object' && 'data' in (value as object)) {
-      return (value as { data: T }).data;
+      return (value as unknown as { data: T }).data;
     }
     return value;
   },

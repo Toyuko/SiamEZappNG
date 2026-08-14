@@ -8,13 +8,16 @@ import {
   updateGoalStatus,
 } from '../features/goals/goals.api';
 import type { CreateGoalInput, GoalStatus } from '../features/goals/goals.types';
+import { useSessionQueryEnabled } from './use-session-query-enabled';
 
 export const goalsQueryKey = ['goals'] as const;
 
 export function useGoals() {
+  const enabled = useSessionQueryEnabled();
   return useQuery({
     queryKey: goalsQueryKey,
     queryFn: fetchMyGoals,
+    enabled,
   });
 }
 

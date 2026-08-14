@@ -27,7 +27,9 @@ describe('cases API integration', () => {
   });
 
   it('unwraps envelope data and encodes case id', async () => {
-    vi.mocked(global.fetch).mockResolvedValueOnce(jsonResponse({ data: { id: 'abc', title: 'Case Title' } }));
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      jsonResponse({ success: true, data: { id: 'abc', title: 'Case Title' } }),
+    );
     const { getCaseById } = await import('../../features/cases/cases.api');
     const result = await getCaseById('A/B C');
     expect(global.fetch).toHaveBeenCalledWith(

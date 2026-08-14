@@ -22,7 +22,8 @@ vi.mock('../../lib/api', () => ({
 
 describe('features/auth/auth.api', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    postMock.mockReset();
+    getMock.mockReset();
   });
 
   it('trims password whitespace before login', async () => {
@@ -33,16 +34,25 @@ describe('features/auth/auth.api', () => {
     expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
   });
 
-  it('normalizes email and falls back login path on 404', async () => {
+  it('normalizes email and uses production login path only', async () => {
     const { loginWithEmail } = await import('../../features/auth/auth.api');
-    postMock
-      .mockRejectedValueOnce(new MockApiError('not found', 404, null))
-      .mockResolvedValueOnce({ token: 'abc', user: { id: 'u1', email: 'me@example.com' } });
+    postMock.mockResolvedValueOnce({ token: 'abc', user: { id: 'u1', email: 'me@example.com' } });
 
     const result = await loginWithEmail({ email: '  Me@Example.com ', password: 'secret' });
-    expect(postMock).toHaveBeenNthCalledWith(1, '/api/auth/login', { email: 'me@example.com', password: 'secret' });
-    expect(postMock).toHaveBeenNthCalledWith(2, '/auth/login', { email: 'me@example.com', password: 'secret' });
+    expect(postMock).toHaveBeenCalledTimes(1);
+    expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
     expect(result.token).toBe('abc');
+  });
+
+  it('propagates login 404 without legacy fallback', async () => {
+    const { loginWithEmail } = await import('../../features/auth/auth.api');
+    postMock.mockRejectedValueOnce(new MockApiError('not found', 404, null));
+
+    await expect(loginWithEmail({ email: 'me@example.com', password: 'secret' })).rejects.toMatchObject({
+      status: 404,
+    });
+    expect(postMock).toHaveBeenCalledTimes(1);
+    expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
   });
 
   it('maps legacy accessToken response shape', async () => {
@@ -60,14 +70,12 @@ describe('features/auth/auth.api', () => {
     await expect(signUpWithEmail({ name: 'A', email: 'a@example.com', password: '12345678' })).rejects.toThrow();
   });
 
-  it('falls back getMe to legacy endpoint on 404', async () => {
+  it('calls production getMe path only', async () => {
     const { getMe } = await import('../../features/auth/auth.api');
-    getMock
-      .mockRejectedValueOnce(new MockApiError('not found', 404, null))
-      .mockResolvedValueOnce({ id: 'u1', email: 'u@example.com' });
+    getMock.mockResolvedValueOnce({ id: 'u1', email: 'u@example.com' });
     const me = await getMe('override-token');
-    expect(getMock).toHaveBeenNthCalledWith(1, '/api/auth/me', { tokenOverride: 'override-token' });
-    expect(getMock).toHaveBeenNthCalledWith(2, '/auth/me', { tokenOverride: 'override-token' });
+    expect(getMock).toHaveBeenCalledTimes(1);
+    expect(getMock).toHaveBeenCalledWith('/api/auth/me', { tokenOverride: 'override-token' });
     expect(me.id).toBe('u1');
   });
 

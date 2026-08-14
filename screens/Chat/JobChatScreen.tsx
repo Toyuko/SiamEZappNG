@@ -408,7 +408,6 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
         messages={messages}
         onSend={(outgoing) => void onSend(outgoing)}
         user={giftedUser}
-        placeholder={t('chat.placeholder')}
         isSendButtonAlwaysVisible
         renderAvatar={null}
         keyboardAvoidingViewProps={{
@@ -511,6 +510,7 @@ export function JobChatScreen({ jobId, role }: JobChatScreenProps) {
         }}
         textInputProps={{
           style: { color: colors.foreground, fontSize: 16, lineHeight: 22 },
+          placeholder: t('chat.placeholder'),
           placeholderTextColor: colors.muted,
         }}
       />

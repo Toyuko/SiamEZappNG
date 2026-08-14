@@ -12,7 +12,6 @@ import { TrustStats } from '../../components/ui/TrustStats';
 import { useCases } from '../../hooks/use-cases';
 import { useDashboard } from '../../hooks/use-dashboard';
 import { useGoals } from '../../hooks/use-goals';
-import { useInvoices } from '../../hooks/use-invoices';
 import { useLifeEventRuns } from '../../hooks/use-life-events';
 import { useMarketplaceEngagement } from '../../hooks/use-marketplace-engagement';
 import { useRecommendations } from '../../hooks/use-recommendations';
@@ -44,23 +43,16 @@ export default function DashboardScreen() {
   const { colors } = useTheme();
   const overviewQuery = useDashboard();
   const casesQuery = useCases();
-  const invoicesQuery = useInvoices();
   const goalsQuery = useGoals();
   const lifeEventsQuery = useLifeEventRuns();
   const engagementQuery = useMarketplaceEngagement();
   const recommendationsQuery = useRecommendations();
 
-  const isLoading = overviewQuery.isLoading && (casesQuery.isLoading || invoicesQuery.isLoading);
-  const isError = overviewQuery.isError && casesQuery.isError && invoicesQuery.isError;
-  const error = (overviewQuery.error ?? casesQuery.error ?? invoicesQuery.error) as unknown;
+  const isLoading = overviewQuery.isLoading || casesQuery.isLoading;
+  const isError = overviewQuery.isError || casesQuery.isError;
+  const error = (overviewQuery.error ?? casesQuery.error) as unknown;
   const cases = toArray<{ id: string }>(casesQuery.data);
-  const invoices = toArray<{ status?: string }>(invoicesQuery.data);
   const activeCases = overviewQuery.data?.activeCases ?? cases.length;
-  const pendingInvoices =
-    overviewQuery.data?.pendingInvoices ??
-    invoices.filter(
-      (invoice) => invoice.status !== 'PAID' && invoice.status !== 'paid'
-    ).length;
   const recentUpdates = overviewQuery.data?.recentUpdates ?? 0;
   const activeGoals = (goalsQuery.data ?? []).filter((g) => g.status === 'active').length;
   const activeLifeEvents = (lifeEventsQuery.data ?? []).filter((r) => r.status === 'active').length;
@@ -78,7 +70,6 @@ export default function DashboardScreen() {
         onRetry={() => {
           void overviewQuery.refetch();
           void casesQuery.refetch();
-          void invoicesQuery.refetch();
         }}
       />
     );
@@ -89,14 +80,10 @@ export default function DashboardScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
         <PageHeader
           title={t('dashboard.title')}
-          subtitle={
-            softLaunch.enabled
-              ? 'Your workspace — services, vehicles, property, and Ask SiamEZ.'
-              : 'Your Platform workspace — goals, journeys, bookings, and saved listings.'
-          }
+          subtitle={softLaunch.enabled ? t('dashboard.softLaunchSubtitle') : t('dashboard.fullSubtitle')}
           primaryCta={
             softLaunch.enabled
-              ? { label: 'Ask SiamEZ', onPress: () => router.push('/(tabs)/concierge') }
+              ? { label: t('dashboard.askSiamez'), onPress: () => router.push('/(tabs)/concierge') }
               : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
           }
         />
@@ -106,9 +93,6 @@ export default function DashboardScreen() {
         <View className="flex-row flex-wrap gap-3">
           <View className="min-w-[46%] flex-1">
             <MetricCard title={t('dashboard.activeCases')} value={activeCases} />
-          </View>
-          <View className="min-w-[46%] flex-1">
-            <MetricCard title={t('dashboard.pendingInvoices')} value={pendingInvoices} />
           </View>
           {softLaunch.enabled ? null : (
             <>
@@ -122,11 +106,11 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        <Section title="Quick links" subtitle="Continue where you left off on web or mobile">
+        <Section title={t('dashboard.quickLinks')} subtitle={t('dashboard.quickLinksSubtitle')}>
           <Card>
             <View className="gap-2">
               {[
-                { label: 'Ask SiamEZ', path: '/(tabs)/concierge' as const, meta: 'Concierge', softLaunch: true },
+                { label: t('dashboard.askSiamez'), path: '/(tabs)/concierge' as const, meta: 'Concierge', softLaunch: true },
                 { label: 'Search', path: '/(tabs)/search' as const, meta: 'Unified', softLaunch: true },
                 {
                   label: 'Goals',
@@ -159,13 +143,13 @@ export default function DashboardScreen() {
                   softLaunch: true,
                 },
                 {
-                  label: 'Documents',
+                  label: t('documents.title'),
                   path: '/(tabs)/documents' as const,
                   meta: 'Files & uploads',
                   softLaunch: true,
                 },
                 {
-                  label: 'Cases',
+                  label: t('cases.title'),
                   path: '/(tabs)/cases' as const,
                   meta: `${activeCases} open`,
                   softLaunch: true,
@@ -191,13 +175,13 @@ export default function DashboardScreen() {
           </Card>
         </Section>
 
-        <Section title="Recommendations" subtitle="From the Platform recommendation engine">
+        <Section title={t('dashboard.recommendations')} subtitle={t('dashboard.recommendationsSubtitle')}>
           <Card>
             {suggestions.length === 0 ? (
               <Text className="text-sm leading-5" style={{ color: colors.muted }}>
                 {softLaunch.enabled
-                  ? 'Browse services, vehicles, and property to unlock personalized suggestions.'
-                  : 'Browse listings and set goals to unlock personalized suggestions.'}
+                  ? t('dashboard.recommendationsEmptySoft')
+                  : t('dashboard.recommendationsEmpty')}
               </Text>
             ) : (
               <View className="gap-3">
@@ -220,7 +204,7 @@ export default function DashboardScreen() {
           <Card>
             <Text className="text-sm leading-5" style={{ color: colors.muted }}>
               {recentUpdates > 0
-                ? `${recentUpdates} recent updates from your Platform workspace.`
+                ? t('dashboard.activityUpdates', { count: recentUpdates })
                 : activeCases > 0
                   ? t('dashboard.activityWithCases')
                   : t('dashboard.activityNoCases')}

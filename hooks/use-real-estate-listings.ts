@@ -10,6 +10,7 @@ import {
   type PropertyListingWriteInput,
   type RealEstateListFilters,
 } from '../features/real-estate/real-estate.api';
+import { useSessionQueryEnabled } from './use-session-query-enabled';
 
 export function realEstateListQueryKey(filters: RealEstateListFilters) {
   return ['real-estate-listings', filters] as const;
@@ -24,10 +25,11 @@ export function useRealEstateListings(filters: RealEstateListFilters, enabled = 
 }
 
 export function useMyPropertyListings(enabled = true) {
+  const sessionEnabled = useSessionQueryEnabled();
   return useQuery({
     queryKey: ['my-property-listings'],
     queryFn: fetchMyPropertyListings,
-    enabled,
+    enabled: enabled && sessionEnabled,
   });
 }
 

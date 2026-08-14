@@ -11,6 +11,7 @@ import type {
   LifeEventRunStatus,
   LifeEventStepStatus,
 } from '../features/life-events/life-events.types';
+import { useSessionQueryEnabled } from './use-session-query-enabled';
 
 export const lifeEventsCatalogKey = ['life-events', 'catalog'] as const;
 export const lifeEventRunsKey = ['life-events', 'runs'] as const;
@@ -24,9 +25,11 @@ export function useLifeEventsCatalog() {
 }
 
 export function useLifeEventRuns() {
+  const enabled = useSessionQueryEnabled();
   return useQuery({
     queryKey: lifeEventRunsKey,
     queryFn: fetchMyLifeEventRuns,
+    enabled,
   });
 }
 

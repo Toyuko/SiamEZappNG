@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import '../global.css';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -27,7 +27,8 @@ import { installDefaultFont } from '../lib/theme/install-default-font';
 import { useAuthStore } from '../store/auth-store';
 
 // Work around Android Fabric mount race in some navigation transitions.
-enableScreens(false);
+// Keep native screens enabled on iOS for memory and transition performance.
+enableScreens(Platform.OS !== 'android');
 
 // Apply Geist as the default font on native (web uses global.css).
 installDefaultFont();

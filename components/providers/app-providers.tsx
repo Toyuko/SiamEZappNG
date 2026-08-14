@@ -1,11 +1,12 @@
-import { PropsWithChildren, useEffect, useMemo } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PropsWithChildren, useEffect } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
 import { usePushNotifications } from '../../hooks/use-push-notifications';
 import { setI18nLanguage } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
+import { getAppQueryClient } from '../../lib/query/query-client';
 import { useTheme } from '../../lib/theme/theme';
 
 function AppEnvironment() {
@@ -22,18 +23,7 @@ function AppEnvironment() {
 }
 
 export function AppProviders({ children }: PropsWithChildren) {
-  const queryClient = useMemo(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 20_000,
-            retry: 1,
-          },
-        },
-      }),
-    [],
-  );
+  const queryClient = getAppQueryClient();
 
   return (
     <SafeAreaProvider>

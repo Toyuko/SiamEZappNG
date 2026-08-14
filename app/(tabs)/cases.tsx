@@ -10,13 +10,16 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { StatusBadge } from '../../components/ui/status-badge';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { useCases } from '../../hooks/use-cases';
+import { formatDisplayDate } from '../../lib/datetime/format';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export default function CasesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const language = useLanguageStore((state) => state.language);
   const { data, isLoading, isError, refetch, error } = useCases();
 
   if (isLoading) {
@@ -54,7 +57,7 @@ export default function CasesScreen() {
               <View className="mt-3 flex-row items-center justify-between">
                 <StatusBadge status={item.status} />
                 <Text className="text-xs" style={{ color: colors.muted }}>
-                  {new Date(item.updatedAt).toLocaleDateString()}
+                  {formatDisplayDate(item.updatedAt, language)}
                 </Text>
               </View>
             </Pressable>

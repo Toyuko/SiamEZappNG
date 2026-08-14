@@ -10,6 +10,7 @@ import {
   type SalesListFilters,
   type VehicleListingWriteInput,
 } from '../features/sales/sales.api';
+import { useSessionQueryEnabled } from './use-session-query-enabled';
 
 export function salesListQueryKey(filters: SalesListFilters) {
   return ['sales-listings', filters] as const;
@@ -24,10 +25,11 @@ export function useSalesListings(filters: SalesListFilters, enabled = true) {
 }
 
 export function useMyVehicleListings(enabled = true) {
+  const sessionEnabled = useSessionQueryEnabled();
   return useQuery({
     queryKey: ['my-vehicle-listings'],
     queryFn: fetchMyVehicleListings,
-    enabled,
+    enabled: enabled && sessionEnabled,
   });
 }
 

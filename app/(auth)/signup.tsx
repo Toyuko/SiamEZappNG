@@ -32,6 +32,11 @@ function accountTypeLabel(type: AccountType) {
   return t('auth.accountTypeCorporate');
 }
 
+function isValidEmail(value: string) {
+  const trimmed = value.trim();
+  return trimmed.includes('@') && trimmed.includes('.') && !trimmed.startsWith('@');
+}
+
 export default function SignUpScreen() {
   const router = useRouter();
   const softLaunch = useSoftLaunch();
@@ -48,13 +53,29 @@ export default function SignUpScreen() {
       return;
     }
     Keyboard.dismiss();
+    if (!name.trim()) {
+      Alert.alert(t('auth.signupFailed'), t('contact.fullNameRequired'));
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert(t('auth.signupFailed'), t('contact.emailRequired'));
+      return;
+    }
+    if (!isValidEmail(email)) {
+      Alert.alert(t('auth.signupFailed'), t('contact.emailInvalid'));
+      return;
+    }
+    if (password.length < 8) {
+      Alert.alert(t('auth.signupFailed'), t('auth.passwordTooShort'));
+      return;
+    }
     try {
       const resolvedType: AccountType = softLaunch.enabled ? 'customer' : accountType;
       await signUpMutation.mutateAsync({ name, email, phone, password, accountType: resolvedType });
     } catch (error) {
       const message =
         error instanceof ApiError ? error.message : error instanceof Error ? error.message : 'Unable to create account.';
-      Alert.alert('Sign up failed', message);
+      Alert.alert(t('auth.signupFailed'), message);
     }
   };
 

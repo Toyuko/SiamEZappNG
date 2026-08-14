@@ -1,4 +1,4 @@
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, Linking, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,22 +9,56 @@ import { EmptyState } from '../../components/ui/empty-state';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
+import {
+  documentPreviewUrl,
+  fetchDocumentPreviewUrl,
+  type ClientDocument,
+} from '../../features/documents';
+import { isAllowedDocumentUpload } from '../../features/documents/document-upload-rules';
 import { useDocuments } from '../../hooks/use-documents';
 import { useUploadDocument } from '../../hooks/use-upload-document';
+import { formatDisplayDate } from '../../lib/datetime/format';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+import { useAuthStore } from '../../store/auth-store';
 
 export default function DocumentsScreen() {
   const { colors } = useTheme();
+  const language = useLanguageStore((state) => state.language);
+  const accessToken = useAuthStore((state) => state.accessToken);
   const { data, isLoading, isError, refetch, error } = useDocuments();
   const uploadMutation = useUploadDocument();
 
+  const assertCanUpload = () => {
+    if (!accessToken) {
+      Alert.alert(t('documents.signInRequired'), t('documents.signInRequiredHint'));
+      return false;
+    }
+    return true;
+  };
+
   const pickFile = async () => {
+    if (!assertCanUpload()) {
+      return;
+    }
     const result = await DocumentPicker.getDocumentAsync({ multiple: false });
     if (!result.canceled) {
       const asset = result.assets[0];
       if (!asset?.uri) {
+        return;
+      }
+      const allowed = isAllowedDocumentUpload({
+        name: asset.name ?? 'document',
+        mimeType: asset.mimeType ?? undefined,
+        size: asset.size,
+      });
+      if (!allowed.ok) {
+        Alert.alert(
+          t('documents.uploadFailed'),
+          allowed.reason === 'size' ? t('documents.fileTooLarge') : t('documents.unsupportedFile'),
+        );
         return;
       }
       try {
@@ -41,6 +75,9 @@ export default function DocumentsScreen() {
   };
 
   const capturePhoto = async () => {
+    if (!assertCanUpload()) {
+      return;
+    }
     const permissions = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissions.granted) {
       Alert.alert(t('documents.permissionRequired'), t('documents.cameraAccessRequired'));
@@ -51,6 +88,18 @@ export default function DocumentsScreen() {
     if (!result.canceled) {
       const asset = result.assets[0];
       if (!asset?.uri) {
+        return;
+      }
+      const allowed = isAllowedDocumentUpload({
+        name: 'camera-upload.jpg',
+        mimeType: 'image/jpeg',
+        size: asset.fileSize,
+      });
+      if (!allowed.ok) {
+        Alert.alert(
+          t('documents.uploadFailed'),
+          allowed.reason === 'size' ? t('documents.fileTooLarge') : t('documents.unsupportedFile'),
+        );
         return;
       }
       try {
@@ -64,6 +113,21 @@ export default function DocumentsScreen() {
         Alert.alert(t('documents.uploadFailed'), t('documents.retryMessage'));
       }
     }
+  };
+
+  const openDocument = async (document: ClientDocument) => {
+    const embedded = documentPreviewUrl(document);
+    const url = embedded ?? (await fetchDocumentPreviewUrl(document.id));
+    if (!url) {
+      Alert.alert(t('documents.previewUnavailable'), t('documents.previewUnavailableHint'));
+      return;
+    }
+    const canOpen = await Linking.canOpenURL(url);
+    if (!canOpen) {
+      Alert.alert(t('documents.previewUnavailable'), t('documents.previewUnavailableHint'));
+      return;
+    }
+    await Linking.openURL(url);
   };
 
   if (isLoading) {
@@ -99,8 +163,15 @@ export default function DocumentsScreen() {
                   {document.type}
                 </Text>
                 <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
-                  {new Date(document.uploadedAt).toLocaleDateString()} - {document.status}
+                  {formatDisplayDate(document.uploadedAt, language)} - {document.status}
                 </Text>
+                <View className="mt-3">
+                  <Button
+                    label={t('documents.open')}
+                    variant="secondary"
+                    onPress={() => void openDocument(document)}
+                  />
+                </View>
               </Card>
             ))}
           </View>

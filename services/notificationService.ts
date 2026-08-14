@@ -74,6 +74,43 @@ export async function registerPushTokenWithBackend(): Promise<string | null> {
   return pushToken.data;
 }
 
+async function getExpoPushTokenIfAvailable(): Promise<string | null> {
+  if (!canRegisterPushToken()) {
+    return null;
+  }
+
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') {
+    return null;
+  }
+
+  try {
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+    const pushToken = projectId
+      ? await Notifications.getExpoPushTokenAsync({ projectId })
+      : await Notifications.getExpoPushTokenAsync();
+    return pushToken.data;
+  } catch {
+    return null;
+  }
+}
+
+/** Best-effort server-side push token cleanup on logout. Errors are ignored. */
+export async function unregisterPushTokenFromBackend(): Promise<void> {
+  try {
+    await getExpoPushTokenIfAvailable();
+    try {
+      await api.delete('/api/users/push-token');
+      return;
+    } catch {
+      await api.post('/api/users/push-token', { token: null });
+    }
+  } catch {
+    // ignore — logout must continue
+  }
+}
+
 export function getNotificationJobId(
   data: Record<string, unknown> | undefined,
 ): string | null {

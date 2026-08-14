@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState, type ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { type ReactNode } from 'react';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
@@ -67,10 +67,6 @@ export default function ProfileScreen() {
   const { logout } = useAuth();
   const { user, isGuest } = useAuthStore();
   const { colors } = useTheme();
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [caseUpdatesEnabled, setCaseUpdatesEnabled] = useState(true);
-  const [paymentRemindersEnabled, setPaymentRemindersEnabled] = useState(true);
-  const [documentRequestsEnabled, setDocumentRequestsEnabled] = useState(true);
 
   const comingSoon = (title: string) => Alert.alert(title, 'This feature will be available soon.');
 
@@ -161,52 +157,6 @@ export default function ProfileScreen() {
                   </Text>
                   <LanguageToggle />
                 </View>
-              </View>
-            </Card>
-
-            <Card>
-              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
-                Notifications
-              </Text>
-              <View className="mt-2">
-                <RowItem
-                  icon="notifications-outline"
-                  label="Push notifications"
-                  showChevron={false}
-                  rightSlot={<Switch value={pushEnabled} onValueChange={setPushEnabled} />}
-                />
-                <Divider />
-                <RowItem
-                  icon="folder-open-outline"
-                  label="Case updates"
-                  showChevron={false}
-                  rightSlot={<Switch value={caseUpdatesEnabled} onValueChange={setCaseUpdatesEnabled} disabled={!pushEnabled} />}
-                />
-                <Divider />
-                <RowItem
-                  icon="card-outline"
-                  label="Payment reminders"
-                  showChevron={false}
-                  rightSlot={<Switch value={paymentRemindersEnabled} onValueChange={setPaymentRemindersEnabled} disabled={!pushEnabled} />}
-                />
-                <Divider />
-                <RowItem
-                  icon="document-text-outline"
-                  label="Document requests"
-                  showChevron={false}
-                  rightSlot={<Switch value={documentRequestsEnabled} onValueChange={setDocumentRequestsEnabled} disabled={!pushEnabled} />}
-                />
-              </View>
-            </Card>
-
-            <Card>
-              <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
-                Payments
-              </Text>
-              <View className="mt-2">
-                <RowItem icon="wallet-outline" label="Payment methods" subtitle="Thai QR, bank transfer, Wise" onPress={() => comingSoon('Payment methods')} />
-                <Divider />
-                <RowItem icon="receipt-outline" label="Payment history" onPress={() => comingSoon('Payment history')} />
               </View>
             </Card>
 

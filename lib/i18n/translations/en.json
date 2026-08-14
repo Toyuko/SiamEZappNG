@@ -215,7 +215,7 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "demoFreelancerAccount": "Demo freelancer account",
-    "demoFreelancerDescription": "Freelancer portal demo: %{email} / %{password}",
+    "demoFreelancerDescription": "Demo accounts are not available in this app.",
     "useDemoFreelancerAccount": "Use demo freelancer account",
     "creatingAccount": "Creating account...",
     "continueAsGuest": "Continue as Guest",
@@ -227,7 +227,8 @@
     "accountType": "Account type",
     "accountTypeCustomer": "Customer",
     "accountTypeFreelancer": "Freelancer",
-    "accountTypeCorporate": "Corporate"
+    "accountTypeCorporate": "Corporate",
+    "passwordTooShort": "Password must be at least 8 characters."
   },
   "home": {
     "badge": "Professional Thai Services",
@@ -357,7 +358,17 @@
     "loading": "Loading dashboard...",
     "loadError": "Unable to load dashboard.",
     "activityWithCases": "Your cases are in progress. Open Cases for timeline updates and document requests.",
-    "activityNoCases": "No active cases yet. Start with a new booking and we will guide the process end-to-end."
+    "activityNoCases": "No active cases yet. Start with a new booking and we will guide the process end-to-end.",
+    "softLaunchSubtitle": "Your workspace — services, vehicles, property, and Ask SiamEZ.",
+    "fullSubtitle": "Your Platform workspace — goals, journeys, bookings, and saved listings.",
+    "askSiamez": "Ask SiamEZ",
+    "quickLinks": "Quick links",
+    "quickLinksSubtitle": "Continue where you left off on web or mobile",
+    "recommendations": "Recommendations",
+    "recommendationsSubtitle": "From the Platform recommendation engine",
+    "recommendationsEmptySoft": "Browse services, vehicles, and property to unlock personalized suggestions.",
+    "recommendationsEmpty": "Browse listings and set goals to unlock personalized suggestions.",
+    "activityUpdates": "%{count} recent updates from your Platform workspace."
   },
   "cases": {
     "title": "My Cases",
@@ -365,7 +376,8 @@
     "loading": "Loading cases...",
     "loadError": "Unable to load cases.",
     "empty": "No active cases found.",
-    "status": "Status"
+    "status": "Status",
+    "lastUpdated": "Last updated"
   },
   "documents": {
     "title": "Documents",
@@ -381,7 +393,14 @@
     "uploadPhotoSuccess": "Your photo has been uploaded.",
     "retryMessage": "Please try again.",
     "permissionRequired": "Permission required",
-    "cameraAccessRequired": "Camera access is needed to capture document photos."
+    "cameraAccessRequired": "Camera access is needed to capture document photos.",
+    "signInRequired": "Sign in to upload",
+    "signInRequiredHint": "Document uploads require an account so files stay attached to your case.",
+    "fileTooLarge": "Please choose a file smaller than 10 MB.",
+    "unsupportedFile": "Please upload a PDF or image (JPG, PNG, WebP, HEIC).",
+    "open": "Open",
+    "previewUnavailable": "Preview unavailable",
+    "previewUnavailableHint": "This file cannot be opened in the app yet. Ask SiamEZ support if you need a copy."
   },
   "contact": {
     "title": "Get In Touch",
@@ -459,10 +478,16 @@
     "createAccount": "Create account",
     "viewDashboard": "View dashboard",
     "trackCase": "Track case",
+    "caseNumber": "Case number",
     "bookingFailed": "Booking failed",
     "uploadFailed": "Upload failed",
     "permissionRequired": "Permission required",
     "cameraAccessNeeded": "Camera access is needed to upload photos.",
+    "signInToUpload": "Sign in to attach files",
+    "signInToUploadHint": "Uploads require an account so documents stay on your case. You can still submit this booking.",
+    "fileTooLarge": "Please choose a file smaller than 10 MB.",
+    "unsupportedFile": "Please upload a PDF or image (JPG, PNG, WebP, HEIC).",
+    "confirmViaWhatsApp": "Confirm via WhatsApp",
     "retryMessage": "Please try again.",
     "requiredFullName": "Full name is required.",
     "requiredEmail": "Email is required.",

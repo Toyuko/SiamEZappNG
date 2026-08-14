@@ -88,7 +88,7 @@ type FormState = {
   heroImageUrl: string;
   description: string;
   sellerKind: PropertySellerKind;
-  status: PropertyListingStatus;
+  status: Exclude<PropertyListingStatus, 'pending_boost'>;
 };
 
 const defaultForm: FormState = {

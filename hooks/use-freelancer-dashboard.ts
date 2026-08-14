@@ -4,6 +4,8 @@ import { getFreelancerDashboard } from '../features/freelancer/freelancer.api';
 import { useAuthStore } from '../store/auth-store';
 
 export function useFreelancerDashboard() {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
   const userRole = useAuthStore((state) => state.userRole);
   const user = useAuthStore((state) => state.user);
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
@@ -11,6 +13,6 @@ export function useFreelancerDashboard() {
   return useQuery({
     queryKey: ['freelancer-dashboard'],
     queryFn: getFreelancerDashboard,
-    enabled: isFreelancer,
+    enabled: Boolean(accessToken) && !isGuest && isFreelancer,
   });
 }

@@ -19,6 +19,8 @@ import {
   type BookingReqFieldId,
 } from '../../features/bookings/booking-fields';
 import { BOOKING_DRAFT_PREFIX } from '../../features/bookings/booking-drafts';
+import { toBackendServiceSlug } from '../../features/bookings/in-app-booking';
+import { isAllowedDocumentUpload } from '../../features/documents/document-upload-rules';
 import { serviceCatalog } from '../../features/services/services.data';
 import { useCreateBooking } from '../../hooks/use-create-booking';
 import { useUploadDocument } from '../../hooks/use-upload-document';
@@ -56,6 +58,10 @@ export default function BookScreen() {
   const [notes, setNotes] = useState('');
   const [req, setReq] = useState<Partial<Record<BookingReqFieldId, string>>>({});
   const [uploadedDocuments, setUploadedDocuments] = useState<UploadedDoc[]>([]);
+  const [bookingResult, setBookingResult] = useState<{
+    caseNumber?: string;
+    guestCheckoutToken?: string;
+  } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
@@ -220,12 +226,28 @@ export default function BookScreen() {
   };
 
   const pickFile = async () => {
+    if (!accessToken) {
+      Alert.alert(t('book.signInToUpload'), t('book.signInToUploadHint'));
+      return;
+    }
     const result = await DocumentPicker.getDocumentAsync({ multiple: false });
     if (result.canceled) {
       return;
     }
     const asset = result.assets[0];
     if (!asset?.uri) {
+      return;
+    }
+    const allowed = isAllowedDocumentUpload({
+      name: asset.name ?? 'document',
+      mimeType: asset.mimeType ?? undefined,
+      size: asset.size,
+    });
+    if (!allowed.ok) {
+      Alert.alert(
+        t('book.uploadFailed'),
+        allowed.reason === 'size' ? t('book.fileTooLarge') : t('book.unsupportedFile'),
+      );
       return;
     }
     try {
@@ -241,6 +263,10 @@ export default function BookScreen() {
   };
 
   const takePhoto = async () => {
+    if (!accessToken) {
+      Alert.alert(t('book.signInToUpload'), t('book.signInToUploadHint'));
+      return;
+    }
     const permissions = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissions.granted) {
       Alert.alert(t('book.permissionRequired'), t('book.cameraAccessNeeded'));
@@ -252,6 +278,18 @@ export default function BookScreen() {
     }
     const asset = result.assets[0];
     if (!asset?.uri) {
+      return;
+    }
+    const allowed = isAllowedDocumentUpload({
+      name: 'camera-upload.jpg',
+      mimeType: 'image/jpeg',
+      size: asset.fileSize,
+    });
+    if (!allowed.ok) {
+      Alert.alert(
+        t('book.uploadFailed'),
+        allowed.reason === 'size' ? t('book.fileTooLarge') : t('book.unsupportedFile'),
+      );
       return;
     }
     try {
@@ -270,7 +308,7 @@ export default function BookScreen() {
     if (!validateStep1() || !validateStep2()) {
       return;
     }
-    const details: Record<string, unknown> = {
+    const formData: Record<string, unknown> = {
       documentType: req.documentType ?? '',
       notes: notes.trim() || undefined,
       targetLanguage: req.targetLanguage,
@@ -287,17 +325,22 @@ export default function BookScreen() {
       requirements: requirementFields.map((f) => t(f.labelKey)),
     };
     const payload = {
-      serviceId: selectedService.slug,
-      userId: accessToken && user?.id ? user.id : undefined,
+      serviceId: toBackendServiceSlug(selectedService.slug),
       guestName: fullName,
       guestEmail: email,
       guestPhone: phone,
-      details,
-      documents: uploadedDocuments.map((doc) => doc.id),
+      formData,
+      documentIds: uploadedDocuments.map((doc) => doc.id),
     };
     const storageKey = `${BOOKING_DRAFT_PREFIX}${selectedService.slug}`;
+
     try {
-      await bookingMutation.mutateAsync(payload);
+      const result = await bookingMutation.mutateAsync(payload);
+      setBookingResult({
+        caseNumber: typeof result?.caseNumber === 'string' ? result.caseNumber : undefined,
+        guestCheckoutToken:
+          typeof result?.guestCheckoutToken === 'string' ? result.guestCheckoutToken : undefined,
+      });
       if (isGuest) {
         updateGuestProfile({ name: fullName, email, phone });
       }
@@ -354,6 +397,11 @@ export default function BookScreen() {
           <Text className="mt-2 leading-6" style={{ color: colors.text }}>
             {t('book.bookingSubmittedSubtitle')}
           </Text>
+          {bookingResult?.caseNumber ? (
+            <Text className="mt-3 text-base font-semibold" style={{ color: colors.text }}>
+              {t('book.caseNumber')}: {bookingResult.caseNumber}
+            </Text>
+          ) : null}
           <View className="mt-5 gap-3">
             {isGuest ? (
               <Button label={t('book.createAccount')} onPress={() => router.replace('/(auth)/signup')} />

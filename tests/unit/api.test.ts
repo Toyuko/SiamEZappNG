@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const removeTokenMock = vi.fn();
 const getTokenMock = vi.fn();
-const clearSessionMock = vi.fn();
+const endSessionMock = vi.fn();
 
 vi.mock('../../lib/config', () => ({
   appConfig: { apiUrl: 'https://example.com/api' },
@@ -13,12 +13,8 @@ vi.mock('../../lib/auth/token', () => ({
   removeToken: removeTokenMock,
 }));
 
-vi.mock('../../store/auth-store', () => ({
-  useAuthStore: {
-    getState: () => ({
-      clearSession: clearSessionMock,
-    }),
-  },
+vi.mock('../../lib/session/end-session', () => ({
+  endSession: (...args: unknown[]) => endSessionMock(...args),
 }));
 
 function mockResponse({
@@ -63,7 +59,7 @@ describe('lib/api', () => {
     );
   });
 
-  it('throws ApiError and logs user out on 401', async () => {
+  it('throws ApiError and ends session on 401 when a token was sent', async () => {
     getTokenMock.mockResolvedValue('expired-token');
     vi.mocked(global.fetch).mockResolvedValueOnce(
       mockResponse({
@@ -75,8 +71,40 @@ describe('lib/api', () => {
 
     const { api, ApiError } = await import('../../lib/api');
     await expect(api.get('/api/cases')).rejects.toBeInstanceOf(ApiError);
-    expect(removeTokenMock).toHaveBeenCalledTimes(1);
-    expect(clearSessionMock).toHaveBeenCalledTimes(1);
+    expect(endSessionMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not end session on 401 when no token was sent', async () => {
+    getTokenMock.mockResolvedValue(null);
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      mockResponse({
+        ok: false,
+        status: 401,
+        body: { error: 'Unauthorized' },
+      }),
+    );
+
+    const { api, ApiError } = await import('../../lib/api');
+    await expect(api.get('/api/documents/upload')).rejects.toBeInstanceOf(ApiError);
+    expect(endSessionMock).not.toHaveBeenCalled();
+  });
+
+  it('does not send Authorization or end session on login 401', async () => {
+    getTokenMock.mockResolvedValue('stale-token');
+    vi.mocked(global.fetch).mockResolvedValueOnce(
+      mockResponse({
+        ok: false,
+        status: 401,
+        body: { error: 'Invalid credentials' },
+      }),
+    );
+
+    const { api, ApiError } = await import('../../lib/api');
+    await expect(api.post('/api/auth/login', { email: 'a@b.c', password: 'x' })).rejects.toBeInstanceOf(ApiError);
+    expect(endSessionMock).not.toHaveBeenCalled();
+    const [, init] = vi.mocked(global.fetch).mock.calls[0];
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
   });
 
   it('uses token override and skips token lookup', async () => {
@@ -110,13 +138,31 @@ describe('lib/api', () => {
   it('throws status 0 ApiError on network failures', async () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error('network down'));
     const { api, ApiError } = await import('../../lib/api');
-    await expect(api.get('/api/cases')).rejects.toEqual(
-      expect.objectContaining({
-        name: 'ApiError',
-        status: 0,
-        message: 'network down',
-      } satisfies Partial<ApiError>),
-    );
+    await expect(api.get('/api/cases')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 0,
+      message: 'network down',
+    });
+  });
+
+  it('times out hung requests', async () => {
+    getTokenMock.mockResolvedValue(null);
+    vi.mocked(global.fetch).mockImplementation((_url, init) => {
+      return new Promise((_, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          const error = new Error('Aborted');
+          error.name = 'AbortError';
+          reject(error);
+        });
+      });
+    });
+
+    const { api, ApiError } = await import('../../lib/api');
+    await expect(api.get('/api/cases', { timeoutMs: 20 })).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 0,
+      message: 'Request timed out. Please try again.',
+    });
   });
 
   it('extracts nested error messages and unwrap helper returns payload fallback', async () => {
@@ -131,5 +177,7 @@ describe('lib/api', () => {
     const { api, unwrapApiData } = await import('../../lib/api');
     await expect(api.post('/api/payments', {})).rejects.toThrow('First validation error');
     expect(unwrapApiData({ success: true })).toEqual({ success: true });
+    expect(unwrapApiData({ success: true, data: { id: 1 } })).toEqual({ id: 1 });
+    expect(unwrapApiData({ data: { id: 1 } })).toEqual({ data: { id: 1 } });
   });
 });

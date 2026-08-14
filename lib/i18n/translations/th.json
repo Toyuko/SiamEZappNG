@@ -215,7 +215,7 @@
     "showPassword": "แสดงรหัสผ่าน",
     "hidePassword": "ซ่อนรหัสผ่าน",
     "demoFreelancerAccount": "บัญชีทดลองฟรีแลนซ์",
-    "demoFreelancerDescription": "ทดลองพอร์ทัลฟรีแลนซ์: %{email} / %{password}",
+    "demoFreelancerDescription": "แอปนี้ไม่มีบัญชีทดลอง",
     "useDemoFreelancerAccount": "ใช้บัญชีทดลองฟรีแลนซ์",
     "creatingAccount": "กำลังสร้างบัญชี...",
     "continueAsGuest": "ใช้งานแบบผู้เยี่ยมชม",
@@ -227,7 +227,8 @@
     "accountType": "ประเภทบัญชี",
     "accountTypeCustomer": "ลูกค้า",
     "accountTypeFreelancer": "ฟรีแลนซ์",
-    "accountTypeCorporate": "องค์กร"
+    "accountTypeCorporate": "องค์กร",
+    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"
   },
   "home": {
     "badge": "บริการมืออาชีพในประเทศไทย",
@@ -357,7 +358,17 @@
     "loading": "กำลังโหลดแดชบอร์ด...",
     "loadError": "ไม่สามารถโหลดแดชบอร์ดได้",
     "activityWithCases": "เคสของคุณกำลังดำเนินการอยู่ เปิดหน้าเคสเพื่อดูไทม์ไลน์และคำขอเอกสาร",
-    "activityNoCases": "ยังไม่มีเคสที่กำลังดำเนินการ เริ่มต้นด้วยการจองใหม่ แล้วเราจะช่วยดูแลทุกขั้นตอน"
+    "activityNoCases": "ยังไม่มีเคสที่กำลังดำเนินการ เริ่มต้นด้วยการจองใหม่ แล้วเราจะช่วยดูแลทุกขั้นตอน",
+    "softLaunchSubtitle": "พื้นที่ทำงานของคุณ — บริการ ยานพาหนะ อสังหาริมทรัพย์ และ Ask SiamEZ",
+    "fullSubtitle": "พื้นที่ Platform ของคุณ — เป้าหมาย การเดินทาง การจอง และรายการที่บันทึกไว้",
+    "askSiamez": "Ask SiamEZ",
+    "quickLinks": "ลิงก์ด่วน",
+    "quickLinksSubtitle": "ทำต่อจากที่ค้างไว้บนเว็บหรือมือถือ",
+    "recommendations": "คำแนะนำ",
+    "recommendationsSubtitle": "จากระบบแนะนำของ Platform",
+    "recommendationsEmptySoft": "เรียกดูบริการ ยานพาหนะ และอสังหาฯ เพื่อปลดล็อกคำแนะนำเฉพาะคุณ",
+    "recommendationsEmpty": "เรียกดูรายการและตั้งเป้าหมายเพื่อปลดล็อกคำแนะนำเฉพาะคุณ",
+    "activityUpdates": "อัปเดตล่าสุด %{count} รายการจากพื้นที่ Platform ของคุณ"
   },
   "cases": {
     "title": "เคสของฉัน",
@@ -365,7 +376,8 @@
     "loading": "กำลังโหลดเคส...",
     "loadError": "ไม่สามารถโหลดเคสได้",
     "empty": "ไม่พบเคสที่กำลังดำเนินการ",
-    "status": "สถานะ"
+    "status": "สถานะ",
+    "lastUpdated": "อัปเดตล่าสุด"
   },
   "documents": {
     "title": "เอกสาร",
@@ -381,7 +393,14 @@
     "uploadPhotoSuccess": "อัปโหลดรูปภาพเรียบร้อยแล้ว",
     "retryMessage": "โปรดลองอีกครั้ง",
     "permissionRequired": "ต้องการสิทธิ์การใช้งาน",
-    "cameraAccessRequired": "ต้องอนุญาตการเข้าถึงกล้องเพื่อถ่ายภาพเอกสาร"
+    "cameraAccessRequired": "ต้องอนุญาตการเข้าถึงกล้องเพื่อถ่ายภาพเอกสาร",
+    "signInRequired": "เข้าสู่ระบบเพื่ออัปโหลด",
+    "signInRequiredHint": "การอัปโหลดเอกสารต้องมีบัญชี เพื่อให้ไฟล์ผูกกับเคสของคุณ",
+    "fileTooLarge": "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10 MB",
+    "unsupportedFile": "กรุณาอัปโหลดไฟล์ PDF หรือรูปภาพ (JPG, PNG, WebP, HEIC)",
+    "open": "เปิด",
+    "previewUnavailable": "ยังเปิดไฟล์ไม่ได้",
+    "previewUnavailableHint": "ยังไม่สามารถเปิดไฟล์นี้ในแอปได้ หากต้องการสำเนา กรุณาติดต่อทีม SiamEZ"
   },
   "contact": {
     "title": "ติดต่อเรา",
@@ -459,10 +478,16 @@
     "createAccount": "สร้างบัญชี",
     "viewDashboard": "ดูแดชบอร์ด",
     "trackCase": "ติดตามเคส",
+    "caseNumber": "หมายเลขเคส",
     "bookingFailed": "การจองไม่สำเร็จ",
     "uploadFailed": "อัปโหลดไม่สำเร็จ",
     "permissionRequired": "ต้องการสิทธิ์การใช้งาน",
     "cameraAccessNeeded": "ต้องอนุญาตการเข้าถึงกล้องเพื่ออัปโหลดรูปภาพ",
+    "signInToUpload": "เข้าสู่ระบบเพื่อแนบไฟล์",
+    "signInToUploadHint": "การอัปโหลดต้องมีบัญชี เพื่อให้เอกสารอยู่ในเคสของคุณ คุณยังส่งคำขอจองได้",
+    "fileTooLarge": "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10 MB",
+    "unsupportedFile": "กรุณาอัปโหลดไฟล์ PDF หรือรูปภาพ (JPG, PNG, WebP, HEIC)",
+    "confirmViaWhatsApp": "ยืนยันผ่าน WhatsApp",
     "retryMessage": "โปรดลองอีกครั้ง",
     "requiredFullName": "กรุณากรอกชื่อ-นามสกุล",
     "requiredEmail": "กรุณากรอกอีเมล",

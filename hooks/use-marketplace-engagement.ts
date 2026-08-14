@@ -9,14 +9,16 @@ import {
   recordMarketplaceView,
 } from '../features/marketplace/marketplace.api';
 import type { MarketplaceListingType } from '../features/marketplace/marketplace.types';
+import { useSessionQueryEnabled } from './use-session-query-enabled';
 
 export const marketplaceEngagementKey = ['marketplace', 'engagement'] as const;
 
 export function useMarketplaceEngagement(enabled = true) {
+  const sessionEnabled = useSessionQueryEnabled();
   return useQuery({
     queryKey: marketplaceEngagementKey,
     queryFn: fetchMarketplaceEngagement,
-    enabled,
+    enabled: enabled && sessionEnabled,
   });
 }
 

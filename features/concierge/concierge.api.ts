@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
+import { CONCIERGE_JOURNEY_KEY } from '../../lib/session/clear-user-local-data';
 import type {
   ConciergeHistoryItem,
   ConciergeJourneyContext,
@@ -8,7 +9,7 @@ import type {
   ConciergeReply,
 } from './concierge.types';
 
-const JOURNEY_KEY = '@siamez/concierge-journey/v1';
+const JOURNEY_KEY = CONCIERGE_JOURNEY_KEY;
 
 export type {
   ConciergeDeepLink,
