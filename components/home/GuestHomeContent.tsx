@@ -264,15 +264,24 @@ export function GuestHomeContent() {
                   onPress={() => router.push('/(tabs)/real-estate')}
                 />
                 <Button label="Ask SiamEZ" variant="secondary" onPress={() => router.push('/(tabs)/concierge')} />
+                {softLaunch.showFreelancers ? (
+                  <Button
+                    label={t('freelancer.publicProfile.directory.title')}
+                    variant="secondary"
+                    onPress={() => router.push('/freelancers')}
+                  />
+                ) : null}
               </>
             ) : (
               <>
                 <Button label={t('cta.bookNow')} variant="secondary" onPress={() => router.push('/(tabs)/book')} />
-                <Button
-                  label={t('freelancer.publicProfile.directory.title')}
-                  variant="secondary"
-                  onPress={() => router.push('/freelancers')}
-                />
+                {softLaunch.showFreelancers ? (
+                  <Button
+                    label={t('freelancer.publicProfile.directory.title')}
+                    variant="secondary"
+                    onPress={() => router.push('/freelancers')}
+                  />
+                ) : null}
               </>
             )}
           </View>

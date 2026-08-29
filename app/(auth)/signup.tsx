@@ -48,6 +48,15 @@ export default function SignUpScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
+  const availableAccountTypes: AccountType[] = softLaunch.enabled
+    ? [
+        'customer' as const,
+        ...(softLaunch.showFreelancers ? (['freelancer'] as const) : []),
+        ...(softLaunch.showCompanies ? (['corporate'] as const) : []),
+      ]
+    : (['customer', 'freelancer', 'corporate'] as const);
+  const showAccountTypePicker = availableAccountTypes.length > 1;
+
   const handleSignUp = async () => {
     if (signUpMutation.isPending) {
       return;
@@ -70,7 +79,16 @@ export default function SignUpScreen() {
       return;
     }
     try {
-      const resolvedType: AccountType = softLaunch.enabled ? 'customer' : accountType;
+      let resolvedType: AccountType = accountType;
+      if (softLaunch.enabled) {
+        if (accountType === 'freelancer' && softLaunch.showFreelancers) {
+          resolvedType = 'freelancer';
+        } else if (accountType === 'corporate' && softLaunch.showCompanies) {
+          resolvedType = 'corporate';
+        } else {
+          resolvedType = 'customer';
+        }
+      }
       await signUpMutation.mutateAsync({ name, email, phone, password, accountType: resolvedType });
     } catch (error) {
       const message =
@@ -111,13 +129,13 @@ export default function SignUpScreen() {
 
             <OrDivider label={t('auth.orContinueWith')} />
 
-            {softLaunch.enabled ? null : (
+            {showAccountTypePicker ? (
               <>
                 <Text style={{ fontSize: 13, fontWeight: '600', color: colors.foreground, marginBottom: 8 }}>
                   {t('auth.accountType')}
                 </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
-                  {(['customer', 'freelancer', 'corporate'] as const).map((type) => {
+                  {availableAccountTypes.map((type) => {
                     const selected = accountType === type;
                     return (
                       <Pressable
@@ -163,7 +181,7 @@ export default function SignUpScreen() {
                   })}
                 </View>
               </>
-            )}
+            ) : null}
 
             <AuthField label={t('auth.fullName')} placeholder={t('auth.fullName')} value={name} onChangeText={setName} />
             <AuthField

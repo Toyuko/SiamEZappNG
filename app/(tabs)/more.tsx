@@ -116,7 +116,6 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'Browse public freelancer profiles',
     icon: 'people-outline',
     path: '/freelancers',
-    softLaunch: false,
   },
   {
     label: 'Contact',
@@ -146,6 +145,9 @@ export default function MoreScreen() {
     if (item.guestOnly && !isGuest) return false;
     if (softLaunch.enabled && item.softLaunch === false) return false;
     if (softLaunch.enabled && item.path === '/(tabs)/seller' && !softLaunch.showSellerListings) {
+      return false;
+    }
+    if (item.path === '/freelancers' && !softLaunch.showFreelancers) {
       return false;
     }
     return true;

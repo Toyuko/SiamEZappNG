@@ -86,7 +86,10 @@ export function MemberHomeContent() {
   const documentsQuery = useDocuments();
   const { drafts } = useBookingDrafts(true);
   const quickActions = softLaunch.enabled
-    ? QUICK_ACTIONS.filter((action) => SOFT_LAUNCH_QUICK_KEYS.has(action.key))
+    ? QUICK_ACTIONS.filter((action) => {
+        if (SOFT_LAUNCH_QUICK_KEYS.has(action.key)) return true;
+        return action.key === 'freelancers' && softLaunch.showFreelancers;
+      })
     : QUICK_ACTIONS.filter((action) => action.key !== 'real-estate' && action.key !== 'concierge');
 
   const displayName = user?.name?.trim() || user?.email || t('common.unknownUser');

@@ -120,10 +120,11 @@ function RootNavigator() {
           tabRoute === 'freelancer' ||
           isCorporateTab));
     const isAuthenticated = Boolean(accessToken) && !isGuest;
-    const deferredSoftLaunchRoute =
-      softLaunch.enabled &&
-      (SOFT_LAUNCH_DEFERRED_ROUTES.has(topLevel) ||
-        (topLevel === '(tabs)' && SOFT_LAUNCH_DEFERRED_ROUTES.has(tabRoute)));
+    const hitsDeferredRoute =
+      SOFT_LAUNCH_DEFERRED_ROUTES.has(topLevel) ||
+      (topLevel === '(tabs)' && SOFT_LAUNCH_DEFERRED_ROUTES.has(tabRoute));
+    const freelancersAllowed = topLevel === 'freelancers' && softLaunch.showFreelancers;
+    const deferredSoftLaunchRoute = softLaunch.enabled && hitsDeferredRoute && !freelancersAllowed;
 
     if (!accessToken && !isGuest && isProtectedRoute) {
       router.replace('/(auth)/login');
@@ -168,6 +169,7 @@ function RootNavigator() {
     router,
     segments,
     softLaunch.enabled,
+    softLaunch.showFreelancers,
     userRole,
   ]);
 
