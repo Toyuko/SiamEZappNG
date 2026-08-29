@@ -32,10 +32,15 @@
   },
   "screenshots": [
     { "file": "screenshots/01-login.png", "caption": "Auth — social login, guest mode, phone-framed web shell", "role": "hero" },
-    { "file": "screenshots/02-home.png", "caption": "Home — Expert Thai Services hero, trust stats, how-it-works", "role": "feature" },
-    { "file": "screenshots/07-real-estate.png", "caption": "Real estate listings with filters and property cards", "role": "feature" },
-    { "file": "screenshots/08-sales.png", "caption": "Vehicle sales inventory with search and sort", "role": "feature" },
-    { "file": "screenshots/09-contact.png", "caption": "Contact channels and service inquiry form", "role": "feature" },
+    { "file": "screenshots/03-services.png", "caption": "Services catalog — featured carousel, categories, and voice search", "role": "feature" },
+    { "file": "screenshots/10b-concierge-reply.png", "caption": "AI Concierge — journey memory, explained recommendations, and deep links", "role": "feature" },
+    { "file": "screenshots/08-sales.png", "caption": "Vehicle sales inventory with live listing cards", "role": "feature" },
+    { "file": "screenshots/07-real-estate.png", "caption": "Real estate listings with rent/sale badges and pricing", "role": "feature" },
+    { "file": "screenshots/04-service-detail.png", "caption": "Service detail with overview and trust stats", "role": "optional" },
+    { "file": "screenshots/08b-sales-detail.png", "caption": "Vehicle listing detail — gallery, price, and specs", "role": "optional" },
+    { "file": "screenshots/07b-real-estate-detail.png", "caption": "Property listing detail — gallery, rent, and location", "role": "optional" },
+    { "file": "screenshots/05-book.png", "caption": "Booking wizard — client details and selected service", "role": "optional" },
+    { "file": "screenshots/09-contact.png", "caption": "Contact channels and service inquiry form", "role": "optional" },
     { "file": "screenshots/11-web-companion.png", "caption": "Companion marketing website (same product ecosystem)", "role": "optional" }
   ]
 }

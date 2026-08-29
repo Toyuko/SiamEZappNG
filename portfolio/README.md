@@ -86,16 +86,21 @@ Use these from `portfolio/screenshots/` on your site:
 | `00-app-icon.png` | Favicon / project badge | App icon |
 | `00-logo.png` | Brand mark | Elephant logo |
 | `01-login.png` | **Hero / primary** | Phone-framed auth (light) — best cover |
-| `01-login-dark.png` | Alt hero | Dark phone-framed auth |
-| `01-login-framed.png` | Alt | Another framed login capture |
-| `02-home.png` | Feature 1 | Guest home — hero, stats, how-it-works |
-| `08-sales.png` | Feature 2 | Vehicle sales inventory + filters |
-| `07-real-estate.png` | Feature 3 | Property listings marketplace |
-| `09-contact.png` | Feature 4 | Contact + booking inquiry form |
-| `11-web-companion.png` | Optional | Matching marketing website (same product) |
+| `03-services.png` | Feature 1 | Service catalog + featured carousel |
+| `04-service-detail.png` | Feature 2 | Service detail with trust stats |
+| `10b-concierge-reply.png` | Feature 3 | AI Concierge — journey memory + recommendations |
+| `08-sales.png` | Feature 4 | Live vehicle inventory cards |
+| `08b-sales-detail.png` | Optional | Vehicle listing detail |
+| `07-real-estate.png` | Feature 5 | Property listing cards |
+| `07b-real-estate-detail.png` | Optional | Property listing detail |
+| `05-book.png` | Optional | Booking wizard (step 1) |
+| `06-more.png` | Optional | More hub (Ask SiamEZ, search, book) |
+| `09-contact.png` | Optional | Contact channels |
+| `11-web-companion.png` | Optional | Matching marketing website |
+| `10-concierge.png` | Alt | Concierge welcome / suggested prompts |
 
 **Suggested gallery order on portfolio:**  
-1 → login · 2 → home · 3 → real-estate · 4 → sales · 5 → contact · (+ web companion if you want ecosystem context)
+1 → login · 2 → services · 3 → concierge reply · 4 → sales · 5 → real estate · (+ booking / contact / web companion)
 
 ---
 
@@ -103,7 +108,7 @@ Use these from `portfolio/screenshots/` on your site:
 
 1. **Cover:** `01-login.png` (phone mock) + title + one-liner  
 2. **Overview:** short description + stack chips  
-3. **Gallery:** 4–5 screenshots above  
+3. **Gallery:** 5–7 screenshots above  
 4. **What I built:** 4–6 bullets from “Highlights”  
 5. **CTA:** link to live web and/or GitHub  
 
@@ -112,11 +117,9 @@ Use these from `portfolio/screenshots/` on your site:
 ## Re-capture screenshots
 
 ```bash
-# Terminal A — skip launch video
-EXPO_PUBLIC_E2E=true npm run web
-
-# Terminal B
-node portfolio/capture-screenshots.mjs
+EXPO_PUBLIC_E2E=true npx expo export --platform web --output-dir dist-portfolio
+npx serve dist-portfolio -l 4173 --single
+PORTFOLIO_BASE_URL=http://127.0.0.1:4173 node portfolio/capture-screenshots.mjs
 ```
 
-Guest/auth state is in-memory; prefer clicking through the UI (or use the browser) rather than full page reloads after “Continue as Guest.”
+Guest/auth state is in-memory; the capture script clicks through the UI rather than reloading after “Continue as Guest.”
