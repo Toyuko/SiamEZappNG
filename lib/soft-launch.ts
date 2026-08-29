@@ -12,7 +12,7 @@ export const softLaunchDefaults = {
   /** Seller listing management stays on (vehicles + RE are launch surfaces). */
   showSellerListings: true,
 
-  /** Public freelancer directory + signup as freelancer. */
+  /** Public freelancer directory + signup as freelancer (mirrors web soft-launch). */
   showFreelancers: true,
 
   /** Life-event journeys & goals. */

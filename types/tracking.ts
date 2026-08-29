@@ -157,7 +157,7 @@ export type JobTrackingJob = {
   freelancer?: { displayName: string } | null;
 };
 
-/** GET /api/jobs/[id]/tracking — shared client + freelancer payload */
+/** GET /api/freelancer/jobs/[id]/tracking — freelancer timeline + history */
 export type JobTrackingPayload = {
   job: JobTrackingJob;
   trackingHistory: TrackingHistoryEntry[];

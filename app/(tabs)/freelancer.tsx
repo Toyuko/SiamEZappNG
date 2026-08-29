@@ -117,7 +117,7 @@ export default function FreelancerScreen() {
 
         <SubscriptionCard />
 
-        <JobBoardScreen nestedInScrollView />
+        <JobBoardScreen nestedInScrollView isSpecialMember={Boolean(profile?.isSpecialMember)} />
 
         <ActiveJobsTrack
           jobs={data?.activeJobs ?? []}

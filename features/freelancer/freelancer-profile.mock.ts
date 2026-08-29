@@ -66,7 +66,10 @@ export function getMockMyFreelancerProfile(): FreelancerMeResponse {
   };
 }
 
-export function mockUpdateMyFreelancerProfile(data: FreelancerProfileUpdateInput): { profile: FreelancerOwnerProfile } {
+export function mockUpdateMyFreelancerProfile(data: FreelancerProfileUpdateInput): {
+  profile: FreelancerOwnerProfile;
+  user: FreelancerMeResponse['user'];
+} {
   mockOwnerState = {
     ...mockOwnerState,
     slug: data.slug,
@@ -78,7 +81,16 @@ export function mockUpdateMyFreelancerProfile(data: FreelancerProfileUpdateInput
     services: (data.services ?? []).map((s) => ({ ...s, currency: s.currency ?? 'THB' })),
     updatedAt: new Date().toISOString(),
   };
-  return { profile: mockOwnerState };
+  return {
+    profile: mockOwnerState,
+    user: {
+      id: mockOwnerState.user.id,
+      name: mockOwnerState.user.name,
+      email: mockOwnerState.user.email ?? null,
+      image: mockOwnerState.user.image,
+      role: 'freelancer',
+    },
+  };
 }
 
 export function getMockPublicFreelancers(filters?: {

@@ -33,6 +33,11 @@ export type FreelancerProfileSummary = {
   averageRating: number;
   skills: string[];
   bio: string | null;
+  slug?: string | null;
+  isPublic?: boolean;
+  title?: string | null;
+  hourlyRate?: number | null;
+  isSpecialMember?: boolean;
 };
 
 export type FreelancerRevenue = {

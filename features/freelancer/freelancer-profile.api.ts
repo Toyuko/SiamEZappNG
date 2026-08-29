@@ -52,9 +52,12 @@ export async function fetchMyFreelancerProfile() {
 export async function updateMyFreelancerProfile(data: FreelancerProfileUpdateInput) {
   try {
     const response = await api.put<
-      { profile: FreelancerOwnerProfile } | ApiEnvelope<{ profile: FreelancerOwnerProfile }>
+      | { profile: FreelancerOwnerProfile; user?: FreelancerMeResponse['user'] }
+      | ApiEnvelope<{ profile: FreelancerOwnerProfile; user?: FreelancerMeResponse['user'] }>
     >('/api/freelancer/me', data);
-    return unwrapApiData<{ profile: FreelancerOwnerProfile }>(response);
+    return unwrapApiData<{ profile: FreelancerOwnerProfile; user?: FreelancerMeResponse['user'] }>(
+      response,
+    );
   } catch (error) {
     if (!shouldFallbackToFreelancerMock(error)) {
       throw error;
