@@ -96,6 +96,11 @@ export function CorporateDashboardScreen() {
                 onPress={() => router.push('/(tabs)/corporate-ads')}
               />
               <Button
+                label="Smart Hiring"
+                variant="secondary"
+                onPress={() => router.push('/smart-match')}
+              />
+              <Button
                 label={t('corporate.dashboard.viewPublicProfile')}
                 variant="secondary"
                 onPress={() =>

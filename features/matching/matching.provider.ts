@@ -51,6 +51,9 @@ export function matchJobToFreelancers(
   return sortByScore(ranked);
 }
 
+export const matchClientToFreelancers = matchJobToFreelancers;
+export const matchCorporateToFreelancers = matchJobToFreelancers;
+
 export function matchFreelancerToJobs(
   freelancer: FreelancerProfile,
   jobs: Job[],
@@ -74,6 +77,12 @@ export const simulatedMatchingProvider: MatchingProvider = {
   matchJob: matchJobToFreelancers,
   matchFreelancer: matchFreelancerToJobs,
   calculateScore: calculateMatchScore,
+  matchClient(job, freelancers, options) {
+    return matchJobToFreelancers(job, freelancers, { ...options, accountKind: 'client' });
+  },
+  matchCorporate(job, freelancers, options) {
+    return matchJobToFreelancers(job, freelancers, { ...options, accountKind: 'corporate' });
+  },
   explainMatch(job, freelancer, options) {
     const result = calculateMatchScore(job, freelancer, options);
     return {
@@ -81,6 +90,9 @@ export const simulatedMatchingProvider: MatchingProvider = {
       breakdown: result.breakdown,
       reasons: result.reasons,
       summary: result.summary,
+      blocked: result.blocked,
+      blockReasons: result.blockReasons,
+      conflicts: result.conflicts,
     } satisfies MatchExplanation;
   },
 };

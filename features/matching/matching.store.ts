@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 
 import {
+  applyHiringProfileToDraft,
+  confirmLearnedPreference,
   createBooking as createBookingFn,
   createInitialDemoState,
   createJob as createJobFn,
@@ -9,24 +11,42 @@ import {
   jobFromDraft,
   likeFreelancer as likeFreelancerFn,
   likeJob as likeJobFn,
+  loadDemoScenario,
   type MatchingState,
   parseJobFromText,
   passFreelancer as passFreelancerFn,
   passJob as passJobFn,
   rankedForJob,
   rankedJobsForFreelancer,
+  saveClientProfile,
   saveFreelancer as saveFreelancerFn,
+  saveFreelancerWorkPreferences,
+  selectHiringProfile,
+  setPipelineStage,
   sendMessage as sendMessageFn,
   setFilters as setFiltersFn,
   setRole as setRoleFn,
   setViewerFreelancer as setViewerFreelancerFn,
   undoLast,
+  upsertHiringProfile,
 } from './matching.service';
-import type { DemoRole, Job, JobDraft, MatchFilters, ParsedJob, RankedMatch } from './matching.types';
+import type {
+  ClientPreferenceProfile,
+  CorporateHiringProfile,
+  DemoRole,
+  FreelancerPreferenceProfile,
+  HiringPipelineStage,
+  Job,
+  JobDraft,
+  MatchFilters,
+  ParsedJob,
+  RankedMatch,
+} from './matching.types';
 
 type MatchingStore = MatchingState & {
   createJobFromDraft: (draft: JobDraft) => Job;
   loadDemoJob: (jobId: string) => Job | null;
+  runDemoScenario: (scenarioId: string) => Job | null;
   parseNaturalLanguage: (text: string) => ParsedJob;
   likeCurrentFreelancer: (freelancerId: string) => void;
   superLikeFreelancer: (freelancerId: string) => void;
@@ -43,13 +63,20 @@ type MatchingStore = MatchingState & {
   clearCelebration: () => void;
   resetDemo: () => void;
   setCurrentJob: (jobId: string) => void;
+  updateClientProfile: (profile: ClientPreferenceProfile) => void;
+  updateWorkPreferences: (profile: FreelancerPreferenceProfile) => void;
+  chooseHiringProfile: (profileId: string) => void;
+  saveHiringProfile: (profile: CorporateHiringProfile) => void;
+  applyProfileToDraft: (draft: JobDraft, profile: CorporateHiringProfile) => JobDraft;
+  advancePipeline: (matchId: string, stage: HiringPipelineStage) => void;
+  acceptLearnedHint: (hintId: string) => void;
 };
 
 export const useMatchingStore = create<MatchingStore>((set, get) => ({
   ...createInitialDemoState(),
 
   createJobFromDraft: (draft) => {
-    const job = jobFromDraft(draft);
+    const job = jobFromDraft(draft, undefined, get());
     set((state) => createJobFn(state, job));
     return job;
   },
@@ -59,6 +86,11 @@ export const useMatchingStore = create<MatchingStore>((set, get) => ({
     if (!job) return null;
     set((state) => createJobFn(state, job));
     return job;
+  },
+
+  runDemoScenario: (scenarioId) => {
+    set((state) => loadDemoScenario(state, scenarioId));
+    return get().jobs.find((item) => item.id === get().currentJobId) ?? null;
   },
 
   parseNaturalLanguage: (text) => parseJobFromText(text),
@@ -91,6 +123,13 @@ export const useMatchingStore = create<MatchingStore>((set, get) => ({
   clearCelebration: () => set((state) => dismissCelebration(state)),
   resetDemo: () => set(() => createInitialDemoState()),
   setCurrentJob: (jobId) => set({ currentJobId: jobId }),
+  updateClientProfile: (profile) => set((state) => saveClientProfile(state, profile)),
+  updateWorkPreferences: (profile) => set((state) => saveFreelancerWorkPreferences(state, profile)),
+  chooseHiringProfile: (profileId) => set((state) => selectHiringProfile(state, profileId)),
+  saveHiringProfile: (profile) => set((state) => upsertHiringProfile(state, profile)),
+  applyProfileToDraft: (draft, profile) => applyHiringProfileToDraft(draft, profile),
+  advancePipeline: (matchId, stage) => set((state) => setPipelineStage(state, matchId, stage)),
+  acceptLearnedHint: (hintId) => set((state) => confirmLearnedPreference(state, hintId)),
 }));
 
 const EMPTY_RANKED: RankedMatch[] = [];

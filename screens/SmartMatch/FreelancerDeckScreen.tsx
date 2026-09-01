@@ -42,11 +42,12 @@ export function FreelancerDeckScreen() {
           title="Smart job matches"
           subtitle={
             me
-              ? `Browsing as ${me.name} · ${CATEGORY_LABELS[me.category]} · ${deck.length} ranked jobs`
+              ? `Browsing as ${me.name} · ${CATEGORY_LABELS[me.category]} · ${deck.length} AI-ranked jobs`
               : 'Pick a freelancer persona on the Smart Match home.'
           }
           onBack={() => router.back()}
           badge="FREELANCER DEMO"
+          secondaryCta={{ label: 'Work preferences', onPress: () => router.push('/smart-match/work-preferences') }}
         />
         <DemoModeBanner onReset={resetDemo} />
 

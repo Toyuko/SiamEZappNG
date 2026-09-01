@@ -46,20 +46,22 @@ const ICONS: Record<ServiceCategoryId, typeof Wrench> = {
 type CategoryPickerProps = {
   value: ServiceCategoryId | null;
   onChange: (id: ServiceCategoryId) => void;
+  values?: ServiceCategoryId[];
+  onToggle?: (id: ServiceCategoryId) => void;
 };
 
-export function CategoryPicker({ value, onChange }: CategoryPickerProps) {
+export function CategoryPicker({ value, onChange, values, onToggle }: CategoryPickerProps) {
   const { colors } = useTheme();
 
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
       {CATEGORY_ORDER.map((id) => {
         const Icon = ICONS[id];
-        const selected = value === id;
+        const selected = onToggle ? Boolean(values?.includes(id)) : value === id;
         return (
           <Pressable
             key={id}
-            onPress={() => onChange(id)}
+            onPress={() => (onToggle ? onToggle(id) : onChange(id))}
             accessibilityRole="button"
             accessibilityLabel={CATEGORY_LABELS[id]}
             accessibilityState={{ selected }}

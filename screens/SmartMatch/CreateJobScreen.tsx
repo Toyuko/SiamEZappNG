@@ -11,20 +11,28 @@ import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { SelectField } from '../../components/ui/SelectField';
 import { EXPERIENCE_LABELS, URGENCY_LABELS } from '../../features/matching/matching.constants';
+import { defaultClientPreferenceItems } from '../../features/matching/matching.preferences';
 import { draftFromParsed, emptyJobDraft } from '../../features/matching/matching.service';
 import { useMatchingStore } from '../../features/matching/matching.store';
 import type { ExperienceLevel, JobDraft, JobUrgency, LocationMode, ServiceCategoryId } from '../../features/matching/matching.types';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+import { PreferenceBuilder } from '../../components/smart-match/PreferenceBuilder';
 
-const STEPS = ['Category', 'Where', 'When', 'Budget', 'Experience', 'Details', 'Match'];
+const STEPS = ['Category', 'Where', 'When', 'Budget', 'Experience', 'Details', 'Preferences', 'Match'];
 
 export function CreateJobScreen() {
   const router = useRouter();
-  const { category: categoryParam } = useLocalSearchParams<{ category?: string }>();
+  const { category: categoryParam, mode } = useLocalSearchParams<{ category?: string; mode?: string }>();
   const { colors } = useTheme();
   const createJobFromDraft = useMatchingStore((s) => s.createJobFromDraft);
   const parseNaturalLanguage = useMatchingStore((s) => s.parseNaturalLanguage);
+  const switchRole = useMatchingStore((s) => s.switchRole);
+  const corporateAccount = useMatchingStore((s) => s.corporateAccount);
+  const chooseHiringProfile = useMatchingStore((s) => s.chooseHiringProfile);
+  const applyProfileToDraft = useMatchingStore((s) => s.applyProfileToDraft);
+  const role = useMatchingStore((s) => s.role);
+  const isCorporate = mode === 'corporate' || role === 'corporate';
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<JobDraft>(() => {
     const base = emptyJobDraft();
@@ -40,7 +48,8 @@ export function CreateJobScreen() {
 
   const runParse = () => {
     const parsed = parseNaturalLanguage(nl);
-    setDraft(draftFromParsed(parsed));
+    const next = draftFromParsed(parsed);
+    setDraft({ ...next, preferences: defaultClientPreferenceItems(next.location) });
     setUnderstood(true);
     setStep(parsed.category ? 7 : 1);
   };
@@ -52,6 +61,7 @@ export function CreateJobScreen() {
   }, [draft.category, draft.location, step]);
 
   const findMatches = () => {
+    if (isCorporate) switchRole('corporate');
     createJobFromDraft(draft);
     router.push('/smart-match/deck');
   };
@@ -60,11 +70,32 @@ export function CreateJobScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
         <PageHeader
-          title="Create a job"
-          subtitle="Tell SiamEZ what you need. Simulated AI extracts the brief — you can edit everything before matching."
+          title={isCorporate ? 'Create a hiring request' : 'What are you looking for?'}
+          subtitle={
+            isCorporate
+              ? 'Job requirements stay separate from company preferences. You can override the hiring profile on this job.'
+              : 'Describe the job, then tell the AI which preferences are must-have vs nice-to-have.'
+          }
           onBack={() => router.back()}
         />
         <DemoModeBanner />
+
+        {isCorporate ? (
+          <Card>
+            <Text style={{ color: colors.foreground, fontWeight: '800', marginBottom: 8 }}>Use a hiring profile</Text>
+            {corporateAccount.profiles.map((profile) => (
+              <Button
+                key={profile.id}
+                label={profile.name}
+                variant={draft.hiringProfileId === profile.id ? 'primary' : 'secondary'}
+                onPress={() => {
+                  chooseHiringProfile(profile.id);
+                  setDraft(applyProfileToDraft({ ...draft, category: profile.category }, profile));
+                }}
+              />
+            ))}
+          </Card>
+        ) : null}
 
         <Card>
           <Text style={{ color: colors.foreground, fontWeight: '800', fontSize: 16 }}>Describe it in your own words</Text>
@@ -97,7 +128,12 @@ export function CreateJobScreen() {
             return (
               <Pressable
                 key={label}
-                onPress={() => setStep(n)}
+                onPress={() => {
+                  if (n === 7 && draft.preferences.length === 0) {
+                    patch({ preferences: defaultClientPreferenceItems(draft.location) });
+                  }
+                  setStep(n);
+                }}
                 style={{
                   flex: 1,
                   height: 6,
@@ -219,6 +255,22 @@ export function CreateJobScreen() {
 
         {step === 7 ? (
           <Card>
+            <Text style={{ color: colors.foreground, fontWeight: '800', fontSize: 18 }}>
+              {isCorporate ? 'Job-specific preference overrides' : 'Set preferences & importance'}
+            </Text>
+            <Text style={{ color: colors.muted, marginTop: 8, marginBottom: 12, lineHeight: 20 }}>
+              Must-have gates the match. Preferred and nice-to-have change ranking. Flexible items can compromise.
+            </Text>
+            <PreferenceBuilder
+              tone={isCorporate ? 'corporate' : 'consumer'}
+              items={draft.preferences}
+              onChange={(preferences) => patch({ preferences })}
+            />
+          </Card>
+        ) : null}
+
+        {step === 8 ? (
+          <Card>
             <Text style={{ color: colors.foreground, fontWeight: '800', fontSize: 18 }}>Ready to match</Text>
             <Text style={{ color: colors.muted, marginTop: 8, lineHeight: 20 }}>
               {draft.category ?? 'Category'} · {draft.location || 'Location'} · {URGENCY_LABELS[draft.urgency]}
@@ -236,9 +288,18 @@ export function CreateJobScreen() {
               <Button label="Back" variant="secondary" onPress={() => setStep((n) => n - 1)} />
             </View>
           ) : null}
-          {step < 7 ? (
+          {step < 8 ? (
             <View style={{ flex: 1 }}>
-              <Button label="Next" onPress={() => setStep((n) => n + 1)} disabled={!canNext} />
+              <Button
+                label="Next"
+                onPress={() => {
+                  if (step === 6 && draft.preferences.length === 0) {
+                    patch({ preferences: defaultClientPreferenceItems(draft.location) });
+                  }
+                  setStep((n) => n + 1);
+                }}
+                disabled={!canNext}
+              />
             </View>
           ) : null}
         </View>

@@ -1,5 +1,12 @@
 import { DEMO_CLIENT } from './matching.constants';
-import type { FreelancerProfile, Job } from './matching.types';
+import { pref } from './matching.preferences';
+import type {
+  ClientPreferenceProfile,
+  CorporateAccount,
+  FreelancerPreferenceProfile,
+  FreelancerProfile,
+  Job,
+} from './matching.types';
 
 function photo(seed: string): string {
   return `https://i.pravatar.cc/800?u=${encodeURIComponent(seed)}`;
@@ -30,6 +37,8 @@ export const MOCK_FREELANCERS: FreelancerProfile[] = [
     remoteOk: false,
     responseTime: 'Usually replies in 15 minutes',
     autoAcceptThreshold: 82,
+    corporateExperience: true,
+    industries: ['Automotive'],
     reviews: [
       { id: 'r1', author: 'James D.', rating: 5, text: 'Fixed my GTS 300 the same afternoon. Clear pricing.', date: '2026-07-12' },
       { id: 'r2', author: 'Ploy S.', rating: 5, text: 'Knew exactly what the Vespa needed. Highly recommend.', date: '2026-05-02' },
@@ -100,7 +109,7 @@ export const MOCK_FREELANCERS: FreelancerProfile[] = [
     profilePhoto: photo('niran-reg'),
     verified: true,
     category: 'vehicle_registration',
-    skills: ['Vehicle registration', 'Blue book', 'Tax renewal', 'Department of Land Transport'],
+    skills: ['Vehicle registration', 'Thai vehicle registration', 'Blue book', 'Tax renewal', 'Department of Land Transport', 'DLT', 'Customer service'],
     location: 'Bangkok',
     province: 'Bangkok',
     yearsExperience: 6,
@@ -117,6 +126,8 @@ export const MOCK_FREELANCERS: FreelancerProfile[] = [
     remoteOk: false,
     responseTime: 'Usually replies in 20 minutes',
     autoAcceptThreshold: 80,
+    corporateExperience: true,
+    industries: ['Automotive', 'Logistics'],
     reviews: [{ id: 'r5', author: 'Sarah M.', rating: 5, text: 'Registration done in one morning.', date: '2026-08-01' }],
     portfolio: [{ id: 'p5', title: 'Car transfer + plates', description: 'Complete ownership transfer in Bangkok.' }],
   },
@@ -171,6 +182,8 @@ export const MOCK_FREELANCERS: FreelancerProfile[] = [
     remoteOk: false,
     responseTime: 'Usually replies in 10 minutes',
     autoAcceptThreshold: 78,
+    corporateExperience: true,
+    industries: ['Automotive', 'Logistics'],
     reviews: [{ id: 'r7', author: 'Lisa', rating: 5, text: 'Punctual every morning for school runs.', date: '2026-07-28' }],
     portfolio: [{ id: 'p7', title: 'Executive monthly driver', description: 'Sukhumvit–Silom weekday coverage.' }],
   },
@@ -687,7 +700,245 @@ export const PREBUILT_DEMO_JOBS: Job[] = [
     createdAt: '2026-09-01T02:25:00.000Z',
     sourceText: 'Need an English/Thai interpreter in Chiang Mai.',
   },
+  {
+    id: 'demo-job-corporate-registration',
+    clientId: 'corp-bangkok-auto',
+    clientName: 'Bangkok Automotive Company',
+    category: 'vehicle_registration',
+    title: 'Full-time vehicle registration specialist',
+    description:
+      'Hire a full-time vehicle registration specialist. Required: 3+ years, Thai + English, Bangkok, verified professional. DLT procedures and customer service.',
+    location: 'Bangkok',
+    province: 'Bangkok',
+    locationMode: 'onsite',
+    budgetMin: 20_000,
+    budgetMax: 30_000,
+    urgency: 'specific_date',
+    specificDate: 'October 1',
+    requiredSkills: ['Vehicle registration', 'DLT', 'Customer service', 'Thai vehicle registration'],
+    experienceRequired: '3+',
+    languages: ['Thai', 'English'],
+    remoteOk: false,
+    status: 'open',
+    createdAt: '2026-09-01T02:30:00.000Z',
+    sourceText: 'Hire a full-time vehicle registration specialist in Bangkok. 3+ years. Thai and English. Verified.',
+    hiringProfileId: 'hp-automotive',
+    preferences: [
+      pref('corp-verified', 'verified', true, 'must_have', 'fixed', 'job', 'Verified professional'),
+      pref('corp-rating', 'rating', 4.7, 'preferred', 'flexible', 'job', '4.7+ rating'),
+      pref('corp-experience-corp', 'corporate_experience', true, 'preferred', 'flexible', 'job', 'Corporate experience'),
+      pref('corp-response', 'response_time', 120, 'preferred', 'flexible', 'job', 'Fast response'),
+      pref('corp-jobs', 'completed_jobs', 100, 'nice_to_have', 'flexible', 'job', '100+ completed jobs'),
+    ],
+  },
+  {
+    id: 'demo-job-driver-flexible',
+    clientId: DEMO_CLIENT.id,
+    clientName: DEMO_CLIENT.name,
+    category: 'driver',
+    title: 'Private driver needed in Bangkok — flexible budget',
+    description: 'Need a driver in Bangkok who speaks English. Immediate availability. Budget around ฿15,000 but flexible.',
+    location: 'Bangkok',
+    province: 'Bangkok',
+    locationMode: 'onsite',
+    budgetMin: 12_000,
+    budgetMax: 15_000,
+    urgency: 'asap',
+    specificDate: null,
+    requiredSkills: ['Private driver'],
+    experienceRequired: '1+',
+    languages: [],
+    remoteOk: false,
+    status: 'open',
+    createdAt: '2026-09-01T02:35:00.000Z',
+    sourceText: 'Need a driver in Bangkok. English. Immediate. Budget 15,000 but flexible.',
+    preferences: [
+      pref('flex-budget', 'budget', 15_000, 'preferred', 'flexible', 'job', 'Budget ฿15,000'),
+      pref('flex-english', 'languages', ['English'], 'preferred', 'flexible', 'job', 'English'),
+      pref('flex-avail', 'availability', 'available_now', 'must_have', 'flexible', 'job', 'Immediate availability'),
+    ],
+  },
 ];
+
+export const DEMO_CLIENT_PROFILE: ClientPreferenceProfile = {
+  id: 'client-pref-alex',
+  kind: 'individual',
+  name: 'Alex freelancer preferences',
+  serviceCategories: ['motorbike_mechanic', 'driver', 'vehicle_registration'],
+  items: [
+    pref('c-vespa', 'skills', ['Vespa', 'Motorcycle repair'], 'must_have', 'fixed', 'user', 'Vespa experience'),
+    pref('c-bangkok', 'location', 'Bangkok', 'must_have', 'fixed', 'user', 'Bangkok'),
+    pref('c-today', 'availability', 'available_now', 'must_have', 'flexible', 'user', 'Available today'),
+    pref('c-rating', 'rating', 4.5, 'nice_to_have', 'flexible', 'user', '4.5+ rating'),
+    pref('c-english', 'languages', ['English'], 'preferred', 'flexible', 'user', 'English speaking'),
+  ],
+  learnedHints: [],
+};
+
+export const DEMO_FLEXIBLE_CLIENT_PROFILE: ClientPreferenceProfile = {
+  id: 'client-pref-flexible',
+  kind: 'individual',
+  name: 'Flexible driver preferences',
+  serviceCategories: ['driver'],
+  items: [
+    pref('f-loc', 'location', 'Bangkok', 'must_have', 'fixed', 'user', 'Bangkok'),
+    pref('f-en', 'languages', ['English'], 'preferred', 'flexible', 'user', 'English'),
+    pref('f-budget', 'budget', 15_000, 'preferred', 'flexible', 'user', 'Budget ฿15,000'),
+    pref('f-avail', 'availability', 'available_now', 'must_have', 'flexible', 'user', 'Immediate availability'),
+  ],
+  learnedHints: [],
+};
+
+export const DEMO_CORPORATE_ACCOUNT: CorporateAccount = {
+  id: 'corp-bangkok-auto',
+  companyName: 'Bangkok Automotive Company',
+  industry: 'Automotive',
+  companySize: '120 employees',
+  location: 'Bangkok',
+  departments: ['Operations', 'Customer Service', 'Fleet', 'HR'],
+  hiringManager: 'Nicha Srisuk',
+  verified: true,
+  activeProfileId: 'hp-automotive',
+  profiles: [
+    {
+      id: 'hp-automotive',
+      name: 'Automotive Staff',
+      category: 'vehicle_registration',
+      items: [
+        pref('hp-auto-exp', 'experience', '3+', 'must_have', 'flexible', 'corporate_profile', '3+ years'),
+        pref('hp-auto-lang', 'languages', ['Thai', 'English'], 'must_have', 'fixed', 'corporate_profile', 'Thai + English'),
+        pref('hp-auto-loc', 'location', 'Bangkok', 'must_have', 'fixed', 'corporate_profile', 'Bangkok'),
+        pref('hp-auto-verified', 'verified', true, 'must_have', 'fixed', 'corporate_profile', 'Verified professional'),
+        pref('hp-auto-rating', 'rating', 4.7, 'preferred', 'flexible', 'corporate_profile', '4.7+ rating'),
+        pref('hp-auto-corp', 'corporate_experience', true, 'preferred', 'flexible', 'corporate_profile', 'Corporate experience'),
+        pref('hp-auto-resp', 'response_time', 120, 'nice_to_have', 'flexible', 'corporate_profile', 'Response under 2 hours'),
+        pref('hp-auto-budget', 'budget', 30_000, 'preferred', 'flexible', 'corporate_profile', '฿20,000–฿30,000/month'),
+      ],
+    },
+    {
+      id: 'hp-drivers',
+      name: 'Drivers',
+      category: 'driver',
+      items: [
+        pref('hp-drv-loc', 'location', 'Bangkok', 'must_have', 'fixed', 'corporate_profile', 'Bangkok'),
+        pref('hp-drv-lang', 'languages', ['Thai', 'English'], 'preferred', 'flexible', 'corporate_profile', 'Thai + English'),
+        pref('hp-drv-verified', 'verified', true, 'must_have', 'fixed', 'corporate_profile', 'Verified professional'),
+        pref('hp-drv-rating', 'rating', 4.5, 'preferred', 'flexible', 'corporate_profile', '4.5+ rating'),
+      ],
+    },
+    {
+      id: 'hp-cs',
+      name: 'Customer Service Staff',
+      category: 'translator',
+      items: [
+        pref('hp-cs-lang', 'languages', ['Thai', 'English'], 'must_have', 'fixed', 'corporate_profile', 'Thai + English'),
+        pref('hp-cs-rating', 'rating', 4.6, 'preferred', 'flexible', 'corporate_profile', '4.6+ rating'),
+      ],
+    },
+    {
+      id: 'hp-admin',
+      name: 'Administrative Staff',
+      category: 'translator',
+      items: [
+        pref('hp-admin-loc', 'location', 'Bangkok', 'preferred', 'flexible', 'corporate_profile', 'Bangkok'),
+        pref('hp-admin-verified', 'verified', true, 'preferred', 'flexible', 'corporate_profile', 'Verified'),
+      ],
+    },
+    {
+      id: 'hp-construction',
+      name: 'Construction Workers',
+      category: 'construction',
+      items: [
+        pref('hp-con-exp', 'experience', '5+', 'preferred', 'flexible', 'corporate_profile', '5+ years'),
+        pref('hp-con-loc', 'location', 'Phuket', 'must_have', 'fixed', 'corporate_profile', 'Phuket'),
+      ],
+    },
+    {
+      id: 'hp-translators',
+      name: 'Translators',
+      category: 'translator',
+      items: [
+        pref('hp-tr-lang', 'languages', ['Thai', 'English'], 'must_have', 'fixed', 'corporate_profile', 'Thai + English'),
+        pref('hp-tr-cert', 'certifications', ['Certified translator'], 'preferred', 'flexible', 'corporate_profile', 'Certifications'),
+      ],
+    },
+    {
+      id: 'hp-marketing',
+      name: 'Marketing Staff',
+      category: 'marketing',
+      items: [
+        pref('hp-mkt-lang', 'languages', ['English'], 'preferred', 'flexible', 'corporate_profile', 'English'),
+        pref('hp-mkt-rating', 'rating', 4.5, 'nice_to_have', 'flexible', 'corporate_profile', '4.5+ rating'),
+      ],
+    },
+  ],
+};
+
+export const FREELANCER_WORK_PREFERENCES: Record<string, FreelancerPreferenceProfile> = {
+  'fl-mike': {
+    freelancerId: 'fl-mike',
+    services: ['motorbike_mechanic'],
+    preferredLocations: ['Bangkok', 'Nonthaburi', 'Pathum Thani'],
+    minDailyRate: 1_500,
+    minMonthlyRate: 18_000,
+    employmentTypes: ['full_time', 'contract', 'one_off', 'part_time'],
+    availability: 'available_now',
+    preferredClients: 'both',
+    preferredIndustries: ['Automotive'],
+    languages: ['Thai', 'English'],
+    travelKm: 30,
+  },
+  'fl-niran': {
+    freelancerId: 'fl-niran',
+    services: ['vehicle_registration'],
+    preferredLocations: ['Bangkok'],
+    minDailyRate: 1_200,
+    minMonthlyRate: 18_000,
+    employmentTypes: ['full_time', 'contract'],
+    availability: 'available_now',
+    preferredClients: 'corporate',
+    preferredIndustries: ['Automotive', 'Logistics'],
+    languages: ['Thai', 'English'],
+    travelKm: 25,
+  },
+  'fl-kittisak': {
+    freelancerId: 'fl-kittisak',
+    services: ['driver'],
+    preferredLocations: ['Bangkok'],
+    minDailyRate: 1_000,
+    minMonthlyRate: 16_000,
+    employmentTypes: ['full_time', 'part_time', 'one_off'],
+    availability: 'available_now',
+    preferredClients: 'both',
+    preferredIndustries: ['Automotive', 'Logistics'],
+    languages: ['Thai', 'English'],
+    travelKm: 40,
+  },
+};
+
+export const DEMO_SCENARIOS = [
+  {
+    id: 'scenario-individual',
+    role: 'client' as const,
+    jobId: 'demo-job-mechanic',
+    title: 'Individual — Vespa mechanic',
+    blurb: 'Bangkok · Vespa experience · available today · 4.5+ rating',
+  },
+  {
+    id: 'scenario-corporate',
+    role: 'corporate' as const,
+    jobId: 'demo-job-corporate-registration',
+    title: 'Corporate — vehicle registration',
+    blurb: '3+ years · Thai + English · Bangkok · verified · 4.7+ preferred',
+  },
+  {
+    id: 'scenario-flexible',
+    role: 'client' as const,
+    jobId: 'demo-job-driver-flexible',
+    title: 'Flexible client — driver',
+    blurb: 'Bangkok · English · flexible budget · immediate availability',
+  },
+] as const;
 
 export const DEMO_JOB_PRESETS = [
   { id: 'demo-job-mechanic', label: 'Motorbike mechanic · Bangkok · ASAP · ฿20,000' },
@@ -695,4 +946,6 @@ export const DEMO_JOB_PRESETS = [
   { id: 'demo-job-construction', label: 'Construction worker · Phuket · This week' },
   { id: 'demo-job-driver', label: 'Driver · Bangkok · Full time' },
   { id: 'demo-job-registration', label: 'Vehicle registration specialist · Bangkok' },
+  { id: 'demo-job-corporate-registration', label: 'Corporate hire · Vehicle registration · Bangkok' },
+  { id: 'demo-job-driver-flexible', label: 'Flexible budget · Driver · Bangkok' },
 ] as const;

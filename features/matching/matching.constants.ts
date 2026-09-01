@@ -2,9 +2,22 @@ import type {
   AvailabilityStatus,
   ExperienceLevel,
   JobUrgency,
+  PreferenceItem,
   ServiceCategoryId,
 } from './matching.types';
 
+/** Published two-sided match formula (spec §10). */
+export const MATCH_SCORE_WEIGHTS = {
+  jobFit: 0.4,
+  clientPreference: 0.2,
+  freelancerPreference: 0.15,
+  location: 0.1,
+  availability: 0.05,
+  price: 0.05,
+  reputation: 0.05,
+} as const;
+
+/** Legacy dimension mix used inside job-fit / reputation. */
 export const SCORE_WEIGHTS = {
   skills: 0.35,
   location: 0.2,
@@ -14,6 +27,15 @@ export const SCORE_WEIGHTS = {
   rating: 0.05,
   language: 0.05,
 } as const;
+
+export const IMPORTANCE_WEIGHT: Record<'must_have' | 'preferred' | 'nice_to_have' | 'not_important', number> = {
+  must_have: 1,
+  preferred: 0.65,
+  nice_to_have: 0.32,
+  not_important: 0,
+};
+
+export const BLOCKED_SCORE_CAP = 52;
 
 export const STRONG_MATCH_MIN = 60;
 
@@ -100,6 +122,37 @@ export const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
   expert: 'Expert (8+ years)',
 };
 
+export const IMPORTANCE_LABELS = {
+  must_have: 'Must have',
+  preferred: 'Preferred',
+  nice_to_have: 'Nice to have',
+  not_important: 'Not important',
+} as const;
+
+export const FLEXIBILITY_LABELS = {
+  fixed: 'Not flexible',
+  flexible: 'Flexible',
+} as const;
+
+export const PIPELINE_STAGES = ['discovered', 'shortlisted', 'contacted', 'interview', 'offer', 'hired'] as const;
+
+export const PIPELINE_LABELS: Record<(typeof PIPELINE_STAGES)[number] | 'rejected', string> = {
+  discovered: 'Discovered',
+  shortlisted: 'Shortlisted',
+  contacted: 'Contacted',
+  interview: 'Interview',
+  offer: 'Offer',
+  hired: 'Hired',
+  rejected: 'Rejected',
+};
+
+export const EMPLOYMENT_LABELS = {
+  full_time: 'Full time',
+  part_time: 'Part time',
+  contract: 'Contract',
+  one_off: 'One-off jobs',
+} as const;
+
 export const CITY_ALIASES: Record<string, { city: string; province: string }> = {
   bangkok: { city: 'Bangkok', province: 'Bangkok' },
   'krung thep': { city: 'Bangkok', province: 'Bangkok' },
@@ -145,4 +198,6 @@ export const EMPTY_JOB_DRAFT = {
   languages: ['English', 'Thai'],
   remoteOk: false,
   sourceText: '',
+  preferences: [] as PreferenceItem[],
+  hiringProfileId: null as string | null,
 };

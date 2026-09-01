@@ -12,6 +12,7 @@ type MatchActionBarProps = {
   onLike: () => void;
   onSuper: () => void;
   disableUndo?: boolean;
+  mode?: 'client' | 'corporate' | 'freelancer';
 };
 
 function CircleButton({
@@ -51,22 +52,23 @@ function CircleButton({
   );
 }
 
-export function MatchActionBar({ onUndo, onPass, onSave, onLike, onSuper, disableUndo }: MatchActionBarProps) {
+export function MatchActionBar({ onUndo, onPass, onSave, onLike, onSuper, disableUndo, mode = 'client' }: MatchActionBarProps) {
+  const corporate = mode === 'corporate';
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, paddingVertical: 8 }}>
       <CircleButton color={siam.yellow.DEFAULT} size={46} onPress={onUndo} label="Undo last swipe">
         <RotateCcw size={18} color={disableUndo ? '#94a3b8' : siam.yellow.dark} />
       </CircleButton>
-      <CircleButton color="#ef4444" size={56} onPress={onPass} label="Pass">
+      <CircleButton color="#ef4444" size={56} onPress={onPass} label={corporate ? 'Reject' : 'Pass'}>
         <X size={26} color="#ef4444" strokeWidth={2.6} />
       </CircleButton>
-      <CircleButton color={siam.blue.DEFAULT} size={46} onPress={onSave} label="Save profile">
+      <CircleButton color={siam.blue.DEFAULT} size={46} onPress={onSave} label={corporate ? 'Pipeline' : 'Save profile'}>
         <Star size={18} color={siam.blue.DEFAULT} />
       </CircleButton>
-      <CircleButton color="#16a34a" size={56} onPress={onLike} label="Like">
+      <CircleButton color="#16a34a" size={56} onPress={onLike} label={corporate ? 'Shortlist' : 'Like'}>
         <Heart size={24} color="#16a34a" fill="#16a34a" />
       </CircleButton>
-      <CircleButton color="#7c3aed" size={46} onPress={onSuper} label="Priority match">
+      <CircleButton color="#7c3aed" size={46} onPress={onSuper} label={corporate ? 'Contact' : 'Priority match'}>
         <Zap size={18} color="#7c3aed" fill="#7c3aed" />
       </CircleButton>
     </View>

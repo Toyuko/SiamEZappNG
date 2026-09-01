@@ -44,7 +44,9 @@ export function MatchCardFace({ item, stamp, onOpenProfile }: MatchCardFaceProps
             marginBottom: 10,
           }}
         >
-          <Text style={{ color: '#1f2937', fontWeight: '800', fontSize: 13 }}>{result.score}% MATCH</Text>
+          <Text style={{ color: '#1f2937', fontWeight: '800', fontSize: 13 }}>
+            {result.blocked ? 'MATCH BLOCKED' : `${result.score}% MATCH`}
+          </Text>
         </View>
         <Pressable onPress={onOpenProfile} accessibilityRole="button" accessibilityLabel={`View ${freelancer.name} profile`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -77,6 +79,19 @@ export function MatchCardFace({ item, stamp, onOpenProfile }: MatchCardFaceProps
           <Badge icon={<Text style={{ color: '#fff' }}>฿</Text>} label={formatRate(freelancer)} />
           <Badge icon={<MapPin size={13} color="#fff" />} label={freelancer.location} />
           <Badge icon={<Briefcase size={13} color="#fff" />} label={`${freelancer.yearsExperience} yrs exp.`} />
+        </View>
+        <View style={{ marginTop: 12, gap: 4 }}>
+          <Text style={{ color: siam.yellow.DEFAULT, fontWeight: '800', fontSize: 12 }}>AI MATCH REASONS</Text>
+          {(result.blocked ? result.blockReasons : result.reasons).slice(0, 5).map((reason) => (
+            <Text key={reason} style={{ color: '#fff', fontSize: 12 }}>
+              {result.blocked ? '✕' : '✓'} {reason}
+            </Text>
+          ))}
+          {result.conflicts.slice(0, 2).map((conflict) => (
+            <Text key={conflict.field} style={{ color: siam.yellow.DEFAULT, fontSize: 12 }}>
+              ⚠ {conflict.detail}
+            </Text>
+          ))}
         </View>
       </LinearGradient>
 

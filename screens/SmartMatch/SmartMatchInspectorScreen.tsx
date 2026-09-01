@@ -23,17 +23,18 @@ export function SmartMatchInspectorScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.stackLg, paddingBottom: 40 }}>
         <PageHeader
           title="Matching inspector"
-          subtitle="Developer/demo view of the weighted scoring engine."
+          subtitle="Developer/demo view of the two-sided preference engine."
           onBack={() => router.back()}
         />
         <DemoModeBanner />
         <Text style={{ color: colors.muted }}>
-          Weights: skills 35%, location 20%, experience 15%, availability 10%, budget 10%, rating 5%, language 5%.
+          Weights: job fit 40%, client preferences 20%, freelancer preferences 15%, location 10%, availability 5%,
+          price 5%, reputation 5%. MUST HAVE + not flexible = match blocked (score capped).
         </Text>
-        {role === 'client' ? (
-          <InspectorPanel items={clientRows} jobTitle={job?.title} />
-        ) : (
+        {role === 'freelancer' ? (
           <InspectorPanel items={freelancerRows} jobTitle="Jobs ranked for your persona" />
+        ) : (
+          <InspectorPanel items={clientRows} jobTitle={job?.title} />
         )}
         <Button label="Back to Smart Match" variant="secondary" onPress={() => router.push('/smart-match')} />
       </ScrollView>

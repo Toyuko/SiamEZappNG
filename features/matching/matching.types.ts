@@ -34,7 +34,105 @@ export type MatchActionKind = 'pending' | 'liked' | 'passed' | 'super_liked';
 
 export type MatchStatus = 'pending' | 'liked' | 'passed' | 'matched' | 'expired';
 
-export type DemoRole = 'client' | 'freelancer';
+export type DemoRole = 'client' | 'freelancer' | 'corporate';
+
+export type PreferenceImportance = 'must_have' | 'preferred' | 'nice_to_have' | 'not_important';
+
+export type PreferenceFlexibility = 'fixed' | 'flexible';
+
+export type PreferenceSource = 'user' | 'corporate_profile' | 'job' | 'learned';
+
+export type PreferenceField =
+  | 'category'
+  | 'skills'
+  | 'location'
+  | 'experience'
+  | 'languages'
+  | 'rating'
+  | 'verified'
+  | 'completed_jobs'
+  | 'response_time'
+  | 'availability'
+  | 'budget'
+  | 'certifications'
+  | 'corporate_experience'
+  | 'travel'
+  | 'employment_type'
+  | 'client_type'
+  | 'industry';
+
+export type PreferenceItem = {
+  id: string;
+  field: PreferenceField;
+  value: string | number | boolean | string[];
+  importance: PreferenceImportance;
+  flexibility: PreferenceFlexibility;
+  source: PreferenceSource;
+  label: string;
+};
+
+export type LearnedHint = {
+  id: string;
+  text: string;
+  suggested: PreferenceItem;
+  evidence: string;
+  confirmed: boolean;
+};
+
+export type ClientPreferenceProfile = {
+  id: string;
+  kind: 'individual';
+  name: string;
+  serviceCategories: ServiceCategoryId[];
+  items: PreferenceItem[];
+  learnedHints: LearnedHint[];
+};
+
+export type CorporateHiringProfile = {
+  id: string;
+  name: string;
+  category: ServiceCategoryId;
+  items: PreferenceItem[];
+};
+
+export type CorporateAccount = {
+  id: string;
+  companyName: string;
+  industry: string;
+  companySize: string;
+  location: string;
+  departments: string[];
+  hiringManager: string;
+  verified: boolean;
+  profiles: CorporateHiringProfile[];
+  activeProfileId: string | null;
+};
+
+export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'one_off';
+
+export type PreferredClientKind = 'individuals' | 'corporate' | 'both';
+
+export type FreelancerPreferenceProfile = {
+  freelancerId: string;
+  services: ServiceCategoryId[];
+  preferredLocations: string[];
+  minDailyRate: number | null;
+  minMonthlyRate: number | null;
+  employmentTypes: EmploymentType[];
+  availability: AvailabilityStatus;
+  preferredClients: PreferredClientKind;
+  preferredIndustries: string[];
+  languages: string[];
+  travelKm: number | null;
+};
+
+export type HiringPipelineStage = 'discovered' | 'shortlisted' | 'contacted' | 'interview' | 'offer' | 'hired' | 'rejected';
+
+export type MatchConflict = {
+  field: PreferenceField;
+  label: string;
+  detail: string;
+};
 
 export type ScoreBreakdown = {
   skills: number;
@@ -44,6 +142,11 @@ export type ScoreBreakdown = {
   budget: number;
   rating: number;
   language: number;
+  jobFit: number;
+  clientPreference: number;
+  freelancerPreference: number;
+  price: number;
+  reputation: number;
 };
 
 export type MatchScoreResult = {
@@ -52,6 +155,9 @@ export type MatchScoreResult = {
   reasons: string[];
   breakdown: ScoreBreakdown;
   summary: string;
+  blocked: boolean;
+  blockReasons: string[];
+  conflicts: MatchConflict[];
 };
 
 export type FreelancerReview = {
@@ -95,6 +201,8 @@ export type FreelancerProfile = {
   responseTime: string;
   /** Demo: auto-accept client likes at or above this score. */
   autoAcceptThreshold: number;
+  corporateExperience?: boolean;
+  industries?: string[];
 };
 
 export type Job = {
@@ -118,6 +226,8 @@ export type Job = {
   status: 'open' | 'matched' | 'closed';
   createdAt: string;
   sourceText?: string;
+  preferences?: PreferenceItem[];
+  hiringProfileId?: string | null;
 };
 
 export type MatchRecord = {
@@ -177,6 +287,8 @@ export type JobDraft = {
   languages: string[];
   remoteOk: boolean;
   sourceText: string;
+  preferences: PreferenceItem[];
+  hiringProfileId: string | null;
 };
 
 export type MatchFilters = {
@@ -220,6 +332,12 @@ export type CelebrationPayload = {
 export type ScoringOptions = {
   /** Deterministic ±1.5 jitter so similar jobs do not always rank identically. */
   jitter?: boolean;
+  clientProfile?: ClientPreferenceProfile | null;
+  corporateProfile?: CorporateHiringProfile | null;
+  freelancerProfile?: FreelancerPreferenceProfile | null;
+  freelancerProfiles?: Record<string, FreelancerPreferenceProfile>;
+  jobPreferences?: PreferenceItem[];
+  accountKind?: DemoRole;
 };
 
 export type MatchExplanation = {
@@ -227,12 +345,17 @@ export type MatchExplanation = {
   breakdown: ScoreBreakdown;
   reasons: string[];
   summary: string;
+  blocked: boolean;
+  blockReasons: string[];
+  conflicts: MatchConflict[];
 };
 
 export interface MatchingProvider {
   parseJob(description: string): ParsedJob;
   matchJob(job: Job, freelancers: FreelancerProfile[], options?: ScoringOptions): RankedMatch[];
   matchFreelancer(freelancer: FreelancerProfile, jobs: Job[], options?: ScoringOptions): RankedMatch[];
+  matchClient(job: Job, freelancers: FreelancerProfile[], options?: ScoringOptions): RankedMatch[];
+  matchCorporate(job: Job, freelancers: FreelancerProfile[], options?: ScoringOptions): RankedMatch[];
   explainMatch(job: Job, freelancer: FreelancerProfile, options?: ScoringOptions): MatchExplanation;
   calculateScore(job: Job, freelancer: FreelancerProfile, options?: ScoringOptions): MatchScoreResult;
 }

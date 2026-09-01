@@ -1,4 +1,5 @@
-import { CATEGORY_LABELS, CITY_ALIASES, EXPERIENCE_YEARS, RELATED_CATEGORIES, SCORE_WEIGHTS } from './matching.constants';
+import { CATEGORY_LABELS, CITY_ALIASES, EXPERIENCE_YEARS, MATCH_SCORE_WEIGHTS, RELATED_CATEGORIES } from './matching.constants';
+import { applyGate, resolvePreferences, scoreClientPreferences, scoreFreelancerPreferences } from './matching.preferences';
 import type {
   AvailabilityStatus,
   ExperienceLevel,
@@ -193,7 +194,15 @@ function stableJitter(seed: string): number {
   return n / 10 - 1.5;
 }
 
-export function buildReasons(job: Job, freelancer: FreelancerProfile, breakdown: ScoreBreakdown): string[] {
+export function buildReasons(
+  job: Job,
+  freelancer: FreelancerProfile,
+  breakdown: ScoreBreakdown,
+  extras: { hits: string[]; blocked: boolean; blockReasons: string[]; conflicts: { detail: string }[] },
+): string[] {
+  if (extras.blocked) {
+    return extras.blockReasons.slice(0, 5);
+  }
   const reasons: string[] = [];
   if (breakdown.skills >= 85) {
     reasons.push(
@@ -239,11 +248,20 @@ export function buildReasons(job: Job, freelancer: FreelancerProfile, breakdown:
     reasons.push('Verified SiamEZ professional');
   }
 
-  return reasons.slice(0, 5);
+  for (const hit of extras.hits) {
+    if (!reasons.some((reason) => reason.toLowerCase().includes(hit.toLowerCase().slice(0, 12)))) {
+      reasons.push(hit);
+    }
+  }
+
+  return reasons.slice(0, 6);
 }
 
-export function buildSummary(freelancer: FreelancerProfile, job: Job, result: Pick<MatchScoreResult, 'score' | 'reasons'>): string {
-  const highlights = result.reasons.slice(0, 3).join(', ').replace(/^\w/, (c) => c) || 'a relevant skill set';
+export function buildSummary(freelancer: FreelancerProfile, job: Job, result: Pick<MatchScoreResult, 'score' | 'reasons' | 'blocked' | 'blockReasons'>): string {
+  if (result.blocked) {
+    return `${freelancer.name} does not meet a required hiring criterion: ${result.blockReasons[0] ?? 'hard requirement missing'}.`;
+  }
+  const highlights = result.reasons.slice(0, 3).join(', ') || 'a relevant skill set';
   return `${freelancer.name} is ${result.score}% compatible because ${highlights.toLowerCase()}.`;
 }
 
@@ -252,28 +270,64 @@ export function calculateMatchScore(
   freelancer: FreelancerProfile,
   options: ScoringOptions = {},
 ): MatchScoreResult {
+  const resolved = resolvePreferences(options, job);
+  const gates = scoreClientPreferences(resolved, job, freelancer);
+  const clientItems = resolved.filter((item) => item.source !== 'job');
+  const clientLayer =
+    clientItems.length === 0
+      ? { score: 80, blocked: false, blockReasons: [] as string[], conflicts: gates.conflicts, hits: [] as string[], misses: [] as string[] }
+      : scoreClientPreferences(clientItems, job, freelancer);
+  const preference = {
+    score: clientLayer.score,
+    blocked: gates.blocked,
+    blockReasons: gates.blockReasons,
+    conflicts: [...clientLayer.conflicts, ...gates.conflicts.filter((item) => !clientLayer.conflicts.some((c) => c.field === item.field))],
+    hits: [...clientLayer.hits, ...gates.hits],
+    misses: [...clientLayer.misses, ...gates.misses],
+  };
+  const freelancerPref = scoreFreelancerPreferences(
+    options.freelancerProfile ?? options.freelancerProfiles?.[freelancer.id],
+    job,
+    freelancer,
+  );
+
+  const skills = scoreSkills(job, freelancer);
+  const location = scoreLocation(job, freelancer);
+  const experience = scoreExperience(job, freelancer);
+  const availability = scoreAvailability(job, freelancer);
+  const budget = scoreBudget(job, freelancer);
+  const rating = scoreRating(freelancer);
+  const language = scoreLanguage(job, freelancer);
+
+  const jobFit = roundScore(skills * 0.55 + experience * 0.25 + language * 0.2);
   const breakdown: ScoreBreakdown = {
-    skills: scoreSkills(job, freelancer),
-    location: scoreLocation(job, freelancer),
-    experience: scoreExperience(job, freelancer),
-    availability: scoreAvailability(job, freelancer),
-    budget: scoreBudget(job, freelancer),
-    rating: scoreRating(freelancer),
-    language: scoreLanguage(job, freelancer),
+    skills,
+    location,
+    experience,
+    availability,
+    budget,
+    rating,
+    language,
+    jobFit,
+    clientPreference: preference.score,
+    freelancerPreference: freelancerPref,
+    price: budget,
+    reputation: rating,
   };
 
   const weighted =
-    breakdown.skills * SCORE_WEIGHTS.skills +
-    breakdown.location * SCORE_WEIGHTS.location +
-    breakdown.experience * SCORE_WEIGHTS.experience +
-    breakdown.availability * SCORE_WEIGHTS.availability +
-    breakdown.budget * SCORE_WEIGHTS.budget +
-    breakdown.rating * SCORE_WEIGHTS.rating +
-    breakdown.language * SCORE_WEIGHTS.language;
+    breakdown.jobFit * MATCH_SCORE_WEIGHTS.jobFit +
+    breakdown.clientPreference * MATCH_SCORE_WEIGHTS.clientPreference +
+    breakdown.freelancerPreference * MATCH_SCORE_WEIGHTS.freelancerPreference +
+    breakdown.location * MATCH_SCORE_WEIGHTS.location +
+    breakdown.availability * MATCH_SCORE_WEIGHTS.availability +
+    breakdown.price * MATCH_SCORE_WEIGHTS.price +
+    breakdown.reputation * MATCH_SCORE_WEIGHTS.reputation;
 
   const jitter = options.jitter === false ? 0 : stableJitter(`${freelancer.id}:${job.category}:${job.location}:${job.description}`);
-  const score = roundScore(weighted + jitter);
-  const reasons = buildReasons(job, freelancer, breakdown);
+  const raw = applyGate(weighted + jitter, preference.blocked);
+  const score = roundScore(raw);
+  const reasons = buildReasons(job, freelancer, breakdown, preference);
   const confidence = clampScore(score / 100);
 
   return {
@@ -281,7 +335,10 @@ export function calculateMatchScore(
     confidence: Math.round(confidence * 100) / 100,
     reasons,
     breakdown,
-    summary: buildSummary(freelancer, job, { score, reasons }),
+    summary: buildSummary(freelancer, job, { score, reasons, blocked: preference.blocked, blockReasons: preference.blockReasons }),
+    blocked: preference.blocked,
+    blockReasons: preference.blockReasons,
+    conflicts: preference.conflicts,
   };
 }
 

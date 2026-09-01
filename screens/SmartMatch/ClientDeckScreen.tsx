@@ -27,7 +27,11 @@ export function ClientDeckScreen() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [action, setAction] = useState<{ type: 'like' | 'pass' | 'super'; token: number } | null>(null);
 
+  const role = useMatchingStore((s) => s.role);
   const currentJobId = useMatchingStore((s) => s.currentJobId);
+  const learnedHints = useMatchingStore((s) => s.clientProfile.learnedHints);
+  const pendingHints = learnedHints.filter((hint) => !hint.confirmed);
+  const acceptLearnedHint = useMatchingStore((s) => s.acceptLearnedHint);
   const job = useMatchingStore((s) => s.jobs.find((item) => item.id === s.currentJobId) ?? null);
   const filters = useMatchingStore((s) => s.filters);
   const celebration = useMatchingStore((s) => s.lastCelebration);
@@ -49,8 +53,8 @@ export function ClientDeckScreen() {
   const headerCopy = useMemo(() => {
     if (!job) return 'Create a job to generate matches.';
     if (allRanked.length === 0) return 'No professionals left in this deck.';
-    if (strong.length === 0) return 'No strong matches found.';
-    return `AI found ${strong.length} potential match${strong.length === 1 ? '' : 'es'}`;
+    if (strong.length === 0) return 'No strong matches for your hiring criteria.';
+    return `AI ranked ${strong.length} professional${strong.length === 1 ? '' : 's'} against your requirements`;
   }, [allRanked.length, job, strong.length]);
 
   if (!job || !currentJobId) {
@@ -117,10 +121,17 @@ export function ClientDeckScreen() {
       </View>
       {deck.length > 0 ? (
         <MatchActionBar
+          mode={role === 'corporate' ? 'corporate' : 'client'}
           disableUndo={history.length === 0}
           onUndo={() => undo()}
           onPass={() => setAction({ type: 'pass', token: Date.now() })}
-          onSave={() => current && saveProfile(current.freelancer.id)}
+          onSave={() => {
+            if (role === 'corporate') {
+              router.push('/smart-match/pipeline');
+              return;
+            }
+            current && saveProfile(current.freelancer.id);
+          }}
           onLike={() => setAction({ type: 'like', token: Date.now() })}
           onSuper={() => setAction({ type: 'super', token: Date.now() })}
         />
@@ -131,8 +142,21 @@ export function ClientDeckScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.stackLg, paddingBottom: 40 }}>
-        <PageHeader title="AI matches" subtitle={headerCopy} onBack={() => router.back()} badge="DEMO MODE" />
+        <PageHeader
+          title={role === 'corporate' ? 'Candidate shortlist' : 'AI-ranked professionals'}
+          subtitle={headerCopy}
+          onBack={() => router.back()}
+          badge="DEMO MODE"
+        />
         <DemoModeBanner onReset={() => resetDemo()} />
+        {pendingHints.map((hint) => (
+          <Card key={hint.id}>
+            <Text style={{ color: colors.foreground, fontWeight: '700' }}>{hint.text}</Text>
+            <View style={{ marginTop: 10 }}>
+              <Button label="Use this preference" onPress={() => acceptLearnedHint(hint.id)} />
+            </View>
+          </Card>
+        ))}
 
         {desktop ? (
           <View style={{ flexDirection: 'row', gap: 16, alignItems: 'flex-start', minHeight: 640 }}>
