@@ -33,13 +33,13 @@ const QUICK_ACTIONS: QuickAction[] = [
   { key: 'book', label: 'tabs.book', icon: 'calendar-outline', href: '/(tabs)/book' },
   { key: 'cases', label: 'tabs.cases', icon: 'briefcase-outline', href: '/(tabs)/cases' },
   { key: 'documents', label: 'tabs.documents', icon: 'document-text-outline', href: '/(tabs)/documents' },
-  { key: 'freelancers', label: 'home.hub.freelancers', icon: 'people-outline', href: '/freelancers' },
+  { key: 'smart-match', label: 'Smart Match', icon: 'sparkles-outline', href: '/smart-match' },
   { key: 'sales', label: 'tabs.sales', icon: 'car-outline', href: '/(tabs)/sales' },
   { key: 'real-estate', label: 'tabs.realEstate', icon: 'home-outline', href: '/(tabs)/real-estate' },
   { key: 'concierge', label: 'tabs.more', icon: 'chatbubbles-outline', href: '/(tabs)/concierge' },
 ];
 
-const SOFT_LAUNCH_QUICK_KEYS = new Set(['services', 'sales', 'real-estate', 'cases', 'documents', 'concierge']);
+const SOFT_LAUNCH_QUICK_KEYS = new Set(['services', 'sales', 'real-estate', 'cases', 'documents', 'concierge', 'smart-match']);
 
 function firstName(displayName: string): string {
   const trimmed = displayName.trim();
@@ -228,7 +228,9 @@ export function MemberHomeContent() {
               key={action.key}
               onPress={() => router.push(action.href as never)}
               accessibilityRole="button"
-              accessibilityLabel={action.key === 'concierge' ? 'Ask SiamEZ' : t(action.label)}
+              accessibilityLabel={
+                action.key === 'concierge' ? 'Ask SiamEZ' : action.key === 'smart-match' ? 'SiamEZ Smart Match' : t(action.label)
+              }
               className="items-center justify-center"
               style={({ pressed }) => ({
                 width: '31%',
@@ -249,7 +251,7 @@ export function MemberHomeContent() {
                 numberOfLines={2}
                 style={{ color: colors.foreground }}
               >
-                {action.key === 'concierge' ? 'Ask SiamEZ' : t(action.label)}
+                {action.key === 'concierge' ? 'Ask SiamEZ' : action.key === 'smart-match' ? 'Smart Match' : t(action.label)}
               </Text>
             </Pressable>
           ))}

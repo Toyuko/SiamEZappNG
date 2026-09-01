@@ -152,6 +152,7 @@ export function FreelancerDirectoryScreen() {
               title={t('freelancer.publicProfile.directory.title')}
               subtitle={t('freelancer.publicProfile.directory.subtitle')}
               onBack={() => router.back()}
+              primaryCta={{ label: 'Try AI Matching', onPress: () => router.push('/smart-match') }}
             />
             <Input
               value={query}

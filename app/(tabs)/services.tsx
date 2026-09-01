@@ -80,6 +80,27 @@ export default function ServicesScreen() {
       <View className="flex-1" style={{ paddingHorizontal: spacing.screenPaddingX }}>
         <View style={{ gap: spacing.stackMd, paddingTop: spacing.stackSm, paddingBottom: spacing.stackSm }}>
           <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
+          <Pressable
+            onPress={() => router.push('/smart-match')}
+            accessibilityRole="button"
+            accessibilityLabel="Try AI Matching"
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.9 : 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              paddingHorizontal: 14,
+              paddingVertical: 10,
+              borderRadius: radius.button,
+              backgroundColor: colors.primary,
+            })}
+          >
+            <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
+              Smart Match · Try AI Matching
+            </Text>
+            <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
+          </Pressable>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
             <View style={{ flex: 1 }}>

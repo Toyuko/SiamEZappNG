@@ -134,6 +134,14 @@ export default function LoginScreen() {
                   router.replace('/(tabs)/services');
                 }}
               />
+              <SocialButton
+                kind="guest"
+                label="Try AI Matching"
+                onPress={() => {
+                  continueAsGuest();
+                  router.replace('/smart-match');
+                }}
+              />
 
               <OrDivider label={t('auth.orContinueWith')} />
 

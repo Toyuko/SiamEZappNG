@@ -32,7 +32,8 @@ type MoreLink = {
     | '/(tabs)/contact'
     | '/(tabs)/profile'
     | '/freelancers'
-    | '/freelancers/settings';
+    | '/freelancers/settings'
+    | '/smart-match';
   /** Soft-launch visibility — default true when omitted. */
   softLaunch?: boolean;
   guestOnly?: boolean;
@@ -45,6 +46,12 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'AI Concierge for services, vehicles, and property',
     icon: 'chatbubbles-outline',
     path: '/(tabs)/concierge',
+  },
+  {
+    label: 'SiamEZ Smart Match',
+    subtitle: 'AI job ↔ freelancer matching (demo)',
+    icon: 'sparkles-outline',
+    path: '/smart-match',
   },
   {
     label: 'Dashboard',

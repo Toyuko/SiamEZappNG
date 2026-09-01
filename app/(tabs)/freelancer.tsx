@@ -110,6 +110,12 @@ export default function FreelancerScreen() {
               fullWidth={false}
               onPress={() => router.push('/freelancers')}
             />
+            <Button
+              label="Smart Job Matches"
+              size="md"
+              fullWidth={false}
+              onPress={() => router.push('/smart-match/freelancer-deck')}
+            />
           </View>
         </View>
 
