@@ -10,7 +10,7 @@ export type PickedImage = {
 };
 
 export async function getLocalFileSize(uri: string): Promise<number> {
-  const info = await FileSystemLegacy.getInfoAsync(uri, { size: true });
+  const info = await FileSystemLegacy.getInfoAsync(uri);
   if (!info.exists || !('size' in info)) {
     return 0;
   }

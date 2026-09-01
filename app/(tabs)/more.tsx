@@ -5,41 +5,124 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '../../components/ui/Card';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+import { useAuthStore } from '../../store/auth-store';
 
 type MoreLink = {
   label: string;
   subtitle: string;
   icon: keyof typeof Ionicons.glyphMap;
-  path: '/(tabs)/dashboard' | '/(tabs)/documents' | '/(tabs)/services' | '/(tabs)/sales' | '/(tabs)/contact' | '/(tabs)/profile';
+  path:
+    | '/(tabs)/dashboard'
+    | '/(tabs)/documents'
+    | '/(tabs)/goals'
+    | '/(tabs)/life-events'
+    | '/(tabs)/saved'
+    | '/(tabs)/concierge'
+    | '/(tabs)/workflows'
+    | '/(tabs)/search'
+    | '/(tabs)/seller'
+    | '/(tabs)/services'
+    | '/(tabs)/sales'
+    | '/(tabs)/real-estate'
+    | '/(tabs)/book'
+    | '/(tabs)/contact'
+    | '/(tabs)/profile'
+    | '/freelancers'
+    | '/freelancers/settings'
+    | '/smart-match';
+  /** Soft-launch visibility — default true when omitted. */
+  softLaunch?: boolean;
+  guestOnly?: boolean;
+  memberOnly?: boolean;
 };
 
 const MORE_LINKS: MoreLink[] = [
+  {
+    label: 'Ask SiamEZ',
+    subtitle: 'AI Concierge for services, vehicles, and property',
+    icon: 'chatbubbles-outline',
+    path: '/(tabs)/concierge',
+  },
+  {
+    label: 'SiamEZ Smart Match',
+    subtitle: 'AI job ↔ freelancer matching (demo)',
+    icon: 'sparkles-outline',
+    path: '/smart-match',
+  },
   {
     label: 'Dashboard',
     subtitle: 'Overview of your account',
     icon: 'speedometer-outline',
     path: '/(tabs)/dashboard',
+    memberOnly: true,
+  },
+  {
+    label: 'Search',
+    subtitle: 'Services, vehicles, and property',
+    icon: 'search-outline',
+    path: '/(tabs)/search',
+  },
+  {
+    label: 'Book a service',
+    subtitle: 'Start a booking wizard',
+    icon: 'calendar-outline',
+    path: '/(tabs)/book',
+  },
+  {
+    label: 'Seller listings',
+    subtitle: 'Manage vehicle and property listings',
+    icon: 'storefront-outline',
+    path: '/(tabs)/seller',
+    memberOnly: true,
   },
   {
     label: 'Documents',
     subtitle: 'Upload and manage files',
     icon: 'document-text-outline',
     path: '/(tabs)/documents',
+    memberOnly: true,
   },
   {
-    label: 'Services',
-    subtitle: 'Browse available services',
-    icon: 'grid-outline',
-    path: '/(tabs)/services',
+    label: 'Goals',
+    subtitle: 'Track goals synced with the Platform',
+    icon: 'flag-outline',
+    path: '/(tabs)/goals',
+    memberOnly: true,
+    softLaunch: false,
   },
   {
-    label: 'Sales Inventory',
-    subtitle: 'Browse, add, and manage listings',
-    icon: 'car-sport-outline',
-    path: '/(tabs)/sales',
+    label: 'Life Events',
+    subtitle: 'Journeys, checklists, and progress',
+    icon: 'trail-sign-outline',
+    path: '/(tabs)/life-events',
+    memberOnly: true,
+    softLaunch: false,
+  },
+  {
+    label: 'Workflows',
+    subtitle: 'Inspection, viewing, and template runs',
+    icon: 'git-network-outline',
+    path: '/(tabs)/workflows',
+    memberOnly: true,
+    softLaunch: false,
+  },
+  {
+    label: 'Saved & Compare',
+    subtitle: 'Buyer hub + saved searches',
+    icon: 'bookmark-outline',
+    path: '/(tabs)/saved',
+    memberOnly: true,
+    softLaunch: false,
+  },
+  {
+    label: 'Freelancers',
+    subtitle: 'Browse public freelancer profiles',
+    icon: 'people-outline',
+    path: '/freelancers',
   },
   {
     label: 'Contact',
@@ -52,21 +135,46 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'Preferences and account settings',
     icon: 'person-outline',
     path: '/(tabs)/profile',
+    memberOnly: true,
   },
 ];
 
 export default function MoreScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const isMember = Boolean(accessToken) && !isGuest;
+
+  const links = MORE_LINKS.filter((item) => {
+    if (item.memberOnly && !isMember) return false;
+    if (item.guestOnly && !isGuest) return false;
+    if (softLaunch.enabled && item.softLaunch === false) return false;
+    if (softLaunch.enabled && item.path === '/(tabs)/seller' && !softLaunch.showSellerListings) {
+      return false;
+    }
+    if (item.path === '/freelancers' && !softLaunch.showFreelancers) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader title={t('tabs.more')} subtitle="Everything else in one place." />
+        <PageHeader
+          title={t('tabs.more')}
+          subtitle={
+            softLaunch.enabled
+              ? 'Services, vehicles, property, and Ask SiamEZ.'
+              : 'Everything else in one place.'
+          }
+        />
 
         <Card>
           <View className="gap-2">
-            {MORE_LINKS.map((item) => (
+            {links.map((item) => (
               <Pressable
                 key={item.path}
                 onPress={() => router.push(item.path)}

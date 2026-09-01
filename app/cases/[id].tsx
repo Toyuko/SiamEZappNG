@@ -9,7 +9,9 @@ import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useCase } from '../../hooks/use-case';
+import { formatDisplayDate } from '../../lib/datetime/format';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
@@ -18,6 +20,7 @@ export default function CaseDetailScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const language = useLanguageStore((state) => state.language);
   const { isGuest, accessToken } = useAuthStore();
   const { data, isLoading, isError, refetch, error } = useCase(id);
 
@@ -50,6 +53,11 @@ export default function CaseDetailScreen() {
           <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
             {t('cases.status')}: {String(data?.status ?? 'UNKNOWN')}
           </Text>
+          {data?.updatedAt ? (
+            <Text className="mt-2 text-xs" style={{ color: colors.muted }}>
+              {t('cases.lastUpdated')}: {formatDisplayDate(data.updatedAt, language)}
+            </Text>
+          ) : null}
           <View className="mt-4">
             <Button
               label={t('tracking.pageTitle')}

@@ -4,7 +4,7 @@ import { fuzzySearchServices, resolveVoiceIntent } from '../../features/services
 
 describe('fuzzySearchServices', () => {
   it('returns all services for empty query', () => {
-    expect(fuzzySearchServices('')).toHaveLength(12);
+    expect(fuzzySearchServices('')).toHaveLength(13);
   });
 
   it('matches title with typos', () => {
@@ -20,6 +20,11 @@ describe('fuzzySearchServices', () => {
   it('matches keyword aliases', () => {
     const results = fuzzySearchServices('airport transfer');
     expect(results.some((item) => item.slug === 'transportation-services')).toBe(true);
+  });
+
+  it('matches real estate aliases', () => {
+    const results = fuzzySearchServices('อสังหาริมทรัพย์');
+    expect(results.some((item) => item.slug === 'real-estate-services')).toBe(true);
   });
 });
 

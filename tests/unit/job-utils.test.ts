@@ -8,6 +8,9 @@ describe('freelancer job utils', () => {
   it('maps web API roles to mobile portal roles', () => {
     expect(mapApiRoleToUserRole('freelancer')).toBe('freelancer');
     expect(mapApiRoleToUserRole('customer')).toBe('client');
+    expect(mapApiRoleToUserRole('corporate')).toBe('corporate');
+    expect(mapApiRoleToUserRole('CORPORATE')).toBe('corporate');
+    expect(mapApiRoleToUserRole('company')).toBe('corporate');
     expect(mapApiRoleToUserRole('admin')).toBeNull();
   });
 

@@ -1,0 +1,11 @@
+import type { ServiceItem } from './services.types';
+
+/** Fisher–Yates shuffle — returns a new array without mutating the input. */
+export function shuffleServices(services: ServiceItem[]): ServiceItem[] {
+  const copy = [...services];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}

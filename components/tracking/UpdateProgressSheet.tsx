@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -187,7 +189,10 @@ export function UpdateProgressSheet({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView
+        style={styles.overlay}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel={t('common.back')} />
         <View
           style={[
@@ -211,7 +216,12 @@ export function UpdateProgressSheet({
             </Pressable>
           </View>
 
-          <ScrollView contentContainerStyle={{ gap: spacing.stackMd, paddingBottom: spacing.stackLg }}>
+          <ScrollView
+            contentContainerStyle={{ gap: spacing.stackMd, paddingBottom: spacing.stackLg }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+            automaticallyAdjustKeyboardInsets
+          >
             <Text className="text-sm" style={{ color: colors.muted }}>
               {t('tracking.updateProgressHint')}
             </Text>
@@ -349,7 +359,7 @@ export function UpdateProgressSheet({
             {busy ? <ActivityIndicator color={colors.primary} /> : null}
           </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

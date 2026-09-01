@@ -81,6 +81,9 @@ export function Button({
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       disabled={disabled}
+      accessibilityRole="button"
+      {...(label ? { accessibilityLabel: label } : {})}
+      accessibilityState={{ disabled }}
       style={[
         animatedStyle,
         sizeStyle,

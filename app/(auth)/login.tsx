@@ -26,12 +26,8 @@ import {
 import { FadeInView } from '../../components/ui/FadeInView';
 import { useAuth } from '../../hooks/use-auth';
 import { ApiError } from '../../lib/api';
-import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
-
-const DEMO_FREELANCER_EMAIL = 'freelancer@example.com';
-const DEMO_FREELANCER_PASSWORD = 'Freelancer123!';
 
 const CARD_SHADOW = {
   shadowColor: '#0f172a',
@@ -40,6 +36,11 @@ const CARD_SHADOW = {
   shadowRadius: 24,
   elevation: 6,
 } as const;
+
+function isValidEmail(value: string) {
+  const trimmed = value.trim();
+  return trimmed.includes('@') && trimmed.includes('.') && !trimmed.startsWith('@');
+}
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -50,16 +51,19 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const fillDemoFreelancer = () => {
-    setEmail(DEMO_FREELANCER_EMAIL);
-    setPassword(DEMO_FREELANCER_PASSWORD);
-  };
-
   const handleLogin = async () => {
     if (loginMutation.isPending) {
       return;
     }
     Keyboard.dismiss();
+    if (!email.trim() || !password) {
+      Alert.alert(t('auth.loginFailed'), t('auth.loginFailedMessage'));
+      return;
+    }
+    if (!isValidEmail(email)) {
+      Alert.alert(t('auth.loginFailed'), t('contact.emailInvalid'));
+      return;
+    }
     try {
       await loginMutation.mutateAsync({ email, password });
     } catch (error) {
@@ -70,20 +74,7 @@ export default function LoginScreen() {
           : error instanceof Error
             ? error.message
             : fallbackMessage;
-      const status =
-        error instanceof ApiError
-          ? error.status
-          : typeof error === 'object' && error && 'status' in error && typeof (error as { status: unknown }).status === 'number'
-            ? (error as { status: number }).status
-            : null;
-
-      const details = [`${message || fallbackMessage}`];
-      if (status !== null) {
-        details.push(`Status: ${status}`);
-      }
-      details.push(`API: ${appConfig.apiUrl}`);
-
-      Alert.alert(t('auth.loginFailed'), details.join('\n\n'));
+      Alert.alert(t('auth.loginFailed'), message || fallbackMessage);
     }
   };
 
@@ -95,6 +86,7 @@ export default function LoginScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 4 : 0}
       >
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={{
             flexGrow: 1,
             justifyContent: 'center',
@@ -103,9 +95,11 @@ export default function LoginScreen() {
             paddingBottom: spacing.sectionGap + insets.bottom,
           }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
-          <FadeInView distance={22} scaleFrom={0.98}>
+          <FadeInView distance={22} scaleFrom={0.98} style={{ width: '100%', alignSelf: 'center', maxWidth: 440 }}>
             <View
               style={{
                 alignSelf: 'center',
@@ -129,7 +123,7 @@ export default function LoginScreen() {
                 {t('auth.welcomeSubtitle')}
               </Text>
 
-              <SocialButton kind="google-outline" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
+              <SocialButton kind="google" label={t('auth.continueWithGoogle')} onPress={() => loginWithProvider('google')} />
               <SocialButton kind="line" label={t('auth.continueWithLine')} onPress={() => loginWithProvider('line')} />
               <SocialButton kind="facebook" label={t('auth.continueWithFacebook')} onPress={() => loginWithProvider('facebook')} />
               <SocialButton
@@ -137,7 +131,15 @@ export default function LoginScreen() {
                 label={t('auth.continueAsGuest')}
                 onPress={() => {
                   continueAsGuest();
-                  router.replace('/(tabs)/home');
+                  router.replace('/(tabs)/services');
+                }}
+              />
+              <SocialButton
+                kind="guest"
+                label="Try AI Matching"
+                onPress={() => {
+                  continueAsGuest();
+                  router.replace('/smart-match');
                 }}
               />
 
@@ -185,37 +187,6 @@ export default function LoginScreen() {
               />
             </View>
           </FadeInView>
-
-          {typeof __DEV__ !== 'undefined' && __DEV__ ? (
-            <View style={{ alignItems: 'center', gap: 10, marginTop: spacing.stackLg }}>
-              <Text style={{ textAlign: 'center', fontSize: 12, lineHeight: 18, color: colors.muted, paddingHorizontal: 8 }}>
-                {t('auth.demoFreelancerDescription', {
-                  email: DEMO_FREELANCER_EMAIL,
-                  password: DEMO_FREELANCER_PASSWORD,
-                })}
-              </Text>
-              <Pressable
-                accessibilityRole="button"
-                onPress={fillDemoFreelancer}
-                style={({ pressed }) => ({
-                  alignSelf: 'center',
-                  minHeight: 44,
-                  paddingHorizontal: 18,
-                  borderRadius: radius.button,
-                  borderWidth: 1.5,
-                  borderColor: colors.primary,
-                  backgroundColor: colors.card,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.85 : 1,
-                })}
-              >
-                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primary }}>
-                  {t('auth.useDemoFreelancerAccount')}
-                </Text>
-              </Pressable>
-            </View>
-          ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </LoginPhoneFrame>

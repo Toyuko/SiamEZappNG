@@ -87,6 +87,7 @@
     "home": "หน้าแรก",
     "services": "บริการ",
     "sales": "ขายรถ",
+    "realEstate": "อสังหาฯ",
     "book": "จอง",
     "contact": "ติดต่อ",
     "dashboard": "แดชบอร์ด",
@@ -95,7 +96,11 @@
     "profile": "โปรไฟล์",
     "more": "เพิ่มเติม",
     "account": "บัญชี",
-    "freelancer": "ฟรีแลนซ์"
+    "freelancer": "ฟรีแลนซ์",
+    "corporate": "ภาพรวม",
+    "corporateJobs": "งาน",
+    "corporateAds": "สร้างโฆษณา",
+    "corporateProfile": "โปรไฟล์"
   },
   "settings": {
     "title": "การตั้งค่า",
@@ -113,7 +118,82 @@
     "sponsored": "โฆษณา",
     "title": "ลงโฆษณากับ SiamEZ",
     "subtitle": "เข้าถึงลูกค้าหลายพันคน — พื้นที่โฆษณาของคุณ",
-    "cta": "ดูเพิ่มเติม"
+    "cta": "ดูเพิ่มเติม",
+    "mock": {
+      "kristieLtd": {
+        "advertiser": "Kristie Ltd.",
+        "title": "บริการคอนเซียร์จไลฟ์สไตล์ระดับพรีเมียม",
+        "subtitle": "ประสบการณ์เฉพาะตัว อีเวนต์ระดับพรีเมียม และบริการพิเศษทั่วประเทศไทย",
+        "offer": "สิทธิพิเศษพาร์ทเนอร์ SiamEZ",
+        "cta": "สำรวจ"
+      },
+      "healthCheckup": {
+        "advertiser": "โรงพยาบาลกรุงเทพ",
+        "title": "แพ็กเกจตรวจสุขภาพชาวต่างชาติ",
+        "subtitle": "ตรวจเลือดครบ ปรึกษาแพทย์ และรายงานภาษาอังกฤษ — จองภายในสัปดาห์นี้",
+        "offer": "฿2,999 — ประหยัด ฿1,500",
+        "cta": "จองเลย"
+      },
+      "airportTransfer": {
+        "advertiser": "SiamEZ Ride",
+        "title": "รับส่งสนามบินพรีเมียม",
+        "subtitle": "รับจากสุวรรณภูมิหรือดอนเมือง พร้อมคนขับสื่อสารภาษาอังกฤษ",
+        "offer": "ลด 20% เที่ยวแรก",
+        "cta": "ขอใบเสนอราคา"
+      },
+      "expatInsurance": {
+        "advertiser": "AXA ประเทศไทย",
+        "title": "ประกันสุขภาพชาวต่างชาติ",
+        "subtitle": "เครือข่ายโรงพยาบาลทั่วประเทศ แผนตรงตามเงื่อนไขวีซ่า เริ่ม ฿12,000/ปี",
+        "offer": "ใบเสนอราคาฟรีภายใน 24 ชม.",
+        "cta": "เปรียบเทียบแผน"
+      },
+      "drivingLicense": {
+        "advertiser": "Thai Drive Academy",
+        "title": "ใบขับขี่ไทยสำหรับชาวต่างชาติ",
+        "subtitle": "ครูสอนภาษาอังกฤษ รับส่ง BTS และช่วยจองสอบในวันเดียวกัน",
+        "offer": "฿4,500 รวมทุกอย่าง",
+        "cta": "เริ่มเรียน"
+      },
+      "visaExtension": {
+        "advertiser": "Siam Legal Partners",
+        "title": "บริการวีซ่าและใบอนุญาตทำงาน",
+        "subtitle": "ต่อวีซ่าท่องเที่ยว เรียน และเกษียณ — ตรวจเอกสารภายใน 48 ชม.",
+        "offer": "ตรวจสิทธิ์ฟรี",
+        "cta": "ปรึกษาเลย"
+      },
+      "certifiedTranslation": {
+        "advertiser": "Bangkok Translators",
+        "title": "แปลเอกสารรับรอง",
+        "subtitle": "สูติบัตร ทะเบียนสมรส และสัญญา — พร้อมยื่นสถานทูตภายใน 2 วัน",
+        "offer": "เริ่ม ฿350/หน้า",
+        "cta": "อัปโหลดเอกสาร"
+      },
+      "homeDeepClean": {
+        "advertiser": "Sparkle Home TH",
+        "title": "ทำความสะอาดลึกก่อนย้ายเข้า",
+        "subtitle": "ทำความสะอาดคอนโดและบ้านด้วยผลิตภัณฑ์เป็นมิตรกับสิ่งแวดล้อม ทีมสื่อสารภาษาอังกฤษ",
+        "offer": "ลด 15% การจองครั้งแรก",
+        "cta": "จองทำความสะอาด"
+      },
+      "weddingPlanner": {
+        "advertiser": "Siam Celebrations",
+        "title": "จัดงานแต่งงานปลายทาง",
+        "subtitle": "ชายหาด วัด หรือดาดฟ้า — ประสานงานครบวงจรสำหรับคู่รักชาวต่างชาติ",
+        "offer": "รายชื่อสถานที่ฟรี",
+        "cta": "วางแผนงาน"
+      },
+      "companyRegistration": {
+        "advertiser": "ThaiBiz Setup Co.",
+        "title": "จดทะเบียนบริษัทไทย",
+        "subtitle": "จดทะเบียนหจก. ภาษีมูลค่าเพิ่ม และคำแนะนำ BOI — นักบัญชีภาษาอังกฤษพร้อมให้คำปรึกษา",
+        "offer": "ค่าบริการเหมา ฿25,000",
+        "cta": "เริ่มต้นเลย"
+      }
+    }
+  },
+  "launch": {
+    "tagline": "บริการที่ไว้วางใจได้ทั่วประเทศไทย"
   },
   "auth": {
     "welcome": "ยินดีต้อนรับกลับสู่ SiamEZ",
@@ -135,7 +215,7 @@
     "showPassword": "แสดงรหัสผ่าน",
     "hidePassword": "ซ่อนรหัสผ่าน",
     "demoFreelancerAccount": "บัญชีทดลองฟรีแลนซ์",
-    "demoFreelancerDescription": "ทดลองพอร์ทัลฟรีแลนซ์: %{email} / %{password}",
+    "demoFreelancerDescription": "แอปนี้ไม่มีบัญชีทดลอง",
     "useDemoFreelancerAccount": "ใช้บัญชีทดลองฟรีแลนซ์",
     "creatingAccount": "กำลังสร้างบัญชี...",
     "continueAsGuest": "ใช้งานแบบผู้เยี่ยมชม",
@@ -146,7 +226,9 @@
     "phone": "โทรศัพท์",
     "accountType": "ประเภทบัญชี",
     "accountTypeCustomer": "ลูกค้า",
-    "accountTypeFreelancer": "ฟรีแลนซ์"
+    "accountTypeFreelancer": "ฟรีแลนซ์",
+    "accountTypeCorporate": "องค์กร",
+    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"
   },
   "home": {
     "badge": "บริการมืออาชีพในประเทศไทย",
@@ -161,7 +243,38 @@
     "popularServices": "บริการยอดนิยม",
     "popularServicesSubtitle": "บริการที่ลูกค้าเลือกใช้มากที่สุด",
     "viewService": "ดูรายละเอียดบริการ",
-    "viewAllServices": "ดูบริการทั้งหมด"
+    "viewAllServices": "ดูบริการทั้งหมด",
+    "browseServices": "ดูบริการ",
+    "readyTitle": "พร้อมเมื่อคุณพร้อม",
+    "readySubtitle": "สำรวจบริการทั้งหมด จองบริการ หรือค้นหาฟรีแลนซ์ที่ไว้ใจได้",
+    "howItWorks": {
+      "title": "วิธีใช้งาน",
+      "subtitle": "สามขั้นตอนง่าย ๆ จากความต้องการจนเสร็จสิ้น",
+      "step1Title": "เลือกบริการ",
+      "step1Body": "เลือกจากแคตตาล็อก — วีซ่า เอกสาร ใบขับขี่ และอื่น ๆ",
+      "step2Title": "จองออนไลน์",
+      "step2Body": "กรอกรายละเอียดสั้น ๆ แล้วส่งคำขอ เราจะยืนยันขั้นตอนถัดไปทางข้อความหรืออีเมล",
+      "step3Title": "ติดตามเคส",
+      "step3Body": "ดูความคืบหน้า อัปโหลดเอกสาร และรับการอัปเดตจนเสร็จสมบูรณ์"
+    },
+    "hub": {
+      "badge": "ศูนย์รวมของคุณ",
+      "greeting": "ยินดีต้อนรับกลับ %{name}",
+      "subtitle": "ทำต่อจากที่ค้างไว้ ดูเคสที่ต้องการคุณ และไปยังสิ่งที่สำคัญ",
+      "needsAttention": "ต้องการความสนใจของคุณ",
+      "needsAttentionSubtitle": "รายการที่รอคุณอยู่ตอนนี้",
+      "pendingDocuments": "เอกสารรอตรวจสอบ %{count} รายการ",
+      "pendingDocumentsHint": "เปิดเอกสารเพื่อตรวจสถานะหรืออัปโหลดเพิ่ม",
+      "resumeBooking": "ทำรายการจองต่อ",
+      "recentCases": "เคสล่าสุด",
+      "recentCasesSubtitle": "กิจกรรมเคสล่าสุดของคุณ",
+      "noCasesSubtitle": "เริ่มจองเพื่อเปิดเคสแรกของคุณ",
+      "emptyCases": "คุณยังไม่มีเคส จองบริการเพื่อเริ่มต้น",
+      "viewAllCases": "ดูเคสทั้งหมด",
+      "shortcuts": "ทางลัด",
+      "shortcutsSubtitle": "ไปยังจุดหมายที่ใช้บ่อย",
+      "freelancers": "ฟรีแลนซ์"
+    }
   },
   "services": {
     "title": "บริการ",
@@ -195,9 +308,22 @@
     "allServices": "บริการทั้งหมด",
     "serviceCount": "%{count} บริการ",
     "estimatedTime": "ระยะเวลาโดยประมาณ",
+    "processingTime": "ระยะเวลาดำเนินการ",
+    "documents": "เอกสาร",
+    "documentCount": "ต้องใช้ %{count} รายการ",
+    "featuredServices": "บริการแนะนำ",
+    "swipeToExplore": "ปัดเพื่อดูเพิ่มเติม",
+    "categoriesButton": "หมวดหมู่",
+    "clearCategoryFilter": "ล้างตัวกรองหมวดหมู่",
+    "categoryCardHint": "ดูบริการในหมวดหมู่นี้",
+    "categoriesPage": {
+      "title": "หมวดหมู่",
+      "subtitle": "เลือกดูบริการตามหมวดหมู่"
+    },
     "emptyTitle": "ไม่พบบริการ",
     "emptyHint": "ลองค้นหาด้วยคำอื่น หรือรีเซ็ตตัวกรองเพื่อดูบริการทั้งหมด",
-    "viewDetails": "รายละเอียด"
+    "viewDetails": "รายละเอียด",
+    "moreDetails": "รายละเอียดเพิ่มเติม"
   },
   "search": {
     "title": "ค้นหาบริการ",
@@ -232,7 +358,17 @@
     "loading": "กำลังโหลดแดชบอร์ด...",
     "loadError": "ไม่สามารถโหลดแดชบอร์ดได้",
     "activityWithCases": "เคสของคุณกำลังดำเนินการอยู่ เปิดหน้าเคสเพื่อดูไทม์ไลน์และคำขอเอกสาร",
-    "activityNoCases": "ยังไม่มีเคสที่กำลังดำเนินการ เริ่มต้นด้วยการจองใหม่ แล้วเราจะช่วยดูแลทุกขั้นตอน"
+    "activityNoCases": "ยังไม่มีเคสที่กำลังดำเนินการ เริ่มต้นด้วยการจองใหม่ แล้วเราจะช่วยดูแลทุกขั้นตอน",
+    "softLaunchSubtitle": "พื้นที่ทำงานของคุณ — บริการ ยานพาหนะ อสังหาริมทรัพย์ และ Ask SiamEZ",
+    "fullSubtitle": "พื้นที่ Platform ของคุณ — เป้าหมาย การเดินทาง การจอง และรายการที่บันทึกไว้",
+    "askSiamez": "Ask SiamEZ",
+    "quickLinks": "ลิงก์ด่วน",
+    "quickLinksSubtitle": "ทำต่อจากที่ค้างไว้บนเว็บหรือมือถือ",
+    "recommendations": "คำแนะนำ",
+    "recommendationsSubtitle": "จากระบบแนะนำของ Platform",
+    "recommendationsEmptySoft": "เรียกดูบริการ ยานพาหนะ และอสังหาฯ เพื่อปลดล็อกคำแนะนำเฉพาะคุณ",
+    "recommendationsEmpty": "เรียกดูรายการและตั้งเป้าหมายเพื่อปลดล็อกคำแนะนำเฉพาะคุณ",
+    "activityUpdates": "อัปเดตล่าสุด %{count} รายการจากพื้นที่ Platform ของคุณ"
   },
   "cases": {
     "title": "เคสของฉัน",
@@ -240,7 +376,8 @@
     "loading": "กำลังโหลดเคส...",
     "loadError": "ไม่สามารถโหลดเคสได้",
     "empty": "ไม่พบเคสที่กำลังดำเนินการ",
-    "status": "สถานะ"
+    "status": "สถานะ",
+    "lastUpdated": "อัปเดตล่าสุด"
   },
   "documents": {
     "title": "เอกสาร",
@@ -256,7 +393,14 @@
     "uploadPhotoSuccess": "อัปโหลดรูปภาพเรียบร้อยแล้ว",
     "retryMessage": "โปรดลองอีกครั้ง",
     "permissionRequired": "ต้องการสิทธิ์การใช้งาน",
-    "cameraAccessRequired": "ต้องอนุญาตการเข้าถึงกล้องเพื่อถ่ายภาพเอกสาร"
+    "cameraAccessRequired": "ต้องอนุญาตการเข้าถึงกล้องเพื่อถ่ายภาพเอกสาร",
+    "signInRequired": "เข้าสู่ระบบเพื่ออัปโหลด",
+    "signInRequiredHint": "การอัปโหลดเอกสารต้องมีบัญชี เพื่อให้ไฟล์ผูกกับเคสของคุณ",
+    "fileTooLarge": "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10 MB",
+    "unsupportedFile": "กรุณาอัปโหลดไฟล์ PDF หรือรูปภาพ (JPG, PNG, WebP, HEIC)",
+    "open": "เปิด",
+    "previewUnavailable": "ยังเปิดไฟล์ไม่ได้",
+    "previewUnavailableHint": "ยังไม่สามารถเปิดไฟล์นี้ในแอปได้ หากต้องการสำเนา กรุณาติดต่อทีม SiamEZ"
   },
   "contact": {
     "title": "ติดต่อเรา",
@@ -334,10 +478,16 @@
     "createAccount": "สร้างบัญชี",
     "viewDashboard": "ดูแดชบอร์ด",
     "trackCase": "ติดตามเคส",
+    "caseNumber": "หมายเลขเคส",
     "bookingFailed": "การจองไม่สำเร็จ",
     "uploadFailed": "อัปโหลดไม่สำเร็จ",
     "permissionRequired": "ต้องการสิทธิ์การใช้งาน",
     "cameraAccessNeeded": "ต้องอนุญาตการเข้าถึงกล้องเพื่ออัปโหลดรูปภาพ",
+    "signInToUpload": "เข้าสู่ระบบเพื่อแนบไฟล์",
+    "signInToUploadHint": "การอัปโหลดต้องมีบัญชี เพื่อให้เอกสารอยู่ในเคสของคุณ คุณยังส่งคำขอจองได้",
+    "fileTooLarge": "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10 MB",
+    "unsupportedFile": "กรุณาอัปโหลดไฟล์ PDF หรือรูปภาพ (JPG, PNG, WebP, HEIC)",
+    "confirmViaWhatsApp": "ยืนยันผ่าน WhatsApp",
     "retryMessage": "โปรดลองอีกครั้ง",
     "requiredFullName": "กรุณากรอกชื่อ-นามสกุล",
     "requiredEmail": "กรุณากรอกอีเมล",
@@ -355,6 +505,8 @@
     "licenseStatus": "สถานะใบขับขี่",
     "clearancePurpose": "วัตถุประสงค์ใบรับรอง",
     "destinationCountry": "ประเทศปลายทาง / ใช้งาน",
+    "requestType": "ต้องการความช่วยเหลือด้านใด?",
+    "propertyType": "ประเภทอสังหาริมทรัพย์",
     "optionalNote": "อื่น ๆ (ไม่บังคับ)",
     "notes": "หมายเหตุ",
     "service": "บริการ",
@@ -451,6 +603,20 @@
         "au": "ออสเตรเลีย / นิวซีแลนด์",
         "jp": "ญี่ปุ่น",
         "other": "อื่น ๆ"
+      },
+      "request": {
+        "buy": "ต้องการซื้อ",
+        "sell": "ต้องการขาย",
+        "rent": "ต้องการเช่า",
+        "invest": "ต้องการลงทุน"
+      },
+      "property": {
+        "condo": "คอนโด",
+        "house": "บ้าน",
+        "townhouse": "ทาวน์เฮาส์",
+        "land": "ที่ดิน",
+        "commercial": "เชิงพาณิชย์",
+        "villa": "วิลล่า"
       }
     }
   },
@@ -508,6 +674,110 @@
       "description": "รายละเอียด",
       "categoryCar": "รถยนต์",
       "categoryMotorcycle": "มอเตอร์ไซค์",
+      "addListing": "เพิ่มรายการ",
+      "saveChanges": "บันทึกการแก้ไข",
+      "cancelEdit": "ยกเลิก"
+    }
+  },
+  "realEstate": {
+    "title": "อสังหาริมทรัพย์",
+    "subtitle": "เลือกดูบ้าน คอนโด ที่ดิน และพื้นที่เชิงพาณิชย์ที่ลงขายกับ SiamEZ",
+    "browseInventory": "ดูรายการอสังหาริมทรัพย์",
+    "backToInventory": "กลับไปหน้ารายการอสังหาฯ",
+    "gallery": "แกลเลอรี",
+    "contactSeller": "ติดต่อผู้ขาย",
+    "contactWhatsApp": "ติดต่อผ่าน WhatsApp",
+    "contactLine": "แชทบน LINE",
+    "contactCall": "โทรเลย",
+    "contactEmail": "ส่งอีเมล",
+    "searchPlaceholder": "ค้นหาชื่อ จังหวัด หรือเขต",
+    "perMonth": "/เดือน",
+    "priceContactSeller": "ติดต่อผู้ขายเพื่อสอบถามราคา",
+    "bedsShort": "%{count} ห้องนอน",
+    "bathsShort": "%{count} ห้องน้ำ",
+    "bedsNa": "— ห้องนอน",
+    "bathsNa": "— ห้องน้ำ",
+    "bedsLabel": "ห้องนอน",
+    "bathsLabel": "ห้องน้ำ",
+    "areaLabel": "พื้นที่",
+    "landAreaLabel": "พื้นที่ดิน",
+    "floorLabel": "ชั้น",
+    "yearBuiltLabel": "ปีที่สร้าง",
+    "furnishedLabel": "เฟอร์นิเจอร์",
+    "studio": "สตูดิโอ",
+    "featuredBadge": "แนะนำ",
+    "minPrice": "ราคาต่ำสุด",
+    "maxPrice": "ราคาสูงสุด",
+    "minBedrooms": "ห้องนอนขั้นต่ำ",
+    "provincePlaceholder": "เช่น กรุงเทพฯ",
+    "empty": "ไม่พบอสังหาริมทรัพย์ที่ตรงกับตัวกรอง",
+    "syncing": "กำลังซิงก์รายการจากเว็บไซต์...",
+    "syncFailed": "ไม่สามารถซิงก์รายการสดจากเว็บไซต์ได้ แสดงข้อมูลภายในแอปแทน",
+    "manageTitle": "จัดการอสังหาริมทรัพย์ของคุณ",
+    "manageSubtitle": "เพิ่มรายการใหม่ หรือแก้ไขรายการปัจจุบัน",
+    "loginRequired": "กรุณาเข้าสู่ระบบเพื่อเพิ่ม แก้ไข หรือลบรายการ",
+    "myListings": "อสังหาฯ ของฉัน",
+    "noOwnedListings": "คุณยังไม่มีรายการที่สร้างไว้",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "notFound": "ไม่พบรายการ",
+    "serviceTeaser": "ต้องการความช่วยเหลือซื้อ ขาย เช่า หรือลงทุน? จองบริการอสังหาริมทรัพย์",
+    "bookService": "จองบริการอสังหาริมทรัพย์",
+    "moreFilters": "ราคา ห้องนอน และการเรียง",
+    "listingType": {
+      "label": "ประเภทประกาศ",
+      "all": "ขายและเช่า",
+      "sale": "ขาย",
+      "rent": "เช่า"
+    },
+    "propertyType": {
+      "label": "ประเภทอสังหาฯ",
+      "all": "ทุกประเภท",
+      "condo": "คอนโด",
+      "house": "บ้าน",
+      "townhouse": "ทาวน์เฮาส์",
+      "land": "ที่ดิน",
+      "commercial": "เชิงพาณิชย์",
+      "villa": "วิลล่า"
+    },
+    "sellerKind": {
+      "label": "หมวดผู้ลงประกาศ",
+      "all": "ทุกรายการ",
+      "dealer": "เอเจนซี / ตัวแทน",
+      "private": "เจ้าของขายเอง",
+      "dealerChip": "เอเจนซี",
+      "dealerBadge": "ประกาศจากเอเจนซี",
+      "privateBadge": "เจ้าของขายเอง"
+    },
+    "furnished": {
+      "unfurnished": "ไม่มีเฟอร์นิเจอร์",
+      "partially": "มีเฟอร์นิเจอร์บางส่วน",
+      "furnished": "มีเฟอร์นิเจอร์ครบ",
+      "not_applicable": "ไม่ระบุ"
+    },
+    "status": {
+      "available": "พร้อมขาย",
+      "reserved": "จองแล้ว",
+      "sold": "ขายแล้ว"
+    },
+    "sort": {
+      "label": "เรียงตาม",
+      "latest": "ล่าสุด",
+      "priceAsc": "ราคา: น้อยไปมาก",
+      "priceDesc": "ราคา: มากไปน้อย",
+      "areaDesc": "พื้นที่: มากไปน้อย",
+      "areaAsc": "พื้นที่: น้อยไปมาก"
+    },
+    "form": {
+      "title": "ชื่อประกาศ",
+      "province": "จังหวัด",
+      "district": "เขต/อำเภอ",
+      "bedrooms": "ห้องนอน",
+      "bathrooms": "ห้องน้ำ",
+      "areaSqm": "พื้นที่ (ตร.ม.)",
+      "priceAmount": "ราคา (บาท)",
+      "heroImageUrl": "ลิงก์รูปหลัก",
+      "description": "รายละเอียด",
       "addListing": "เพิ่มรายการ",
       "saveChanges": "บันทึกการแก้ไข",
       "cancelEdit": "ยกเลิก"
@@ -618,7 +888,91 @@
       "jobApprovedTitle": "อนุมัติงานแล้ว",
       "jobApprovedMessage": "อนุมัติงานแล้ว — ปล่อยเงินแล้ว"
     },
-    "viewTracking": "ติดตามงาน"
+    "viewTracking": "ติดตามงาน",
+    "publicProfile": {
+      "unnamed": "ฟรีแลนซ์",
+      "specialMember": "สมาชิกพิเศษ",
+      "fromRate": "เริ่มต้น %{amount}/ชม.",
+      "directory": {
+        "title": "ค้นหาฟรีแลนซ์",
+        "subtitle": "เลือกผู้เชี่ยวชาญด้านวีซ่า แปลเอกสาร และอื่นๆ",
+        "loading": "กำลังโหลดฟรีแลนซ์...",
+        "loadError": "ไม่สามารถโหลดรายชื่อฟรีแลนซ์ได้",
+        "empty": "ไม่พบฟรีแลนซ์ที่ตรงกับการค้นหา",
+        "searchPlaceholder": "ค้นหาด้วยชื่อ ตำแหน่ง หรือทักษะ",
+        "skillPlaceholder": "กรองด้วยทักษะที่ตรงกัน (ไม่บังคับ)"
+      },
+      "detail": {
+        "loading": "กำลังโหลดโปรไฟล์...",
+        "loadError": "ไม่สามารถโหลดโปรไฟล์ฟรีแลนซ์นี้ได้",
+        "about": "เกี่ยวกับ",
+        "skills": "ทักษะ",
+        "services": "บริการ",
+        "noServices": "ยังไม่มีรายการบริการ",
+        "contact": "ติดต่อฟรีแลนซ์",
+        "reviews": "%{count} รีวิว",
+        "shareMessage": "ดูโปรไฟล์ %{name} บน SiamEZ: %{url}"
+      },
+      "settings": {
+        "title": "หน้าฟรีแลนซ์สาธารณะ",
+        "subtitle": "ควบคุมวิธีที่ลูกค้าค้นหาและติดต่อคุณ",
+        "loading": "กำลังโหลดโปรไฟล์ของคุณ...",
+        "loadError": "ไม่สามารถโหลดโปรไฟล์ฟรีแลนซ์ได้",
+        "enablePublic": "เปิดหน้าฟรีแลนซ์สาธารณะ",
+        "enablePublicHint": "เมื่อเปิด โปรไฟล์ของคุณจะแสดงในไดเรกทอรีสาธารณะ",
+        "slugLabel": "ชื่อ URL สาธารณะ",
+        "slugPreview": "ตัวอย่าง: %{url}",
+        "slugInvalidTitle": "ชื่อ URL ไม่ถูกต้อง",
+        "slugRequiredTitle": "ต้องมีชื่อ URL",
+        "slugRequiredMessage": "ต้องตั้งชื่อ URL สาธารณะเพื่อแสดงโปรไฟล์",
+        "titleLabel": "ตำแหน่งงาน",
+        "titlePlaceholder": "เช่น นักแปลรับรอง",
+        "bioLabel": "ประวัติ",
+        "bioPlaceholder": "เล่าประสบการณ์ของคุณให้ลูกค้าฟัง…",
+        "hourlyRateLabel": "เรทต่อชั่วโมง (บาท)",
+        "skillsLabel": "ทักษะ",
+        "skillPlaceholder": "เพิ่มทักษะ",
+        "skillLimitTitle": "จำกัดทักษะ",
+        "skillLimitMessage": "เพิ่มได้สูงสุด 30 ทักษะ",
+        "servicesLabel": "บริการที่เสนอ",
+        "addService": "เพิ่มบริการ",
+        "noServices": "ยังไม่มีบริการ เพิ่มแพ็กเกจที่ลูกค้าจองได้",
+        "serviceName": "ชื่อบริการ",
+        "serviceDescription": "รายละเอียด",
+        "servicePrice": "ราคา (บาท)",
+        "serviceRequiredTitle": "ต้องมีชื่อบริการ",
+        "serviceRequiredMessage": "กรุณาใส่ชื่อบริการ",
+        "serviceLimitTitle": "จำกัดบริการ",
+        "serviceLimitMessage": "เพิ่มได้สูงสุด 20 บริการ",
+        "rateInvalidTitle": "เรทไม่ถูกต้อง",
+        "rateInvalidMessage": "กรุณาใส่เรทต่อชั่วโมงเป็นบาทที่ถูกต้อง",
+        "save": "บันทึกโปรไฟล์",
+        "saving": "กำลังบันทึก…",
+        "cancel": "ยกเลิก",
+        "saveSuccessTitle": "บันทึกแล้ว",
+        "saveSuccessMessage": "อัปเดตโปรไฟล์ฟรีแลนซ์สาธารณะแล้ว",
+        "saveErrorTitle": "บันทึกไม่สำเร็จ",
+        "saveErrorMessage": "เกิดข้อผิดพลาดขณะบันทึกโปรไฟล์"
+      },
+      "inquiry": {
+        "title": "ติดต่อ %{name}",
+        "name": "ชื่อของคุณ",
+        "email": "อีเมล",
+        "phone": "โทรศัพท์ (ไม่บังคับ)",
+        "message": "ข้อความ",
+        "messagePlaceholder": "อธิบายสิ่งที่ต้องการความช่วยเหลือ…",
+        "send": "ส่งข้อความ",
+        "sending": "กำลังส่ง…",
+        "close": "ปิด",
+        "success": "ส่งข้อความแล้ว ฟรีแลนซ์จะติดต่อกลับเร็วๆ นี้",
+        "invalidTitle": "ตรวจสอบข้อมูล",
+        "nameRequired": "กรุณาใส่ชื่ออย่างน้อย 2 ตัวอักษร",
+        "emailRequired": "กรุณาใส่อีเมลที่ถูกต้อง",
+        "messageRequired": "กรุณาเขียนข้อความอย่างน้อย 10 ตัวอักษร",
+        "errorTitle": "ส่งไม่สำเร็จ",
+        "errorMessage": "ไม่สามารถส่งข้อความได้ในขณะนี้"
+      }
+    }
   },
   "tracking": {
     "pageTitle": "ติดตามบริการของคุณ",
@@ -718,5 +1072,123 @@
     "send": "ส่ง",
     "live": "สด",
     "connecting": "กำลังเชื่อมต่อ…"
+  },
+  "corporate": {
+    "verifiedBusiness": "ธุรกิจที่ยืนยันแล้ว",
+    "dashboard": {
+      "loading": "กำลังโหลดข้อมูลองค์กร…",
+      "loadError": "ไม่สามารถโหลดแดชบอร์ดองค์กรได้",
+      "title": "ภาพรวมบริษัท",
+      "subtitle": "ติดตามการจ้างงาน โฆษณา และการมีส่วนร่วมในที่เดียว",
+      "subtitleNamed": "ยินดีต้อนรับกลับ %{name}",
+      "insights": "ประสิทธิภาพ",
+      "insightsSubtitle": "ตัวชี้วัดงานและแคมเปญแบบเรียลไทม์",
+      "quickActions": "ทางลัด",
+      "quickActionsSubtitle": "โพสต์งานหรือเปิดแคมเปญได้ทันที",
+      "postJob": "โพสต์งานใหม่",
+      "launchAd": "เปิดแคมเปญโฆษณา",
+      "viewPublicProfile": "ดูโปรไฟล์สาธารณะ",
+      "recentJobs": "งานล่าสุด",
+      "recentJobsSubtitle": "ตำแหน่งงานและการจ้างงานล่าสุดของคุณ"
+    },
+    "metrics": {
+      "activeJobs": "งานที่เปิดอยู่",
+      "appClicks": "คลิกในแอป",
+      "adImpressions": "การแสดงโฆษณา",
+      "hiredFreelancers": "ฟรีแลนซ์ที่จ้างแล้ว"
+    },
+    "jobs": {
+      "loading": "กำลังโหลดตัวจัดการงาน…",
+      "loadError": "ไม่สามารถโหลดประกาศงานได้",
+      "title": "จัดการงาน",
+      "subtitle": "ตรวจสอบผู้สมัครและจ้างฟรีแลนซ์",
+      "postNew": "โพสต์งาน",
+      "empty": "ยังไม่มีงาน โพสต์ตำแหน่งแรกของคุณ",
+      "applicantCount": "ผู้สมัคร %{count} คน",
+      "noApplicants": "ยังไม่มีผู้สมัคร",
+      "hire": "รับ / จ้าง",
+      "decline": "ปฏิเสธ",
+      "hireSuccessTitle": "จ้างฟรีแลนซ์แล้ว",
+      "hireSuccessMessage": "รับผู้สมัครแล้ว และงานอยู่ในสถานะกำลังดำเนินการ",
+      "declineSuccessTitle": "ปฏิเสธใบสมัครแล้ว",
+      "declineSuccessMessage": "ปฏิเสธผู้สมัครแล้ว",
+      "decisionErrorTitle": "อัปเดตผู้สมัครไม่สำเร็จ",
+      "decisionErrorMessage": "กรุณาลองอีกครั้งในอีกสักครู่",
+      "postModalTitle": "โพสต์งาน",
+      "postModalSubtitle": "อธิบายงาน งบประมาณ และทักษะที่ต้องการ",
+      "fieldTitle": "ชื่องาน",
+      "fieldTitlePlaceholder": "เช่น เอกสารจดทะเบียนบริษัท",
+      "fieldDescription": "รายละเอียด",
+      "fieldDescriptionPlaceholder": "ฟรีแลนซ์ควรส่งมอบอะไร?",
+      "fieldSkills": "ทักษะที่ต้องการ",
+      "fieldSkillsPlaceholder": "เลือกทักษะ",
+      "fieldBudget": "งบประมาณ",
+      "fieldBudgetPlaceholder": "เลือกงบประมาณ",
+      "fieldDeadline": "กำหนดส่ง",
+      "fieldDeadlinePlaceholder": "เลือกกำหนดส่ง",
+      "submitJob": "เผยแพร่งาน",
+      "posting": "กำลังเผยแพร่…",
+      "formIncompleteTitle": "ข้อมูลไม่ครบ",
+      "formIncompleteMessage": "กรุณาใส่ชื่อและรายละเอียดงาน",
+      "postSuccessTitle": "โพสต์งานแล้ว",
+      "postSuccessMessage": "ตำแหน่งงานของคุณเปิดให้ฟรีแลนซ์แล้ว",
+      "postErrorTitle": "โพสต์งานไม่สำเร็จ",
+      "postErrorMessage": "กรุณาลองอีกครั้ง"
+    },
+    "ads": {
+      "loading": "กำลังโหลดตัวจัดการโฆษณา…",
+      "loadError": "ไม่สามารถโหลดข้อมูลแคมเปญได้",
+      "title": "สร้างโฆษณา",
+      "subtitle": "อัปโหลดแบนเนอร์และตั้งงบแคมเปญ",
+      "budgetProgress": "งบที่ใช้ไปเทียบกับคงเหลือ",
+      "spent": "ใช้ไป ฿%{amount}",
+      "remaining": "เหลือ ฿%{amount}",
+      "setup": "ตั้งค่าแคมเปญ",
+      "setupSubtitle": "เลือกครีเอทีฟ ปลายทาง และวงเงิน",
+      "banner": "รูปแบนเนอร์",
+      "bannerEmpty": "ยังไม่ได้เลือกแบนเนอร์",
+      "pickBanner": "เลือกจากคลังรูป",
+      "targetUrl": "URL ปลายทาง",
+      "totalBudget": "งบรวม (บาท)",
+      "dailyLimit": "วงเงินรายวัน (บาท)",
+      "launch": "เปิดแคมเปญ",
+      "launching": "กำลังเปิด…",
+      "permissionTitle": "ต้องการสิทธิ์รูปภาพ",
+      "permissionMessage": "อนุญาตการเข้าถึงคลังรูปเพื่ออัปโหลดแบนเนอร์",
+      "formIncompleteTitle": "แคมเปญไม่ครบ",
+      "formIncompleteMessage": "กรุณาใส่ URL และงบประมาณที่ถูกต้อง",
+      "launchSuccessTitle": "เปิดแคมเปญแล้ว",
+      "launchSuccessMessage": "โฆษณาของคุณพร้อมเริ่มแสดงผล",
+      "launchErrorTitle": "เปิดโฆษณาไม่สำเร็จ",
+      "launchErrorMessage": "กรุณาลองอีกครั้ง"
+    },
+    "public": {
+      "loading": "กำลังโหลดโปรไฟล์บริษัท…",
+      "loadError": "ไม่สามารถโหลดโปรไฟล์บริษัทนี้ได้",
+      "tabAbout": "เกี่ยวกับ",
+      "tabOpenings": "ตำแหน่งงาน",
+      "aboutTitle": "เกี่ยวกับบริษัท",
+      "industry": "อุตสาหกรรม",
+      "location": "ที่ตั้ง",
+      "locationFallback": "ประเทศไทย",
+      "noOpenings": "ยังไม่มีตำแหน่งงานที่เปิดอยู่",
+      "share": "แชร์โปรไฟล์บริษัท",
+      "shareMessage": "ดู %{name} บน SiamEZ: https://siam-e-zweb-ng.vercel.app/company/%{slug}",
+      "applyNow": "สมัครเลย",
+      "applyTitle": "พร้อมสมัคร",
+      "applyMessage": "เปิดฟีดงานฟรีแลนซ์เพื่อรับงานที่ตรงกัน",
+      "applyGuestTitle": "เข้าสู่ระบบในฐานะฟรีแลนซ์",
+      "applyGuestMessage": "สร้างหรือเข้าสู่ระบบบัญชีฟรีแลนซ์เพื่อสมัคร"
+    },
+    "profile": {
+      "loading": "กำลังโหลดโปรไฟล์บริษัท…",
+      "loadError": "ไม่สามารถโหลดโปรไฟล์บริษัทของคุณได้",
+      "title": "โปรไฟล์ของฉัน",
+      "subtitle": "จัดการการแสดงตัวของบริษัทบน SiamEZ",
+      "fallbackName": "บริษัทของคุณ",
+      "viewPublic": "ดูหน้าบริษัทสาธารณะ",
+      "accountSettings": "การตั้งค่าบัญชี",
+      "signOut": "ออกจากระบบ"
+    }
   }
 }

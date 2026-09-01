@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import '../global.css';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Platform, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -15,15 +16,19 @@ import {
 
 import { AppProviders } from '../components/providers/app-providers';
 import { VoiceFirstProvider } from '../components/voice/VoiceFirstProvider';
-import { LoadingState } from '../components/ui/loading-state';
+import { LaunchAnimation } from '../components/ui/LaunchAnimation';
 import { useAuth } from '../hooks/use-auth';
+import { LaunchAnimationProvider } from '../hooks/use-launch-animation';
+import { useSoftLaunch } from '../hooks/use-soft-launch';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
-import { t } from '../lib/i18n/i18n';
+import { isCorporateRole } from '../lib/auth/role';
+import { SOFT_LAUNCH_DEFERRED_ROUTES } from '../lib/soft-launch';
 import { installDefaultFont } from '../lib/theme/install-default-font';
 import { useAuthStore } from '../store/auth-store';
 
 // Work around Android Fabric mount race in some navigation transitions.
-enableScreens(false);
+// Keep native screens enabled on iOS for memory and transition performance.
+enableScreens(Platform.OS !== 'android');
 
 // Apply Geist as the default font on native (web uses global.css).
 installDefaultFont();
@@ -31,9 +36,11 @@ installDefaultFont();
 function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
+  const softLaunch = useSoftLaunch();
   const { bootstrapSession } = useAuth();
   const { accessToken, isGuest, isBootstrapping, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
+  const isCorporate = isCorporateRole(userRole, user?.role);
   // Non-blocking: Geist applies as soon as it loads (web also wires it via CSS).
   useFonts({ Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold });
   const [fontsLoaded, fontError] = useFonts({
@@ -42,14 +49,37 @@ function RootNavigator() {
   });
   const isE2E = process.env.EXPO_PUBLIC_E2E === 'true';
   const { checkForUpdate } = useAutoUpdate();
+  // Keep the navigator mounted; only gate the launch overlay on bootstrap/fonts.
+  const isReady = !isBootstrapping && (fontsLoaded || Boolean(fontError) || isE2E);
+  const [launchComplete, setLaunchComplete] = useState(isE2E);
+  const launchVariant = accessToken && !isGuest ? 'brief' : 'full';
+
+  const launchContext = useMemo(
+    () => ({ launchComplete: launchComplete || isE2E }),
+    [isE2E, launchComplete],
+  );
+  const handleLaunchComplete = useCallback(() => setLaunchComplete(true), []);
+
+  // Fallback: never leave the launch overlay blocking the app if the animation callback fails.
+  useEffect(() => {
+    if (launchComplete || !isReady) {
+      return;
+    }
+    const fallbackMs = launchVariant === 'brief' ? 4_000 : 8_000;
+    const timeout = setTimeout(() => setLaunchComplete(true), fallbackMs);
+    return () => clearTimeout(timeout);
+  }, [isReady, launchComplete, launchVariant]);
 
   useEffect(() => {
     void bootstrapSession();
   }, [bootstrapSession]);
 
   useEffect(() => {
+    if (!launchComplete) {
+      return;
+    }
     void checkForUpdate();
-  }, [checkForUpdate]);
+  }, [checkForUpdate, launchComplete]);
 
   useEffect(() => {
     if (fontError && __DEV__) {
@@ -65,6 +95,12 @@ function RootNavigator() {
     const isProtectedRoute = segments[0] !== '(auth)';
     const inAuthGroup = segments[0] === '(auth)';
     const [topLevel, tabRoute] = segments as string[];
+    const isPublicDemoRoute = topLevel === 'smart-match';
+    const isCorporateTab =
+      tabRoute === 'corporate' ||
+      tabRoute === 'corporate-jobs' ||
+      tabRoute === 'corporate-ads' ||
+      tabRoute === 'corporate-profile';
     const isSensitiveRoute =
       topLevel === 'cases' ||
       topLevel === 'client' ||
@@ -76,11 +112,22 @@ function RootNavigator() {
         (tabRoute === 'dashboard' ||
           tabRoute === 'cases' ||
           tabRoute === 'documents' ||
+          tabRoute === 'goals' ||
+          tabRoute === 'life-events' ||
+          tabRoute === 'saved' ||
+          tabRoute === 'workflows' ||
+          tabRoute === 'seller' ||
           tabRoute === 'profile' ||
-          tabRoute === 'freelancer'));
+          tabRoute === 'freelancer' ||
+          isCorporateTab));
     const isAuthenticated = Boolean(accessToken) && !isGuest;
+    const hitsDeferredRoute =
+      SOFT_LAUNCH_DEFERRED_ROUTES.has(topLevel) ||
+      (topLevel === '(tabs)' && SOFT_LAUNCH_DEFERRED_ROUTES.has(tabRoute));
+    const freelancersAllowed = topLevel === 'freelancers' && softLaunch.showFreelancers;
+    const deferredSoftLaunchRoute = softLaunch.enabled && hitsDeferredRoute && !freelancersAllowed;
 
-    if (!accessToken && !isGuest && isProtectedRoute) {
+    if (!accessToken && !isGuest && isProtectedRoute && !isPublicDemoRoute) {
       router.replace('/(auth)/login');
       return;
     }
@@ -88,21 +135,55 @@ function RootNavigator() {
       router.replace('/(auth)/login');
       return;
     }
+    if (deferredSoftLaunchRoute) {
+      router.replace('/(tabs)/services');
+      return;
+    }
     if (isAuthenticated && userRole === 'client' && (topLevel === 'freelancer' || tabRoute === 'freelancer')) {
       router.replace('/(tabs)/dashboard');
       return;
     }
-    if (isAuthenticated && inAuthGroup) {
+    if (isAuthenticated && !isCorporate && isCorporateTab) {
       router.replace(isFreelancer ? '/(tabs)/freelancer' : '/(tabs)/dashboard');
       return;
     }
-  }, [accessToken, isBootstrapping, isFreelancer, isGuest, router, segments, userRole]);
+    if (isAuthenticated && isCorporate && (topLevel === 'freelancer' || tabRoute === 'freelancer')) {
+      router.replace('/(tabs)/corporate');
+      return;
+    }
+    if (isAuthenticated && inAuthGroup) {
+      if (isCorporate) {
+        router.replace('/(tabs)/corporate');
+      } else if (isFreelancer) {
+        router.replace('/(tabs)/freelancer');
+      } else {
+        router.replace('/(tabs)/services');
+      }
+      return;
+    }
+  }, [
+    accessToken,
+    isBootstrapping,
+    isCorporate,
+    isFreelancer,
+    isGuest,
+    router,
+    segments,
+    softLaunch.enabled,
+    softLaunch.showFreelancers,
+    userRole,
+  ]);
 
-  if (isBootstrapping || (!fontsLoaded && !isE2E)) {
-    return <LoadingState label={t('common.loading')} />;
-  }
-
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <LaunchAnimationProvider value={launchContext}>
+      <View style={{ flex: 1 }}>
+        <Stack screenOptions={{ headerShown: false }} />
+        {!launchComplete ? (
+          <LaunchAnimation ready={isReady} variant={launchVariant} onComplete={handleLaunchComplete} />
+        ) : null}
+      </View>
+    </LaunchAnimationProvider>
+  );
 }
 
 export default function RootLayout() {

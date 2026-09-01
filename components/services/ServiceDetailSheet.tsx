@@ -83,11 +83,29 @@ export function ServiceDetailSheet({ service, visible, onClose }: ServiceDetailS
     router.push(`/services/${service.slug}`);
   };
 
+  const openInventory = () => {
+    onClose();
+    if (service.slug === 'real-estate-services') {
+      router.push('/(tabs)/real-estate');
+      return;
+    }
+    if (service.slug === 'car-motorbike-finding-selling') {
+      router.push('/(tabs)/sales');
+    }
+  };
+
+  const inventoryLabel =
+    service.slug === 'real-estate-services'
+      ? t('realEstate.browseInventory')
+      : service.slug === 'car-motorbike-finding-selling'
+        ? t('sales.title')
+        : null;
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.overlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel={t('common.back')} />
@@ -200,6 +218,9 @@ export function ServiceDetailSheet({ service, visible, onClose }: ServiceDetailS
 
               <View style={{ gap: spacing.stackSm, marginTop: spacing.stackSm }}>
                 <Button label={t('cta.bookNow')} onPress={openBook} />
+                {inventoryLabel ? (
+                  <Button label={inventoryLabel} variant="secondary" onPress={openInventory} />
+                ) : null}
                 <Button label={t('services.lineOfficial')} variant="secondary" onPress={() => void openLine()} />
                 <Button
                   label={SIAMEZ_PHONE_DISPLAY}

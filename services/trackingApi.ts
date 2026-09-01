@@ -55,7 +55,7 @@ export async function fetchClientJobTracking(jobId: string) {
 }
 
 /**
- * Unified job tracking (GET /api/jobs/[id]/tracking).
+ * Unified job tracking (GET /api/jobs/[id]/tracking when present).
  * Falls back to role-specific routes when the unified endpoint is unavailable.
  */
 export async function fetchJobTracking(
@@ -76,31 +76,39 @@ export async function fetchJobTracking(
 }
 
 /**
- * Freelancer tracking view — built from job detail + local step config
- * (web portal uses the same job payload for the freelancer timeline).
+ * Freelancer tracking view — GET /api/freelancer/jobs/[id]/tracking
+ * (same contract as the web freelancer portal timeline).
  */
 export async function fetchFreelancerJobTracking(jobId: string): Promise<FreelancerJobTrackingView> {
-  const job = await getFreelancerJobById(jobId);
-  const serviceSlug = job.service?.slug ?? null;
-  const steps = getTrackingStepsForServiceSlug(serviceSlug);
+  try {
+    const response = await api.get<FreelancerJobTrackingView | ApiEnvelope<FreelancerJobTrackingView>>(
+      `/api/freelancer/jobs/${encodeURIComponent(jobId)}/tracking`,
+    );
+    return unwrapApiData<FreelancerJobTrackingView>(response);
+  } catch {
+    // Compatibility fallback when history endpoint is unavailable.
+    const job = await getFreelancerJobById(jobId);
+    const serviceSlug = job.service?.slug ?? null;
+    const steps = getTrackingStepsForServiceSlug(serviceSlug);
 
-  return {
-    job: {
-      id: job.id,
-      title: job.title,
-      description: job.description,
-      status: job.status as JobStatus,
-      trackingStatus: (job.trackingStatus as TrackingStatus | null) ?? null,
-      trackingNotes: job.trackingNotes ?? null,
-      isCurrentlyInTransit: job.isCurrentlyInTransit ?? false,
-      completionSubmittedAt: job.completionSubmittedAt,
-      updatedAt: job.updatedAt,
-      service: job.service ?? null,
-    },
-    trackingHistory: [],
-    steps,
-    isTrackable: steps != null,
-  };
+    return {
+      job: {
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        status: job.status as JobStatus,
+        trackingStatus: (job.trackingStatus as TrackingStatus | null) ?? null,
+        trackingNotes: job.trackingNotes ?? null,
+        isCurrentlyInTransit: job.isCurrentlyInTransit ?? false,
+        completionSubmittedAt: job.completionSubmittedAt,
+        updatedAt: job.updatedAt,
+        service: job.service ?? null,
+      },
+      trackingHistory: [],
+      steps,
+      isTrackable: steps != null,
+    };
+  }
 }
 
 /**
@@ -108,7 +116,6 @@ export async function fetchFreelancerJobTracking(jobId: string): Promise<Freelan
  * Backend route: POST /api/freelancer/jobs/[id]/tracking
  */
 export async function updateJobTracking(jobId: string, payload: UpdateTrackingPayload) {
-  console.log('Final PUT Payload:', payload);
   const response = await api.post<UpdateTrackingResponse | ApiEnvelope<UpdateTrackingResponse>>(
     `/api/freelancer/jobs/${encodeURIComponent(jobId)}/tracking`,
     payload,

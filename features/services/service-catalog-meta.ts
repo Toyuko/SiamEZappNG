@@ -64,6 +64,14 @@ export const SERVICE_CATALOG_META: Record<string, ServiceCatalogMeta> = {
     featured: false,
     active: true,
   },
+  'real-estate-services': {
+    category: 'home-property',
+    titleTh: 'บริการอสังหาริมทรัพย์',
+    descriptionTh: 'ซื้อ ขาย เช่า หรือลงทุน — อสังหาริมทรัพย์ของคุณคือสิ่งสำคัญของเราทั่วไทย',
+    badges: ['nationwide', 'popular'],
+    featured: true,
+    active: true,
+  },
   'vehicle-registration': {
     category: 'driving-vehicle',
     titleTh: 'ทะเบียนรถ',

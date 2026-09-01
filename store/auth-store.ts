@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 
-export type UserRole = 'client' | 'freelancer';
+export type UserRole = 'client' | 'freelancer' | 'corporate';
 
 type AuthUser = {
   id: string;
   email: string;
   name?: string;
-  /** From SiamEZ web API: `customer` | `freelancer` */
+  /** From SiamEZ web API: `customer` | `freelancer` | `corporate` | `CORPORATE` | `company` */
   role?: string;
 };
 

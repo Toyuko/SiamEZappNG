@@ -27,7 +27,7 @@ export type LauncherServiceSeed = {
   active: boolean;
 };
 
-/** Exactly 12 services — matches current SiamEZ web services directory */
+/** Active services — keep aligned with SiamEZ web services directory */
 export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
   {
     slug: 'marriage-registration',
@@ -138,8 +138,25 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
     active: true,
   },
   {
-    slug: 'car-motorbike-finding-selling',
+    slug: 'real-estate-services',
     sortOrder: 7,
+    category: 'home-property',
+    icon: 'business-outline',
+    titleEn: 'Real Estate Services',
+    titleTh: 'บริการอสังหาริมทรัพย์',
+    shortTitleEn: 'Real Estate',
+    shortTitleTh: 'อสังหาฯ',
+    descriptionEn: 'Buy, sell, rent, or invest — your property, our priority across Thailand.',
+    descriptionTh: 'ซื้อ ขาย เช่า หรือลงทุน — อสังหาริมทรัพย์ของคุณคือสิ่งสำคัญของเราทั่วไทย',
+    estimatedTime: 'Quote within 24 hours',
+    requirements: ['Buy/sell/rent/invest goal', 'Budget', 'Preferred area', 'Timeline'],
+    badges: ['nationwide', 'popular'],
+    featured: true,
+    active: true,
+  },
+  {
+    slug: 'car-motorbike-finding-selling',
+    sortOrder: 8,
     category: 'driving-vehicle',
     icon: 'car-sport-outline',
     titleEn: 'Car & Motorbike Finding and Selling Service',
@@ -158,7 +175,7 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
   },
   {
     slug: 'vehicle-registration',
-    sortOrder: 8,
+    sortOrder: 9,
     category: 'driving-vehicle',
     icon: 'bicycle-outline',
     titleEn: 'Vehicle Registration',
@@ -178,7 +195,7 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
   },
   {
     slug: 'transportation-services',
-    sortOrder: 9,
+    sortOrder: 10,
     category: 'transport-private-driver',
     icon: 'bus-outline',
     titleEn: 'Transportation Services',
@@ -196,7 +213,7 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
   },
   {
     slug: 'private-driver-service',
-    sortOrder: 10,
+    sortOrder: 11,
     category: 'transport-private-driver',
     icon: 'person-circle-outline',
     titleEn: 'Private Driver Service',
@@ -214,7 +231,7 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
   },
   {
     slug: 'event-planning-venue-services',
-    sortOrder: 11,
+    sortOrder: 12,
     category: 'events-lifestyle',
     icon: 'sparkles-outline',
     titleEn: 'Event Planning and Venue Services',
@@ -231,7 +248,7 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
   },
   {
     slug: 'basic-translation-fixed-price',
-    sortOrder: 12,
+    sortOrder: 13,
     category: 'translation-documents',
     icon: 'ribbon-outline',
     titleEn: 'Basic Translation Fixed Price',

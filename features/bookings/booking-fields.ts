@@ -11,7 +11,9 @@ export type BookingReqFieldId =
   | 'licenseType'
   | 'licenseStatus'
   | 'clearancePurpose'
-  | 'destination';
+  | 'destination'
+  | 'requestType'
+  | 'propertyType';
 
 export type BookingFieldDef = {
   id: BookingReqFieldId;
@@ -113,6 +115,22 @@ const DESTINATION_KEYS = [
   'book.opt.dest.other',
 ] as const;
 
+const REQUEST_TYPE_KEYS = [
+  'book.opt.request.buy',
+  'book.opt.request.sell',
+  'book.opt.request.rent',
+  'book.opt.request.invest',
+] as const;
+
+const PROPERTY_TYPE_KEYS = [
+  'book.opt.property.condo',
+  'book.opt.property.house',
+  'book.opt.property.townhouse',
+  'book.opt.property.land',
+  'book.opt.property.commercial',
+  'book.opt.property.villa',
+] as const;
+
 const FIELDS_BY_SLUG: Record<string, BookingFieldDef[]> = {
   'translation-services': [
     { id: 'documentType', labelKey: 'book.documentType', optionKeys: GENERIC_DOC_KEYS },
@@ -133,6 +151,10 @@ const FIELDS_BY_SLUG: Record<string, BookingFieldDef[]> = {
   'police-clearance': [
     { id: 'clearancePurpose', labelKey: 'book.clearancePurpose', optionKeys: CLEARANCE_PURPOSE_KEYS },
     { id: 'destination', labelKey: 'book.destinationCountry', optionKeys: DESTINATION_KEYS },
+  ],
+  'real-estate-services': [
+    { id: 'requestType', labelKey: 'book.requestType', optionKeys: REQUEST_TYPE_KEYS },
+    { id: 'propertyType', labelKey: 'book.propertyType', optionKeys: PROPERTY_TYPE_KEYS },
   ],
 };
 

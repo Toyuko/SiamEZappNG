@@ -1,0 +1,342 @@
+import { useMutation } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Alert, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { ListingBadges } from '../../components/marketplace/ListingBadges';
+import { RelatedListingsSection } from '../../components/marketplace/RelatedListingsSection';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Input } from '../../components/ui/Input';
+import { LoadingState } from '../../components/ui/loading-state';
+import { createListingEnquiry } from '../../features/seller/seller.api';
+import {
+  useCompareListing,
+  useMarketplaceEngagement,
+  useRecordListingView,
+  useSaveListing,
+} from '../../hooks/use-marketplace-engagement';
+import { usePropertyListing } from '../../hooks/use-real-estate-listings';
+import { t } from '../../lib/i18n/i18n';
+import { spacing } from '../../lib/theme/tokens';
+import { useTheme } from '../../lib/theme/theme';
+import { useAuthStore } from '../../store/auth-store';
+
+function formatMoney(amount: number, currency = 'THB') {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+}
+
+const CONTACT_LINE_URL = 'https://line.me/R/ti/p/@siamez';
+const CONTACT_WHATSAPP_URL = 'https://wa.me/66643438768';
+const CONTACT_PHONE_URL = 'tel:+66643438768';
+const CONTACT_EMAIL_URL = 'mailto:inquiries@siam-ez.com';
+
+async function openExternalLink(url: string) {
+  const canOpen = await Linking.canOpenURL(url);
+  if (!canOpen) {
+    Alert.alert(t('serviceDetail.cannotOpenLink'), t('serviceDetail.tryAgainLater'));
+    return;
+  }
+  await Linking.openURL(url);
+}
+
+function SpecRow({ label, value }: { label: string; value: string }) {
+  const { colors } = useTheme();
+  return (
+    <View className="mt-3 rounded-xl border p-3" style={{ borderColor: colors.border }}>
+      <Text className="text-xs uppercase tracking-wide" style={{ color: colors.muted }}>
+        {label}
+      </Text>
+      <Text className="mt-1 text-base font-semibold" style={{ color: colors.foreground }}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+export default function RealEstateDetailScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { colors } = useTheme();
+  const user = useAuthStore((state) => state.user);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
+  const isAuthenticated = Boolean(accessToken) && !isGuest;
+  const listingId = typeof id === 'string' ? id : '';
+  const listingQuery = usePropertyListing(listingId || undefined);
+  const listing = listingQuery.data ?? null;
+  const location = listing
+    ? [listing.neighborhood, listing.district, listing.province].filter(Boolean).join(', ')
+    : '';
+  const engagement = useMarketplaceEngagement(isAuthenticated);
+  const saveListing = useSaveListing();
+  const compareListing = useCompareListing();
+  const recordView = useRecordListingView();
+
+  const [enquiryName, setEnquiryName] = useState(user?.name ?? '');
+  const [enquiryEmail, setEnquiryEmail] = useState(user?.email ?? '');
+  const [enquiryPhone, setEnquiryPhone] = useState('');
+  const [enquiryMessage, setEnquiryMessage] = useState('');
+
+  const enquiry = useMutation({
+    mutationFn: createListingEnquiry,
+    onSuccess: () => {
+      setEnquiryMessage('');
+      Alert.alert('Sent', 'Your enquiry was sent to the seller.');
+    },
+    onError: (e) =>
+      Alert.alert('Could not send', e instanceof Error ? e.message : 'Try again'),
+  });
+
+  const saved = useMemo(
+    () =>
+      (engagement.data?.saved ?? []).some(
+        (item) => item.listingType === 'property' && item.listingId === listingId
+      ),
+    [engagement.data?.saved, listingId]
+  );
+  const inCompare = useMemo(
+    () =>
+      (engagement.data?.compare ?? []).some(
+        (item) => item.listingType === 'property' && item.listingId === listingId
+      ),
+    [engagement.data?.compare, listingId]
+  );
+
+  useEffect(() => {
+    if (!isAuthenticated || !listingId) return;
+    recordView.mutate({ listingType: 'property', listingId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, listingId]);
+
+  if (listingQuery.isLoading) {
+    return <LoadingState label="Loading listing…" />;
+  }
+
+  return (
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: spacing.screenPaddingX,
+          paddingTop: spacing.stackMd,
+          paddingBottom: 40,
+          gap: spacing.stackMd,
+        }}
+      >
+        <Pressable onPress={() => router.back()} className="self-start px-1 py-1">
+          <Text className="text-sm font-medium" style={{ color: colors.muted }}>
+            {t('realEstate.backToInventory')}
+          </Text>
+        </Pressable>
+        <Button label={t('common.back')} variant="secondary" size="md" onPress={() => router.back()} />
+
+        {!listing ? (
+          <Card>
+            <Text className="text-center text-sm" style={{ color: colors.muted }}>
+              {t('realEstate.notFound')}
+            </Text>
+          </Card>
+        ) : (
+          <Card shadow="medium">
+            <Text className="text-sm" style={{ color: colors.muted }}>
+              {t('realEstate.gallery')}
+            </Text>
+            <Image source={{ uri: listing.heroImageUrl }} className="h-56 w-full rounded-xl" resizeMode="cover" />
+            <Text className="mt-4 text-2xl font-bold" style={{ color: colors.primary }}>
+              {listing.priceAmount <= 0
+                ? t('realEstate.priceContactSeller')
+                : formatMoney(listing.priceAmount, listing.priceCurrency)}
+              {listing.listingType === 'rent' && listing.priceAmount > 0 ? (
+                <Text className="text-base font-medium" style={{ color: colors.muted }}>
+                  {' '}
+                  {t('realEstate.perMonth')}
+                </Text>
+              ) : null}
+            </Text>
+            <Text className="mt-1 text-xl font-semibold" style={{ color: colors.foreground }}>
+              {listing.title}
+            </Text>
+            {location ? (
+              <Text className="mt-1 text-sm" style={{ color: colors.muted }}>
+                {location}
+              </Text>
+            ) : null}
+            <ListingBadges
+              createdAt={listing.createdAt}
+              priceAmount={listing.priceAmount}
+              previousPriceAmount={listing.previousPriceAmount}
+              isBoosted={listing.isBoosted}
+              boostExpiresAt={listing.boostExpiresAt}
+              isVerified={listing.isVerified}
+            />
+
+            <SpecRow label={t('realEstate.listingType.label')} value={t(`realEstate.listingType.${listing.listingType}`)} />
+            <SpecRow
+              label={t('realEstate.propertyType.label')}
+              value={t(`realEstate.propertyType.${listing.propertyType}`)}
+            />
+            <SpecRow
+              label={t('realEstate.bedsLabel')}
+              value={
+                listing.bedrooms == null
+                  ? t('realEstate.bedsNa')
+                  : listing.bedrooms === 0
+                    ? t('realEstate.studio')
+                    : t('realEstate.bedsShort', { count: listing.bedrooms })
+              }
+            />
+            <SpecRow
+              label={t('realEstate.bathsLabel')}
+              value={
+                listing.bathrooms == null
+                  ? t('realEstate.bathsNa')
+                  : t('realEstate.bathsShort', { count: listing.bathrooms })
+              }
+            />
+            <SpecRow label={t('realEstate.areaLabel')} value={`${listing.areaSqm} m²`} />
+            {listing.landAreaSqm != null ? (
+              <SpecRow label={t('realEstate.landAreaLabel')} value={`${listing.landAreaSqm} m²`} />
+            ) : null}
+            {listing.floor != null ? (
+              <SpecRow label={t('realEstate.floorLabel')} value={String(listing.floor)} />
+            ) : null}
+            {listing.yearBuilt != null ? (
+              <SpecRow label={t('realEstate.yearBuiltLabel')} value={String(listing.yearBuilt)} />
+            ) : null}
+            <SpecRow
+              label={t('realEstate.furnishedLabel')}
+              value={t(`realEstate.furnished.${listing.furnished}`)}
+            />
+            <SpecRow
+              label={t('realEstate.sellerKind.label')}
+              value={t(`realEstate.sellerKind.${listing.sellerKind === 'dealer' ? 'dealerBadge' : 'privateBadge'}`)}
+            />
+
+            <View className="mt-4 rounded-xl border p-3" style={{ borderColor: colors.border }}>
+              <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+                {listing.title}
+              </Text>
+              {listing.description ? (
+                <Text className="mt-1 text-sm leading-6" style={{ color: colors.muted }}>
+                  {listing.description}
+                </Text>
+              ) : null}
+              <Text className="mt-3 text-xs uppercase tracking-wide" style={{ color: colors.muted }}>
+                {t(`realEstate.status.${listing.status === 'pending_boost' ? 'available' : listing.status}`)}
+              </Text>
+            </View>
+
+            {isAuthenticated ? (
+              <View className="mt-4 flex-row gap-2">
+                <View className="flex-1">
+                  <Button
+                    label={saved ? 'Saved' : 'Save'}
+                    variant={saved ? 'secondary' : 'primary'}
+                    size="md"
+                    onPress={() =>
+                      saveListing.mutate({
+                        listingType: 'property',
+                        listingId,
+                        saved: !saved,
+                      })
+                    }
+                  />
+                </View>
+                <View className="flex-1">
+                  <Button
+                    label={inCompare ? 'In compare' : 'Compare'}
+                    variant="secondary"
+                    size="md"
+                    onPress={() =>
+                      compareListing.mutate({
+                        listingType: 'property',
+                        listingId,
+                        inCompare: !inCompare,
+                      })
+                    }
+                  />
+                </View>
+              </View>
+            ) : null}
+
+            <View className="mt-4 gap-2">
+              <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
+                Send enquiry
+              </Text>
+              <Input label="Name" value={enquiryName} onChangeText={setEnquiryName} />
+              <Input label="Email" value={enquiryEmail} onChangeText={setEnquiryEmail} autoCapitalize="none" />
+              <Input label="Phone (optional)" value={enquiryPhone} onChangeText={setEnquiryPhone} keyboardType="phone-pad" />
+              <Input
+                label="Message"
+                value={enquiryMessage}
+                onChangeText={setEnquiryMessage}
+                multiline
+                numberOfLines={3}
+              />
+              <Button
+                label={enquiry.isPending ? 'Sending…' : 'Send enquiry'}
+                onPress={() => {
+                  if (!enquiryName.trim() || !enquiryEmail.trim() || !enquiryMessage.trim()) {
+                    Alert.alert('Missing fields', 'Name, email, and message are required.');
+                    return;
+                  }
+                  enquiry.mutate({
+                    listingType: 'property',
+                    listingId,
+                    name: enquiryName.trim(),
+                    email: enquiryEmail.trim(),
+                    phone: enquiryPhone.trim() || null,
+                    message: enquiryMessage.trim(),
+                  });
+                }}
+              />
+              <Button
+                label="Start viewing workflow"
+                variant="secondary"
+                size="md"
+                onPress={() => router.push('/(tabs)/workflows')}
+              />
+            </View>
+
+            <View className="mt-4">
+              <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
+                {t('realEstate.contactSeller')}
+              </Text>
+              <View className="mt-3 gap-2">
+                <Button
+                  label={t('realEstate.contactWhatsApp')}
+                  variant="secondary"
+                  size="md"
+                  onPress={() => void openExternalLink(CONTACT_WHATSAPP_URL)}
+                />
+                <Button
+                  label={t('realEstate.contactLine')}
+                  variant="secondary"
+                  size="md"
+                  onPress={() => void openExternalLink(CONTACT_LINE_URL)}
+                />
+                <Button
+                  label={t('realEstate.contactCall')}
+                  variant="secondary"
+                  size="md"
+                  onPress={() => void openExternalLink(CONTACT_PHONE_URL)}
+                />
+                <Button
+                  label={t('realEstate.contactEmail')}
+                  variant="secondary"
+                  size="md"
+                  onPress={() => void openExternalLink(CONTACT_EMAIL_URL)}
+                />
+              </View>
+            </View>
+          </Card>
+        )}
+
+        {listingId ? (
+          <RelatedListingsSection listingType="property" listingId={listingId} />
+        ) : null}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

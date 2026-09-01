@@ -44,7 +44,15 @@ export function usePushNotifications() {
         | undefined;
       const jobId = getNotificationJobId(data);
       if (jobId) {
-        navigateToJobChat(router, jobId, userRole);
+        navigateToJobChat(
+          router,
+          jobId,
+          userRole === 'freelancer'
+            ? 'freelancer'
+            : userRole === 'client'
+              ? 'client'
+              : null,
+        );
       }
     };
 
