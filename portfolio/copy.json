@@ -27,8 +27,8 @@
     "Playwright"
   ],
   "links": {
-    "web": "https://siam-e-zweb-ng.vercel.app/en",
-    "apiDefault": "https://siam-e-zweb-ng.vercel.app"
+    "web": "https://siam-ez.com/en",
+    "apiDefault": "https://siam-ez.com"
   },
   "screenshots": [
     { "file": "screenshots/01-login.png", "caption": "Auth — social login, guest mode, phone-framed web shell", "role": "hero" },

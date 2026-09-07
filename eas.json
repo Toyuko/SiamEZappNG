@@ -6,21 +6,46 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_ALLOW_MOCKS": "true"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_SOFT_LAUNCH": "true",
+        "EXPO_PUBLIC_FREELANCER_MOCK": "false",
+        "EXPO_PUBLIC_CORPORATE_MOCK": "false",
+        "EXPO_PUBLIC_E2E": "false",
+        "EXPO_PUBLIC_ALLOW_MOCKS": "false"
       }
     },
     "production": {
       "autoIncrement": true,
+      "channel": "production",
       "android": {
+        "buildType": "app-bundle",
         "credentialsSource": "remote"
       },
       "ios": {
         "credentialsSource": "remote"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_SOFT_LAUNCH": "true",
+        "EXPO_PUBLIC_FREELANCER_MOCK": "false",
+        "EXPO_PUBLIC_CORPORATE_MOCK": "false",
+        "EXPO_PUBLIC_E2E": "false",
+        "EXPO_PUBLIC_ALLOW_MOCKS": "false"
       }
     }
   },

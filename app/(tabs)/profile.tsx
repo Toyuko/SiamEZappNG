@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { type ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui/Button';
@@ -11,6 +11,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { ThemePicker } from '../../components/ui/ThemePicker';
 import { TrustStats } from '../../components/ui/TrustStats';
 import { useAuth } from '../../hooks/use-auth';
+import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -69,6 +70,33 @@ export default function ProfileScreen() {
   const { colors } = useTheme();
 
   const comingSoon = (title: string) => Alert.alert(title, 'This feature will be available soon.');
+
+  const openExternal = async (url: string, fallbackTitle: string) => {
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      if (!canOpen) {
+        Alert.alert(fallbackTitle, t('serviceDetail.tryAgainLater'));
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert(fallbackTitle, t('serviceDetail.tryAgainLater'));
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t('profile.deleteAccountTitle'),
+      t('profile.deleteAccountMessage'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('profile.contactSupport'),
+          onPress: () => void openExternal('https://wa.me/66643438768', t('profile.contactSupport')),
+        },
+      ],
+    );
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -182,9 +210,29 @@ export default function ProfileScreen() {
               <View className="mt-2">
                 <RowItem icon="help-buoy-outline" label="Contact support" onPress={() => router.push('/(tabs)/contact')} />
                 <Divider />
-                <RowItem icon="logo-whatsapp" label="WhatsApp chat" onPress={() => comingSoon('WhatsApp chat')} />
+                <RowItem
+                  icon="logo-whatsapp"
+                  label="WhatsApp chat"
+                  onPress={() => void openExternal('https://wa.me/66643438768', 'WhatsApp')}
+                />
                 <Divider />
                 <RowItem icon="help-circle-outline" label="FAQ" onPress={() => router.push('/(tabs)/services')} />
+                <Divider />
+                <RowItem
+                  icon="document-text-outline"
+                  label={t('profile.privacyPolicy')}
+                  onPress={() =>
+                    void openExternal(`${appConfig.webBaseUrl.replace(/\/+$/, '')}/privacy`, t('profile.privacyPolicy'))
+                  }
+                />
+                <Divider />
+                <RowItem
+                  icon="reader-outline"
+                  label={t('profile.termsOfService')}
+                  onPress={() =>
+                    void openExternal(`${appConfig.webBaseUrl.replace(/\/+$/, '')}/terms`, t('profile.termsOfService'))
+                  }
+                />
               </View>
             </Card>
 
@@ -196,6 +244,13 @@ export default function ProfileScreen() {
                 <RowItem icon="phone-portrait-outline" label="Logout all devices" onPress={() => comingSoon('Logout all devices')} />
                 <Divider />
                 <RowItem icon="shield-checkmark-outline" label="Session management" onPress={() => comingSoon('Session management')} />
+                <Divider />
+                <RowItem
+                  icon="trash-outline"
+                  label={t('profile.deleteAccount')}
+                  onPress={handleDeleteAccount}
+                  showChevron={false}
+                />
               </View>
               <View className="mt-4">
                 <Button label="Logout" variant="secondary" onPress={() => void handleLogout()} />

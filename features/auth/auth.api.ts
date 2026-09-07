@@ -1,4 +1,4 @@
-import { ApiError, api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
+import { api, type ApiEnvelope, unwrapApiData } from '../../lib/api';
 import type { AuthUser } from '../../store/auth-store';
 
 export type LoginPayload = {
@@ -73,19 +73,8 @@ export async function signUpWithEmail(payload: SignUpPayload) {
   return normalized;
 }
 
-export async function attachGuestCasesToUser(email: string, userId: string) {
-  const payload = { email, userId, isGuest: false };
-  const candidatePaths = ['/api/cases/attach-guest', '/cases/attach-guest', '/api/auth/upgrade-guest-cases', '/auth/upgrade-guest-cases'];
-
-  for (const path of candidatePaths) {
-    try {
-      await api.post<unknown>(path, payload);
-      return;
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 404) {
-        continue;
-      }
-      throw error;
-    }
-  }
+export async function attachGuestCasesToUser(_email: string, _userId: string) {
+  // Guest cases are linked server-side inside POST /api/auth/register
+  // (`linkGuestCasesToUser`). No separate mobile attach endpoint exists.
+  return;
 }

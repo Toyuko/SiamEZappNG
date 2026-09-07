@@ -15,6 +15,7 @@ import { exchangeOAuthCode, parseOAuthRedirect } from '../lib/auth/oauth';
 import { mapApiRoleToUserRole } from '../lib/auth/role';
 import { appConfig } from '../lib/config';
 import { endSession } from '../lib/session/end-session';
+import { getAppQueryClient } from '../lib/query/query-client';
 import { getAccessToken, saveAccessToken } from '../lib/storage/session-storage';
 import { getUserRole, saveUserRole } from '../lib/storage/user-role-storage';
 import type { AuthUser } from '../store/auth-store';
@@ -31,6 +32,8 @@ export function useAuth() {
 
   const applySession = useCallback(
     async (token: string, user: AuthUser) => {
+      // Drop any prior user's React Query cache before installing the new session.
+      getAppQueryClient().clear();
       await saveAccessToken(token);
       const storedRole = await getUserRole();
       const userRole = await resolveUserRole(user, storedRole);
@@ -113,7 +116,9 @@ export function useAuth() {
     await endSession();
   }, []);
 
-  const continueAsGuest = useCallback(() => {
+  const continueAsGuest = useCallback(async () => {
+    // Ensure no prior SecureStore JWT / cached PII remains when choosing guest.
+    await endSession();
     enterGuestMode();
   }, [enterGuestMode]);
 

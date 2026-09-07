@@ -65,47 +65,35 @@ export async function registerPushTokenWithBackend(): Promise<string | null> {
 
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
-  const pushToken = projectId
-    ? await Notifications.getExpoPushTokenAsync({ projectId })
-    : await Notifications.getExpoPushTokenAsync();
+
+  if (!projectId) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      console.warn(
+        '[push] Missing EAS projectId (run `eas init`). Skipping Expo push token registration.',
+      );
+    }
+    return null;
+  }
+
+  let pushToken;
+  try {
+    pushToken = await Notifications.getExpoPushTokenAsync({ projectId });
+  } catch (error) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__) {
+      console.warn('[push] Failed to get Expo push token', error);
+    }
+    return null;
+  }
 
   await api.post('/api/users/push-token', { token: pushToken.data });
 
   return pushToken.data;
 }
 
-async function getExpoPushTokenIfAvailable(): Promise<string | null> {
-  if (!canRegisterPushToken()) {
-    return null;
-  }
-
-  const { status } = await Notifications.getPermissionsAsync();
-  if (status !== 'granted') {
-    return null;
-  }
-
-  try {
-    const projectId =
-      Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
-    const pushToken = projectId
-      ? await Notifications.getExpoPushTokenAsync({ projectId })
-      : await Notifications.getExpoPushTokenAsync();
-    return pushToken.data;
-  } catch {
-    return null;
-  }
-}
-
 /** Best-effort server-side push token cleanup on logout. Errors are ignored. */
 export async function unregisterPushTokenFromBackend(): Promise<void> {
   try {
-    await getExpoPushTokenIfAvailable();
-    try {
-      await api.delete('/api/users/push-token');
-      return;
-    } catch {
-      await api.post('/api/users/push-token', { token: null });
-    }
+    await api.delete('/api/users/push-token');
   } catch {
     // ignore — logout must continue
   }

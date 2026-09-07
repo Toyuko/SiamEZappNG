@@ -3,6 +3,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
+import { OfflineBanner } from '../network/OfflineBanner';
+import { AppErrorBoundary } from './AppErrorBoundary';
 import { usePushNotifications } from '../../hooks/use-push-notifications';
 import { setI18nLanguage } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
@@ -27,10 +29,13 @@ export function AppProviders({ children }: PropsWithChildren) {
 
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <AppEnvironment />
-        {children}
-      </QueryClientProvider>
+      <AppErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <AppEnvironment />
+          <OfflineBanner />
+          {children}
+        </QueryClientProvider>
+      </AppErrorBoundary>
     </SafeAreaProvider>
   );
 }

@@ -4,7 +4,7 @@
 
 SiamEZ is an **Expo + React Native (TypeScript) mobile app** (single project, not a
 monorepo). It is frontend-only and consumes a remote backend
-(`EXPO_PUBLIC_API_URL`, default `https://siam-e-zweb-ng.vercel.app`). There is no
+(`EXPO_PUBLIC_API_URL`, default `https://siam-ez.com`). There is no
 local database or in-repo backend to run. Standard commands live in
 `package.json` scripts — refer to them rather than reinventing.
 

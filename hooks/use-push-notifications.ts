@@ -33,26 +33,34 @@ export function usePushNotifications() {
     void registerPushTokenWithBackend().catch(() => undefined);
 
     const onNotification = (notification: Notifications.Notification) => {
-      handleFreelancerNotification(notification);
+      try {
+        handleFreelancerNotification(notification);
+      } catch {
+        // ignore malformed foreground notifications
+      }
     };
 
     const onResponse = (response: Notifications.NotificationResponse) => {
-      handleFreelancerNotification(response.notification);
+      try {
+        handleFreelancerNotification(response.notification);
 
-      const data = response.notification.request.content.data as
-        | Record<string, unknown>
-        | undefined;
-      const jobId = getNotificationJobId(data);
-      if (jobId) {
-        navigateToJobChat(
-          router,
-          jobId,
-          userRole === 'freelancer'
-            ? 'freelancer'
-            : userRole === 'client'
-              ? 'client'
-              : null,
-        );
+        const raw = response.notification.request.content.data;
+        const data =
+          raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : undefined;
+        const jobId = getNotificationJobId(data);
+        if (jobId) {
+          navigateToJobChat(
+            router,
+            jobId,
+            userRole === 'freelancer'
+              ? 'freelancer'
+              : userRole === 'client'
+                ? 'client'
+                : null,
+          );
+        }
+      } catch {
+        // ignore malformed notification taps
       }
     };
 

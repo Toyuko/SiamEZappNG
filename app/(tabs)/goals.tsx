@@ -70,6 +70,7 @@ export default function GoalsScreen() {
           <View className="mt-3">
             <Button
               label={createGoal.isPending ? 'Saving…' : 'Add goal'}
+              disabled={createGoal.isPending}
               onPress={() => {
                 const trimmed = title.trim();
                 if (!trimmed) {

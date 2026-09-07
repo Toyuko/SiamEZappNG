@@ -337,8 +337,8 @@ export function likeFreelancer(state: MatchingState, freelancerId: string, kind:
   if (!existing) return state;
 
   const previous = existing.clientAction;
-  let next = { ...existing, clientAction: kind };
-  next = simulateFreelancerReply(next, freelancer, kind);
+  const liked: MatchRecord = { ...existing, clientAction: kind };
+  const next = simulateFreelancerReply(liked, freelancer, kind);
   const resolved = withMutualMatch(next, freelancer, job);
 
   const messages = { ...state.messages };

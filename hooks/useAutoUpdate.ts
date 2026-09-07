@@ -34,7 +34,9 @@ export function useAutoUpdate() {
         ],
       );
     } catch (error) {
-      console.log('[useAutoUpdate] Failed to check or fetch update:', error);
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.warn('[useAutoUpdate] Failed to check or fetch update:', error);
+      }
     }
   }, []);
 

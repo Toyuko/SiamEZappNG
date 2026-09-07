@@ -130,16 +130,18 @@ export default function LoginScreen() {
                 kind="guest"
                 label={t('auth.continueAsGuest')}
                 onPress={() => {
-                  continueAsGuest();
-                  router.replace('/(tabs)/services');
+                  void continueAsGuest().then(() => {
+                    router.replace('/(tabs)/services');
+                  });
                 }}
               />
               <SocialButton
                 kind="guest"
                 label="Try AI Matching"
                 onPress={() => {
-                  continueAsGuest();
-                  router.replace('/smart-match');
+                  void continueAsGuest().then(() => {
+                    router.replace('/smart-match');
+                  });
                 }}
               />
 

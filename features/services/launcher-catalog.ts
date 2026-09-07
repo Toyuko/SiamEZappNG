@@ -1,13 +1,14 @@
 import type { ServiceBadgeId, ServiceCatalogIconName, ServiceCategoryId } from './services.types';
 
 /**
- * Web-aligned service launcher catalog (https://siam-e-zweb-ng.vercel.app/en/services).
+ * Web-aligned service launcher catalog (https://siam-ez.com/en/services).
  *
  * HOW TO ADD A NEW SERVICE:
  * 1. Add an entry to `LAUNCHER_SERVICE_SEEDS` below (keep `sortOrder` sequential).
  * 2. Optionally add a full detail block in `rawServiceCatalog` (services.data.ts).
  * 3. Add `SERVICE_CATALOG_META` row and search aliases in `service-search.ts`.
- */
+ * 4. If the app display slug differs from the website canonical slug, map it in
+ *    `toBackendServiceSlug` (`features/bookings/in-app-booking.ts`). */
 export type LauncherServiceSeed = {
   slug: string;
   sortOrder: number;
@@ -43,7 +44,7 @@ export const LAUNCHER_SERVICE_SEEDS: LauncherServiceSeed[] = [
     descriptionTh: 'ดูแลครบทุกขั้นตอนสำหรับการจดทะเบียนสมรสในไทย เอกสาร และข้อกำหนดทางกฎหมาย',
     estimatedTime: '2–4 weeks',
     requirements: ['Passport', 'Birth certificate', 'Embassy docs', 'Thai partner ID'],
-    badges: ['popular', 'fixedPrice'],
+    badges: ['popular', 'nationwide'],
     featured: false,
     active: true,
   },

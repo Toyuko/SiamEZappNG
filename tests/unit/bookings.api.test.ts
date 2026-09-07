@@ -18,11 +18,17 @@ describe('createBooking', () => {
     vi.resetModules();
   });
 
-  it('posts the website booking contract and unwraps the envelope', async () => {
+    it('posts the website booking contract and unwraps the envelope', async () => {
     const { createBooking } = await import('../../features/bookings/bookings.api');
     postMock.mockResolvedValueOnce({
       success: true,
-      data: { caseId: 'c-1', caseNumber: 'SEZ-1001', guestCheckoutToken: 'tok' },
+      data: {
+        caseId: 'c-1',
+        caseNumber: 'SEZ-1001',
+        isFixed: true,
+        payAtOffice: false,
+        guestCheckoutToken: 'tok',
+      },
     });
 
     const result = await createBooking({
@@ -42,7 +48,9 @@ describe('createBooking', () => {
       formData: { notes: 'hi' },
       documentIds: ['d-1'],
     });
+    expect(result.caseId).toBe('c-1');
     expect(result.caseNumber).toBe('SEZ-1001');
+    expect(result.isFixed).toBe(true);
     expect(result.guestCheckoutToken).toBe('tok');
   });
 });

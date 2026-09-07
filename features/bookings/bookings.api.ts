@@ -16,8 +16,11 @@ export type CreateBookingPayload = {
 export type CreateBookingResponse = {
   caseId?: string;
   caseNumber?: string;
+  /** Fixed-price services are payable immediately on the website checkout page. */
   isFixed?: boolean;
-  /** Guest-only token to reach the checkout page. */
+  /** Some services settle at the office instead of online checkout. */
+  payAtOffice?: boolean;
+  /** Guest-only token for `/checkout/{caseId}?token=…` (not a path segment). */
   guestCheckoutToken?: string;
 };
 

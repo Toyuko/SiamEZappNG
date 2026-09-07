@@ -20,9 +20,17 @@ function isJobApprovedPayload(data: Record<string, unknown> | undefined) {
 }
 
 export function handleFreelancerNotification(notification: Notifications.Notification) {
-  const data = notification.request.content.data as Record<string, unknown> | undefined;
-  if (isJobApprovedPayload(data)) {
-    showJobApprovedAlert();
+  try {
+    const raw = notification.request.content.data;
+    if (!raw || typeof raw !== 'object') {
+      return;
+    }
+    const data = raw as Record<string, unknown>;
+    if (isJobApprovedPayload(data)) {
+      showJobApprovedAlert();
+    }
+  } catch {
+    // Never crash the app on a malformed push payload.
   }
 }
 

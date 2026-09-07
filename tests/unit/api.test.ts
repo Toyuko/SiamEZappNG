@@ -141,7 +141,16 @@ describe('lib/api', () => {
     await expect(api.get('/api/cases')).rejects.toMatchObject({
       name: 'ApiError',
       status: 0,
-      message: 'network down',
+      message: 'Unable to reach SiamEZ right now. Please try again.',
+    });
+  });
+
+  it('maps offline fetch errors to a clear customer message', async () => {
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network request failed'));
+    const { api } = await import('../../lib/api');
+    await expect(api.get('/api/cases')).rejects.toMatchObject({
+      status: 0,
+      message: 'No internet connection. Check your network and try again.',
     });
   });
 

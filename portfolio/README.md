@@ -52,7 +52,7 @@ A single Expo + React Native codebase with role-based shells:
 Expo 55 · React Native 0.83 · React 19 · TypeScript · Expo Router · NativeWind · Zustand · TanStack Query · Axios · Pusher · i18n-js · Reanimated · Gifted Chat · Vitest · Playwright
 
 ### Links
-- Companion web: [siam-e-zweb-ng.vercel.app](https://siam-e-zweb-ng.vercel.app/en)
+- Companion web: [siam-ez.com](https://siam-ez.com/en)
 - Repo: `SiamEZappNG` (Expo mobile client)
 
 ---

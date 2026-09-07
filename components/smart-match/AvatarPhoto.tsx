@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, View, type DimensionValue } from 'react-native';
 
 import { siam } from '../../lib/theme/tokens';
 
 type AvatarPhotoProps = {
   uri: string | null;
   name: string;
-  width: number | string;
-  height: number | string;
+  width: DimensionValue;
+  height: DimensionValue;
   borderRadius?: number;
 };
 

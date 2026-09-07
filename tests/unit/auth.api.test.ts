@@ -79,13 +79,9 @@ describe('features/auth/auth.api', () => {
     expect(me.id).toBe('u1');
   });
 
-  it('tries multiple attach-guest paths until success', async () => {
+  it('no-ops guest attach (register links cases server-side)', async () => {
     const { attachGuestCasesToUser } = await import('../../features/auth/auth.api');
-    postMock
-      .mockRejectedValueOnce(new MockApiError('missing', 404, null))
-      .mockRejectedValueOnce(new MockApiError('missing', 404, null))
-      .mockResolvedValueOnce({ ok: true });
     await attachGuestCasesToUser('valid@example.com', 'user-1');
-    expect(postMock).toHaveBeenCalledTimes(3);
+    expect(postMock).not.toHaveBeenCalled();
   });
 });

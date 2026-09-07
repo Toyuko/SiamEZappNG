@@ -24,6 +24,7 @@ import { isAllowedDocumentUpload } from '../../features/documents/document-uploa
 import { serviceCatalog } from '../../features/services/services.data';
 import { useCreateBooking } from '../../hooks/use-create-booking';
 import { useUploadDocument } from '../../hooks/use-upload-document';
+import { buildGuestCheckoutUrl, canOpenGuestCheckout } from '../../lib/bookings/guest-checkout';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -59,7 +60,10 @@ export default function BookScreen() {
   const [req, setReq] = useState<Partial<Record<BookingReqFieldId, string>>>({});
   const [uploadedDocuments, setUploadedDocuments] = useState<UploadedDoc[]>([]);
   const [bookingResult, setBookingResult] = useState<{
+    caseId?: string;
     caseNumber?: string;
+    isFixed?: boolean;
+    payAtOffice?: boolean;
     guestCheckoutToken?: string;
   } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -173,9 +177,13 @@ export default function BookScreen() {
     }
     if (!email.trim()) {
       nextErrors.email = t('book.requiredEmail');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      nextErrors.email = t('book.invalidEmail');
     }
     if (!phone.trim()) {
       nextErrors.phone = t('book.requiredPhone');
+    } else if (phone.replace(/\D/g, '').length < 8) {
+      nextErrors.phone = t('book.invalidPhone');
     }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -223,6 +231,25 @@ export default function BookScreen() {
       return;
     }
     await Linking.openURL(WHATSAPP_BOOKING_URL);
+  };
+
+  const openGuestCheckout = async () => {
+    const caseId = bookingResult?.caseId;
+    const token = bookingResult?.guestCheckoutToken;
+    if (!canOpenGuestCheckout({ caseId, guestCheckoutToken: token })) {
+      Alert.alert(t('book.paymentUnavailableTitle'), t('book.paymentUnavailableBody'));
+      return;
+    }
+    try {
+      await Linking.openURL(
+        buildGuestCheckoutUrl({
+          caseId: caseId!,
+          guestCheckoutToken: token,
+        }),
+      );
+    } catch {
+      Alert.alert(t('serviceDetail.cannotOpenLink'), t('serviceDetail.tryAgainLater'));
+    }
   };
 
   const pickFile = async () => {
@@ -305,6 +332,9 @@ export default function BookScreen() {
   };
 
   const submitBooking = async () => {
+    if (bookingMutation.isPending || submitted) {
+      return;
+    }
     if (!validateStep1() || !validateStep2()) {
       return;
     }
@@ -337,7 +367,10 @@ export default function BookScreen() {
     try {
       const result = await bookingMutation.mutateAsync(payload);
       setBookingResult({
+        caseId: typeof result?.caseId === 'string' ? result.caseId : undefined,
         caseNumber: typeof result?.caseNumber === 'string' ? result.caseNumber : undefined,
+        isFixed: result?.isFixed === true,
+        payAtOffice: result?.payAtOffice === true,
         guestCheckoutToken:
           typeof result?.guestCheckoutToken === 'string' ? result.guestCheckoutToken : undefined,
       });
@@ -389,28 +422,55 @@ export default function BookScreen() {
 
   const renderStepContent = () => {
     if (submitted) {
+      const canPay = canOpenGuestCheckout({
+        caseId: bookingResult?.caseId,
+        guestCheckoutToken: bookingResult?.guestCheckoutToken,
+      });
+      const payAtOffice = bookingResult?.payAtOffice === true;
+      const isFixed = bookingResult?.isFixed === true;
+      const successSubtitle = payAtOffice
+        ? t('book.bookingSubmittedPayAtOffice')
+        : canPay
+          ? t('book.bookingSubmittedPayNow')
+          : isFixed && !isGuest
+            ? t('book.bookingSubmittedSignInToPay')
+            : t('book.bookingSubmittedSubtitle');
+
       return (
         <Card className="py-6">
           <Text className="text-xl font-bold" style={{ color: colors.success }}>
             {t('book.bookingSubmitted')}
           </Text>
           <Text className="mt-2 leading-6" style={{ color: colors.text }}>
-            {t('book.bookingSubmittedSubtitle')}
+            {successSubtitle}
           </Text>
           {bookingResult?.caseNumber ? (
             <Text className="mt-3 text-base font-semibold" style={{ color: colors.text }}>
               {t('book.caseNumber')}: {bookingResult.caseNumber}
             </Text>
           ) : null}
+          {canPay ? (
+            <Text className="mt-3 text-sm leading-5" style={{ color: colors.mutedText }}>
+              {t('book.paymentNotConfirmedYet')}
+            </Text>
+          ) : null}
           <View className="mt-5 gap-3">
+            {canPay ? (
+              <Button label={t('book.payNow')} onPress={() => void openGuestCheckout()} />
+            ) : null}
             {isGuest ? (
-              <Button label={t('book.createAccount')} onPress={() => router.replace('/(auth)/signup')} />
+              <Button
+                label={t('book.createAccount')}
+                variant={canPay ? 'secondary' : 'primary'}
+                onPress={() => router.replace('/(auth)/signup')}
+              />
             ) : null}
             <Button
               label={t('book.trackCase')}
-              variant={isGuest ? 'secondary' : 'primary'}
+              variant={isGuest || canPay ? 'secondary' : 'primary'}
               onPress={() => router.replace(isGuest ? '/(auth)/login' : '/(tabs)/dashboard')}
             />
+            <Button label={t('book.chatWhatsApp')} variant="secondary" onPress={() => void openWhatsApp()} />
           </View>
         </Card>
       );

@@ -11,6 +11,7 @@
     "ios",
     "dist",
     "dist-demo",
+    "dist-portfolio",
     "coverage",
     "portfolio",
     "test-results"

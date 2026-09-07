@@ -29,6 +29,8 @@ credentials/android/keystore.properties
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+android-logcat.txt
+*.log
 
 # macOS
 .DS_Store

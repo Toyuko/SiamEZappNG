@@ -31,7 +31,7 @@ Auth stack: `/(auth)/login`, `/(auth)/signup`.
 Set the API base URL (no trailing `/api` required — paths include it):
 
 ```bash
-EXPO_PUBLIC_API_URL=https://siam-e-zweb-ng.vercel.app
+EXPO_PUBLIC_API_URL=https://siam-ez.com
 ```
 
 Legacy alias `EXPO_PUBLIC_API_BASE_URL` is still read by `lib/config.ts`.

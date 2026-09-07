@@ -77,6 +77,26 @@ async function parseResponseBody(response: Response) {
   }
 }
 
+/** Map low-level fetch failures to short customer-safe copy (never dump stack traces). */
+export function toUserFacingNetworkMessage(error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error ?? '');
+  const lower = raw.toLowerCase();
+  if (
+    lower.includes('network request failed') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('internet connection appears to be offline') ||
+    lower.includes('the internet connection appears to be offline') ||
+    lower.includes('offline')
+  ) {
+    return 'No internet connection. Check your network and try again.';
+  }
+  if (lower.includes('timed out') || lower.includes('timeout')) {
+    return 'Request timed out. Please try again.';
+  }
+  return 'Unable to reach SiamEZ right now. Please try again.';
+}
+
 function getErrorMessage(data: unknown, status: number) {
   if (typeof data === 'string' && data.trim().length > 0) {
     const trimmed = data.trim();
@@ -161,8 +181,7 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown, opti
     if (isAbortError(err)) {
       throw new ApiError('Request timed out. Please try again.', 0, null);
     }
-    const message = err instanceof Error ? err.message : 'Network request failed';
-    throw new ApiError(message, 0, null);
+    throw new ApiError(toUserFacingNetworkMessage(err), 0, null);
   } finally {
     timeout.cancel();
   }
