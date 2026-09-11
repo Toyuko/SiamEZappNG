@@ -36,11 +36,14 @@ function TabBarIcon({
   Icon,
   activeColor,
   inactiveColor,
+  compact = false,
 }: {
   focused: boolean;
   Icon: LucideIcon;
   activeColor: string;
   inactiveColor: string;
+  /** Soft-launch guest IA shows 6 tabs; shrink icon chrome so labels fit. */
+  compact?: boolean;
 }) {
   const { isDark } = useTheme();
   const tint = isDark ? 'rgba(91, 118, 224, 0.28)' : 'rgba(44, 84, 198, 0.14)';
@@ -53,7 +56,7 @@ function TabBarIcon({
         justifyContent: 'center',
         minWidth: TAB_ICON_SIZE + 4,
         minHeight: TAB_ICON_SIZE + 4,
-        paddingHorizontal: 14,
+        paddingHorizontal: compact ? 4 : 14,
         paddingVertical: 5,
         borderRadius: 14,
         backgroundColor: focused ? tint : 'transparent',
@@ -93,6 +96,8 @@ export default function TabsLayout() {
         ? { href: null }
         : {};
 
+  // Soft-launch guest IA shows six primary tabs; tighten chrome so labels fit.
+  const compactTabs = softLaunch.enabled;
   // Include system nav / home-indicator inset so 3-button and gesture bars don't cover tabs.
   const tabBarPaddingBottom = TAB_BAR_PADDING_BOTTOM + insets.bottom;
   const tabBarHeight = VOICE_FAB_TAB_BAR_HEIGHT + insets.bottom;
@@ -110,11 +115,12 @@ export default function TabsLayout() {
           paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: compactTabs ? 10 : 11,
           fontWeight: '600',
           marginTop: 4,
-          letterSpacing: 0.2,
+          letterSpacing: compactTabs ? 0 : 0.2,
         },
+        tabBarItemStyle: compactTabs ? { paddingHorizontal: 0 } : undefined,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.mutedText,
       }}
@@ -129,6 +135,7 @@ export default function TabsLayout() {
               Icon={LayoutGrid}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideForCorporate,
@@ -144,6 +151,7 @@ export default function TabsLayout() {
               Icon={Home}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideForCorporate,
@@ -160,6 +168,7 @@ export default function TabsLayout() {
               Icon={Car}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideForCorporate,
@@ -175,6 +184,7 @@ export default function TabsLayout() {
               Icon={Building2}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideForCorporate,
@@ -190,6 +200,7 @@ export default function TabsLayout() {
               Icon={Calendar}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideMemberTabsForCorporate,
@@ -206,6 +217,7 @@ export default function TabsLayout() {
               Icon={HardHat}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideWhenGuest,
@@ -222,6 +234,7 @@ export default function TabsLayout() {
               Icon={Gauge}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...showOnlyCorporate,
@@ -237,6 +250,7 @@ export default function TabsLayout() {
               Icon={Briefcase}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...showOnlyCorporate,
@@ -252,6 +266,7 @@ export default function TabsLayout() {
               Icon={Megaphone}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...showOnlyCorporate,
@@ -267,6 +282,7 @@ export default function TabsLayout() {
               Icon={Building2}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...showOnlyCorporate,
@@ -282,6 +298,7 @@ export default function TabsLayout() {
               Icon={Mail}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideWhenMember,
@@ -298,6 +315,7 @@ export default function TabsLayout() {
               Icon={Gauge}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           href: null,
@@ -313,6 +331,7 @@ export default function TabsLayout() {
               Icon={Briefcase}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideMemberTabsForCorporate,
@@ -328,6 +347,7 @@ export default function TabsLayout() {
               Icon={FileText}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           href: null,
@@ -392,6 +412,7 @@ export default function TabsLayout() {
               Icon={User}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           href: null,
@@ -407,6 +428,7 @@ export default function TabsLayout() {
               Icon={Menu}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideMoreTab,
@@ -422,6 +444,7 @@ export default function TabsLayout() {
               Icon={CircleUserRound}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
+              compact={compactTabs}
             />
           ),
           ...hideWhenMember,

@@ -70,6 +70,9 @@ export function SelectField({ label, placeholder, value, onChange, options, erro
                     key={item.value}
                     className="rounded-xl px-3 py-2.5"
                     style={{ backgroundColor: active ? colors.primary : 'transparent' }}
+                    accessibilityRole="button"
+                    accessibilityLabel={item.label}
+                    accessibilityState={{ selected: active }}
                     onPress={() => {
                       onChange(item.value);
                       setOpen(false);

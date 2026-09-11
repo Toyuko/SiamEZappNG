@@ -40,10 +40,28 @@ describe('buildGuestCheckoutUrl', () => {
     );
   });
 
-  it('canOpenGuestCheckout requires both case id and token', async () => {
+  it('canOpenGuestCheckout requires fixed-price + case id + token (not pay-at-office)', async () => {
     const { canOpenGuestCheckout } = await import('../../lib/bookings/guest-checkout');
-    expect(canOpenGuestCheckout({ caseId: 'c1', guestCheckoutToken: 't1' })).toBe(true);
-    expect(canOpenGuestCheckout({ caseId: 'c1', guestCheckoutToken: '  ' })).toBe(false);
-    expect(canOpenGuestCheckout({ caseId: '', guestCheckoutToken: 't1' })).toBe(false);
+    expect(
+      canOpenGuestCheckout({ caseId: 'c1', guestCheckoutToken: 't1', isFixed: true }),
+    ).toBe(true);
+    expect(
+      canOpenGuestCheckout({ caseId: 'c1', guestCheckoutToken: 't1', isFixed: false }),
+    ).toBe(false);
+    expect(canOpenGuestCheckout({ caseId: 'c1', guestCheckoutToken: 't1' })).toBe(false);
+    expect(
+      canOpenGuestCheckout({
+        caseId: 'c1',
+        guestCheckoutToken: 't1',
+        isFixed: true,
+        payAtOffice: true,
+      }),
+    ).toBe(false);
+    expect(
+      canOpenGuestCheckout({ caseId: 'c1', guestCheckoutToken: '  ', isFixed: true }),
+    ).toBe(false);
+    expect(
+      canOpenGuestCheckout({ caseId: '', guestCheckoutToken: 't1', isFixed: true }),
+    ).toBe(false);
   });
 });

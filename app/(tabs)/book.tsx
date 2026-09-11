@@ -262,7 +262,14 @@ export default function BookScreen() {
   const openGuestCheckout = async () => {
     const caseId = bookingResult?.caseId;
     const token = bookingResult?.guestCheckoutToken;
-    if (!canOpenGuestCheckout({ caseId, guestCheckoutToken: token })) {
+    if (
+      !canOpenGuestCheckout({
+        caseId,
+        guestCheckoutToken: token,
+        isFixed: bookingResult?.isFixed,
+        payAtOffice: bookingResult?.payAtOffice,
+      })
+    ) {
       Alert.alert(t('book.paymentUnavailableTitle'), t('book.paymentUnavailableBody'));
       return;
     }
@@ -451,12 +458,14 @@ export default function BookScreen() {
 
   const renderStepContent = () => {
     if (submitted) {
+      const payAtOffice = bookingResult?.payAtOffice === true;
+      const isFixed = bookingResult?.isFixed === true;
       const canPay = canOpenGuestCheckout({
         caseId: bookingResult?.caseId,
         guestCheckoutToken: bookingResult?.guestCheckoutToken,
+        isFixed,
+        payAtOffice,
       });
-      const payAtOffice = bookingResult?.payAtOffice === true;
-      const isFixed = bookingResult?.isFixed === true;
       const successSubtitle = payAtOffice
         ? t('book.bookingSubmittedPayAtOffice')
         : canPay

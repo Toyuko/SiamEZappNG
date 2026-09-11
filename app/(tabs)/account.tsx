@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { ThemePicker } from '../../components/ui/ThemePicker';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -26,6 +28,26 @@ export default function GuestAccountScreen() {
           <View className="mt-4 gap-3">
             <Button label={t('auth.signIn')} onPress={() => router.push('/(auth)/login')} />
             <Button label={t('auth.signUp')} variant="secondary" onPress={() => router.push('/(auth)/signup')} />
+          </View>
+        </Card>
+
+        <Card>
+          <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
+            {t('settings.title')}
+          </Text>
+          <View className="mt-4 gap-4">
+            <View className="flex-row items-center justify-between gap-3">
+              <Text className="text-sm font-medium" style={{ color: colors.muted }}>
+                {t('settings.theme')}
+              </Text>
+              <ThemePicker />
+            </View>
+            <View className="flex-row items-center justify-between gap-3">
+              <Text className="text-sm font-medium" style={{ color: colors.muted }}>
+                {t('settings.language')}
+              </Text>
+              <LanguageToggle />
+            </View>
           </View>
         </Card>
 

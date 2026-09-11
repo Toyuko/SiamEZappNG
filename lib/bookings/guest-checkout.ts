@@ -27,10 +27,19 @@ export function buildGuestCheckoutUrl(params: GuestCheckoutParams): string {
   return url.toString();
 }
 
-/** Whether the booking response is enough to open guest checkout in an external browser. */
+/**
+ * Whether the booking response is enough to open guest checkout in an external browser.
+ *
+ * Fixed-price (invoiced) bookings only — quote-based cases often receive a token from the API
+ * but have no invoice yet, so the website checkout page returns "Invoice not found".
+ */
 export function canOpenGuestCheckout(params: {
   caseId?: string | null;
   guestCheckoutToken?: string | null;
+  isFixed?: boolean | null;
+  payAtOffice?: boolean | null;
 }): boolean {
+  if (params.payAtOffice === true) return false;
+  if (params.isFixed !== true) return false;
   return Boolean(params.caseId?.trim() && params.guestCheckoutToken?.trim());
 }
