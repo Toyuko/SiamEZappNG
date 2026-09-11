@@ -14,8 +14,12 @@ type InputProps = TextInputProps & {
   rightIcon?: ReactNode;
 };
 
-export function Input({ label, error, className, leftIcon, rightIcon, ...props }: InputProps) {
+export function Input({ label, error, className, leftIcon, rightIcon, accessibilityLabel, ...props }: InputProps) {
   const { colors } = useTheme();
+  const a11yLabel =
+    accessibilityLabel ??
+    label ??
+    (typeof props.placeholder === 'string' ? props.placeholder : undefined);
 
   const fieldBorder = {
     borderColor: error ? colors.danger : colors.border,
@@ -27,7 +31,7 @@ export function Input({ label, error, className, leftIcon, rightIcon, ...props }
   return (
     <View className="space-y-1.5">
       {label ? (
-        <Text className="text-sm font-medium" style={{ color: colors.foreground }}>
+        <Text accessible={false} className="text-sm font-medium" style={{ color: colors.foreground }}>
           {label}
         </Text>
       ) : null}
@@ -37,6 +41,7 @@ export function Input({ label, error, className, leftIcon, rightIcon, ...props }
           <TextInput
             className={`min-h-[52px] flex-1 py-3.5 pl-2 text-base ${rightIcon ? 'pr-2' : 'pr-4'} ${className ?? ''}`}
             placeholderTextColor={colors.muted}
+            accessibilityLabel={a11yLabel}
             style={{
               color: colors.foreground,
             }}
@@ -48,6 +53,7 @@ export function Input({ label, error, className, leftIcon, rightIcon, ...props }
         <TextInput
           className={`border px-4 py-3.5 text-base ${className ?? ''}`}
           placeholderTextColor={colors.muted}
+          accessibilityLabel={a11yLabel}
           style={{
             ...fieldBorder,
             color: colors.foreground,

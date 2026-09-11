@@ -24,6 +24,7 @@ import {
   useAuthColors,
 } from '../../components/auth/auth-ui';
 import { FadeInView } from '../../components/ui/FadeInView';
+import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { useAuth } from '../../hooks/use-auth';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { ApiError } from '../../lib/api';
@@ -115,6 +116,9 @@ export default function LoginScreen() {
                 ...CARD_SHADOW,
               }}
             >
+              <View style={{ alignItems: 'flex-end', marginBottom: 4 }}>
+                <LanguageToggle />
+              </View>
               <AuthLogo />
               <Text
                 style={{ textAlign: 'center', fontSize: 24, fontWeight: '700', color: colors.foreground, marginTop: 16 }}

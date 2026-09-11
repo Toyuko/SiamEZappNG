@@ -1,10 +1,23 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, BackHandler, Keyboard, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Alert,
+  BackHandler,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+import * as WebBrowser from 'expo-web-browser';
 
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -48,6 +61,7 @@ type BookingDraft = {
 export default function BookScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const tabBarHeight = useBottomTabBarHeight();
   const { service, serviceSlug } = useLocalSearchParams<{ service?: string; serviceSlug?: string }>();
   const { isGuest, guestProfile, user, updateGuestProfile, accessToken } = useAuthStore();
   const bookingMutation = useCreateBooking();
@@ -274,11 +288,16 @@ export default function BookScreen() {
       return;
     }
     try {
-      await Linking.openURL(
+      // SFSafariViewController on iOS — dismiss returns to the booking confirmation screen.
+      await WebBrowser.openBrowserAsync(
         buildGuestCheckoutUrl({
           caseId: caseId!,
           guestCheckoutToken: token,
         }),
+        {
+          presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+          controlsColor: colors.primary,
+        },
       );
     } catch {
       Alert.alert(t('serviceDetail.cannotOpenLink'), t('serviceDetail.tryAgainLater'));
@@ -698,72 +717,78 @@ export default function BookScreen() {
 
   return (
     <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
-      <ScrollView
-        ref={scrollRef}
+      <KeyboardAvoidingView
         style={{ flex: 1 }}
-        contentContainerStyle={{
-          padding: 16,
-          gap: 16,
-          // Keep last fields / help links clear of the sticky Back/Continue bar (~72px).
-          paddingBottom: showWizardActions ? 88 : 24,
-        }}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-        automaticallyAdjustKeyboardInsets
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? tabBarHeight : 0}
       >
-        {!submitted ? (
-          <>
-            <PageHeader
-              title={t('book.title')}
-              subtitle={`${t('book.stepProgress', { step, total: 3 })} · ${stepTitle}`}
-            />
-            <Card className="py-3">
-              <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
-                <View className="h-2 rounded-full" style={{ width: progressPercent, backgroundColor: colors.primary }} />
-              </View>
-            </Card>
-          </>
-        ) : (
-          <PageHeader title={t('book.title')} subtitle={t('book.confirmation')} />
-        )}
-
-        {draftReady ? <View>{renderStepContent()}</View> : (
-          <Text className="px-1 text-sm" style={{ color: colors.mutedText }}>
-            {t('common.loading')}
-          </Text>
-        )}
-
-        {draftReady ? renderHelpFooter() : null}
-      </ScrollView>
-      {showWizardActions ? (
-        <View
-          style={{
-            paddingHorizontal: 16,
-            paddingTop: 10,
-            paddingBottom: 10,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            backgroundColor: colors.background,
+        <ScrollView
+          ref={scrollRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={{
+            padding: 16,
+            gap: 16,
+            // Keep last fields / help links clear of the sticky Back/Continue bar (~72px).
+            paddingBottom: showWizardActions ? 88 : 24,
           }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
         >
-          <View className="flex-row gap-2">
-            <View className="flex-1">
-              <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
-            </View>
-            <View className="flex-1">
-              {step < 3 ? (
-                <Button label={primaryLabel} onPress={goNext} />
-              ) : (
-                <Button
-                  label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
-                  onPress={() => void submitBooking()}
-                  disabled={bookingMutation.isPending}
-                />
-              )}
+          {!submitted ? (
+            <>
+              <PageHeader
+                title={t('book.title')}
+                subtitle={`${t('book.stepProgress', { step, total: 3 })} · ${stepTitle}`}
+              />
+              <Card className="py-3">
+                <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
+                  <View className="h-2 rounded-full" style={{ width: progressPercent, backgroundColor: colors.primary }} />
+                </View>
+              </Card>
+            </>
+          ) : (
+            <PageHeader title={t('book.title')} subtitle={t('book.confirmation')} />
+          )}
+
+          {draftReady ? <View>{renderStepContent()}</View> : (
+            <Text className="px-1 text-sm" style={{ color: colors.mutedText }}>
+              {t('common.loading')}
+            </Text>
+          )}
+
+          {draftReady ? renderHelpFooter() : null}
+        </ScrollView>
+        {showWizardActions ? (
+          <View
+            style={{
+              paddingHorizontal: 16,
+              paddingTop: 10,
+              paddingBottom: 10,
+              borderTopWidth: 1,
+              borderTopColor: colors.border,
+              backgroundColor: colors.background,
+            }}
+          >
+            <View className="flex-row gap-2">
+              <View className="flex-1">
+                <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
+              </View>
+              <View className="flex-1">
+                {step < 3 ? (
+                  <Button label={primaryLabel} onPress={goNext} />
+                ) : (
+                  <Button
+                    label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
+                    onPress={() => void submitBooking()}
+                    disabled={bookingMutation.isPending}
+                  />
+                )}
+              </View>
             </View>
           </View>
-        </View>
-      ) : null}
+        ) : null}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

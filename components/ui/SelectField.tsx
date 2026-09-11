@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { radius } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -17,8 +18,10 @@ type SelectFieldProps = {
 
 export function SelectField({ label, placeholder, value, onChange, options, error }: SelectFieldProps) {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
+  const title = label ?? placeholder;
 
   return (
     <View className="space-y-1.5">
@@ -38,9 +41,9 @@ export function SelectField({ label, placeholder, value, onChange, options, erro
           justifyContent: 'center',
         }}
         hitSlop={8}
-        onPress={() => setOpen((prev) => !prev)}
+        onPress={() => setOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={label ?? placeholder}
+        accessibilityLabel={title}
       >
         <Text className="text-base" style={{ color: selected ? colors.foreground : colors.muted }}>
           {selected?.label ?? placeholder}
@@ -51,24 +54,55 @@ export function SelectField({ label, placeholder, value, onChange, options, erro
           {error}
         </Text>
       ) : null}
-      {open ? (
-        <View
-          className="border p-2"
-          style={{
-            borderColor: colors.border,
-            borderRadius: radius.button,
-            backgroundColor: colors.card,
-            maxHeight: 220,
-          }}
-        >
-          <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            <View className="gap-1">
+
+      <Modal
+        visible={open}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent
+      >
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+            onPress={() => setOpen(false)}
+            style={{ flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.45)' }}
+          />
+          <View
+            style={{
+              maxHeight: '70%',
+              backgroundColor: colors.card,
+              borderTopLeftRadius: radius.xl,
+              borderTopRightRadius: radius.xl,
+              borderColor: colors.border,
+              borderTopWidth: 1,
+              paddingTop: 12,
+              paddingBottom: Math.max(insets.bottom, 12),
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: '700',
+                color: colors.foreground,
+                paddingHorizontal: 16,
+                paddingBottom: 8,
+              }}
+            >
+              {title}
+            </Text>
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 8, gap: 4 }}
+            >
               {options.map((item) => {
                 const active = item.value === value;
                 return (
                   <Pressable
                     key={item.value}
-                    className="rounded-xl px-3 py-2.5"
+                    className="rounded-xl px-3 py-3"
                     style={{ backgroundColor: active ? colors.primary : 'transparent' }}
                     accessibilityRole="button"
                     accessibilityLabel={item.label}
@@ -78,14 +112,16 @@ export function SelectField({ label, placeholder, value, onChange, options, erro
                       setOpen(false);
                     }}
                   >
-                    <Text style={{ color: active ? '#ffffff' : colors.foreground }}>{item.label}</Text>
+                    <Text style={{ color: active ? '#ffffff' : colors.foreground, fontSize: 16 }}>
+                      {item.label}
+                    </Text>
                   </Pressable>
                 );
               })}
-            </View>
-          </ScrollView>
+            </ScrollView>
+          </View>
         </View>
-      ) : null}
+      </Modal>
     </View>
   );
 }
