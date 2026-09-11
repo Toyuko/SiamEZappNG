@@ -1,7 +1,13 @@
 import { spacing } from '../../lib/theme/tokens';
 
-/** Must match `tabBarStyle.height` in app/(tabs)/_layout.tsx */
+/**
+ * Tab bar content height excluding system bottom inset.
+ * Must match the base height in `app/(tabs)/_layout.tsx` (before `insets.bottom`).
+ */
 export const VOICE_FAB_TAB_BAR_HEIGHT = 78;
+
+/** Inner bottom padding inside the tab bar (before safe-area inset). */
+export const TAB_BAR_PADDING_BOTTOM = 12;
 
 /** Visible FAB diameter */
 export const VOICE_FAB_SIZE = 56;

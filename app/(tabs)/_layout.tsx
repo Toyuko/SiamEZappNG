@@ -17,7 +17,12 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import {
+  TAB_BAR_PADDING_BOTTOM,
+  VOICE_FAB_TAB_BAR_HEIGHT,
+} from '../../components/voice/voice-fab-layout';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
@@ -61,6 +66,7 @@ function TabBarIcon({
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const softLaunch = useSoftLaunch();
   const { isGuest, userRole, user } = useAuthStore();
   const isFreelancer = userRole === 'freelancer' || user?.role === 'freelancer';
@@ -87,6 +93,10 @@ export default function TabsLayout() {
         ? { href: null }
         : {};
 
+  // Include system nav / home-indicator inset so 3-button and gesture bars don't cover tabs.
+  const tabBarPaddingBottom = TAB_BAR_PADDING_BOTTOM + insets.bottom;
+  const tabBarHeight = VOICE_FAB_TAB_BAR_HEIGHT + insets.bottom;
+
   return (
     <Tabs
       screenOptions={{
@@ -95,8 +105,8 @@ export default function TabsLayout() {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 78,
-          paddingBottom: 12,
+          height: tabBarHeight,
+          paddingBottom: tabBarPaddingBottom,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
