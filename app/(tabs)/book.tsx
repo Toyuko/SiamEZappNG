@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Animated, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, BackHandler, Keyboard, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
@@ -25,6 +25,7 @@ import { serviceCatalog } from '../../features/services/services.data';
 import { useCreateBooking } from '../../hooks/use-create-booking';
 import { useUploadDocument } from '../../hooks/use-upload-document';
 import { buildGuestCheckoutUrl, canOpenGuestCheckout } from '../../lib/bookings/guest-checkout';
+import { createSingleFlight } from '../../lib/single-flight';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -69,7 +70,8 @@ export default function BookScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
-  const transition = useRef(new Animated.Value(1)).current;
+  const runSubmit = useRef(createSingleFlight()).current;
+  const scrollRef = useRef<ScrollView>(null);
 
   const selectedService = useMemo(() => {
     if (serviceSlug) {
@@ -152,15 +154,6 @@ export default function BookScreen() {
     void AsyncStorage.setItem(key, JSON.stringify(payload));
   }, [draftReady, submitted, selectedService.slug, step, fullName, email, phone, notes, req]);
 
-  useEffect(() => {
-    transition.setValue(0);
-    Animated.timing(transition, {
-      toValue: 1,
-      duration: 180,
-      useNativeDriver: true,
-    }).start();
-  }, [step, transition]);
-
   const setReqField = (id: BookingReqFieldId, value: string) => {
     setReq((prev) => ({ ...prev, [id]: value }));
     setErrors((prev) => {
@@ -186,7 +179,11 @@ export default function BookScreen() {
       nextErrors.phone = t('book.invalidPhone');
     }
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    const ok = Object.keys(nextErrors).length === 0;
+    if (!ok) {
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+    }
+    return ok;
   };
 
   const validateStep2 = () => {
@@ -198,7 +195,11 @@ export default function BookScreen() {
       }
     }
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    const ok = Object.keys(nextErrors).length === 0;
+    if (!ok) {
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+    }
+    return ok;
   };
 
   const goNext = () => {
@@ -223,6 +224,31 @@ export default function BookScreen() {
       setErrors({});
     }
   };
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (Keyboard.isVisible()) {
+        Keyboard.dismiss();
+        return true;
+      }
+      if (submitted) {
+        router.replace('/(tabs)/services');
+        return true;
+      }
+      if (step > 1) {
+        setStep((step - 1) as WizardStep);
+        setErrors({});
+        return true;
+      }
+      if (router.canGoBack()) {
+        router.back();
+        return true;
+      }
+      router.replace('/(tabs)/services');
+      return true;
+    });
+    return () => sub.remove();
+  }, [router, step, submitted]);
 
   const openWhatsApp = async () => {
     const canOpen = await Linking.canOpenURL(WHATSAPP_BOOKING_URL);
@@ -338,50 +364,53 @@ export default function BookScreen() {
     if (!validateStep1() || !validateStep2()) {
       return;
     }
-    const formData: Record<string, unknown> = {
-      documentType: req.documentType ?? '',
-      notes: notes.trim() || undefined,
-      targetLanguage: req.targetLanguage,
-      visaType: req.visaType,
-      visaStatus: req.visaStatus,
-      nationality: req.nationality,
-      maritalStatus: req.maritalStatus,
-      licenseType: req.licenseType,
-      licenseStatus: req.licenseStatus,
-      clearancePurpose: req.clearancePurpose,
-      destinationCountry: req.destination,
-      requestType: req.requestType,
-      propertyType: req.propertyType,
-      requirements: requirementFields.map((f) => t(f.labelKey)),
-    };
-    const payload = {
-      serviceId: toBackendServiceSlug(selectedService.slug),
-      guestName: fullName,
-      guestEmail: email,
-      guestPhone: phone,
-      formData,
-      documentIds: uploadedDocuments.map((doc) => doc.id),
-    };
-    const storageKey = `${BOOKING_DRAFT_PREFIX}${selectedService.slug}`;
+    await runSubmit(async () => {
+      const formData: Record<string, unknown> = {
+        documentType: req.documentType ?? '',
+        notes: notes.trim() || undefined,
+        targetLanguage: req.targetLanguage,
+        visaType: req.visaType,
+        visaStatus: req.visaStatus,
+        nationality: req.nationality,
+        maritalStatus: req.maritalStatus,
+        licenseType: req.licenseType,
+        licenseStatus: req.licenseStatus,
+        clearancePurpose: req.clearancePurpose,
+        destinationCountry: req.destination,
+        requestType: req.requestType,
+        propertyType: req.propertyType,
+        requirements: requirementFields.map((f) => t(f.labelKey)),
+      };
+      const payload = {
+        serviceId: toBackendServiceSlug(selectedService.slug),
+        guestName: fullName,
+        guestEmail: email,
+        guestPhone: phone,
+        formData,
+        documentIds: uploadedDocuments.map((doc) => doc.id),
+      };
+      const storageKey = `${BOOKING_DRAFT_PREFIX}${selectedService.slug}`;
 
-    try {
-      const result = await bookingMutation.mutateAsync(payload);
-      setBookingResult({
-        caseId: typeof result?.caseId === 'string' ? result.caseId : undefined,
-        caseNumber: typeof result?.caseNumber === 'string' ? result.caseNumber : undefined,
-        isFixed: result?.isFixed === true,
-        payAtOffice: result?.payAtOffice === true,
-        guestCheckoutToken:
-          typeof result?.guestCheckoutToken === 'string' ? result.guestCheckoutToken : undefined,
-      });
-      if (isGuest) {
-        updateGuestProfile({ name: fullName, email, phone });
+      try {
+        const result = await bookingMutation.mutateAsync(payload);
+        setBookingResult({
+          caseId: typeof result?.caseId === 'string' ? result.caseId : undefined,
+          caseNumber: typeof result?.caseNumber === 'string' ? result.caseNumber : undefined,
+          isFixed: result?.isFixed === true,
+          payAtOffice: result?.payAtOffice === true,
+          guestCheckoutToken:
+            typeof result?.guestCheckoutToken === 'string' ? result.guestCheckoutToken : undefined,
+        });
+        if (isGuest) {
+          updateGuestProfile({ name: fullName, email, phone });
+        }
+        await AsyncStorage.removeItem(storageKey);
+        setSubmitted(true);
+      } catch (error) {
+        Alert.alert(t('book.bookingFailed'), error instanceof Error ? error.message : t('book.retryMessage'));
+        throw error;
       }
-      await AsyncStorage.removeItem(storageKey);
-      setSubmitted(true);
-    } catch (error) {
-      Alert.alert(t('book.bookingFailed'), error instanceof Error ? error.message : t('book.retryMessage'));
-    }
+    });
   };
 
   const renderTrustRow = () => (
@@ -462,13 +491,13 @@ export default function BookScreen() {
               <Button
                 label={t('book.createAccount')}
                 variant={canPay ? 'secondary' : 'primary'}
-                onPress={() => router.replace('/(auth)/signup')}
+                onPress={() => router.push('/(auth)/signup')}
               />
             ) : null}
             <Button
               label={t('book.trackCase')}
               variant={isGuest || canPay ? 'secondary' : 'primary'}
-              onPress={() => router.replace(isGuest ? '/(auth)/login' : '/(tabs)/dashboard')}
+              onPress={() => router.push(isGuest ? '/(auth)/login' : '/(tabs)/dashboard')}
             />
             <Button label={t('book.chatWhatsApp')} variant="secondary" onPress={() => void openWhatsApp()} />
           </View>
@@ -649,10 +678,35 @@ export default function BookScreen() {
   const primaryLabel =
     step === 1 ? t('book.continue') : step === 2 ? t('book.reviewBooking') : t('book.confirmSubmit');
 
+  const wizardActions =
+    draftReady && !submitted ? (
+      <>
+        <View className="mt-2 flex-row gap-2">
+          <View className="flex-1">
+            <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
+          </View>
+          <View className="flex-1">
+            {step < 3 ? (
+              <Button label={primaryLabel} onPress={goNext} />
+            ) : (
+              <Button
+                label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
+                onPress={() => void submitBooking()}
+                disabled={bookingMutation.isPending}
+              />
+            )}
+          </View>
+        </View>
+        {renderHelpFooter()}
+      </>
+    ) : null;
+
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
       <ScrollView
-        contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 28 }}
+        ref={scrollRef}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         automaticallyAdjustKeyboardInsets
@@ -673,45 +727,28 @@ export default function BookScreen() {
           <PageHeader title={t('book.title')} subtitle={t('book.confirmation')} />
         )}
 
-        {draftReady ? (
-          <Animated.View
-            style={{
-              opacity: transition,
-              transform: [{ translateY: transition.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
-            }}
-          >
-            {renderStepContent()}
-          </Animated.View>
-        ) : (
+        {draftReady ? <View>{renderStepContent()}</View> : (
           <Text className="px-1 text-sm" style={{ color: colors.mutedText }}>
             {t('common.loading')}
           </Text>
         )}
 
-        {draftReady && !submitted ? (
-          <>
-            <View className="mt-2 flex-row gap-2">
-              <View className="flex-1">
-                <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
-              </View>
-              <View className="flex-1">
-                {step < 3 ? (
-                  <Button label={primaryLabel} onPress={goNext} />
-                ) : (
-                  <Button
-                    label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
-                    onPress={() => void submitBooking()}
-                    disabled={bookingMutation.isPending}
-                  />
-                )}
-              </View>
-            </View>
-            {renderHelpFooter()}
-          </>
-        ) : null}
-
         {submitted ? renderHelpFooter() : null}
       </ScrollView>
+      {wizardActions ? (
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingTop: 10,
+            paddingBottom: 10,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+            backgroundColor: colors.background,
+          }}
+        >
+          {wizardActions}
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }

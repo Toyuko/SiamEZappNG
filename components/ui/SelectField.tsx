@@ -34,7 +34,10 @@ export function SelectField({ label, placeholder, value, onChange, options, erro
           borderColor: error ? colors.danger : colors.border,
           borderRadius: radius.button,
           borderWidth: 1,
+          minHeight: 52,
+          justifyContent: 'center',
         }}
+        hitSlop={8}
         onPress={() => setOpen((prev) => !prev)}
         accessibilityRole="button"
         accessibilityLabel={label ?? placeholder}

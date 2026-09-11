@@ -50,7 +50,13 @@ export function SmartMatchHomeScreen() {
           title="SiamEZ Smart Match"
           subtitle="AI recruitment for Thailand’s freelancer marketplace. Describe the job, set what actually matters, then review ranked professionals."
           badge="DEMO MODE"
-          onBack={() => router.back()}
+          onBack={() => {
+            if (router.canGoBack()) {
+              router.back();
+              return;
+            }
+            router.replace('/(tabs)/services');
+          }}
           primaryCta={{
             label: role === 'corporate' ? 'Smart Hiring' : role === 'freelancer' ? 'Job matches' : 'Find matches',
             onPress: () =>

@@ -38,15 +38,17 @@ export function LoginPhoneFrame({ children }: LoginPhoneFrameProps) {
           },
         ]}
       >
-        <View style={[styles.statusBar, { backgroundColor: colors.background }]}>
-          <Text style={[styles.statusTime, { color: colors.foreground }]}>{STATUS_TIME}</Text>
-          <View style={[styles.dynamicIsland, { backgroundColor: isDark ? '#000000' : '#000000' }]} />
-          <View style={styles.statusIcons}>
-            <Ionicons name="cellular" size={16} color={colors.foreground} />
-            <Ionicons name="wifi" size={16} color={colors.foreground} />
-            <Ionicons name="battery-full" size={18} color={colors.foreground} />
+        {showOuterBezel ? (
+          <View style={[styles.statusBar, { backgroundColor: colors.background }]}>
+            <Text style={[styles.statusTime, { color: colors.foreground }]}>{STATUS_TIME}</Text>
+            <View style={[styles.dynamicIsland, { backgroundColor: isDark ? '#000000' : '#000000' }]} />
+            <View style={styles.statusIcons}>
+              <Ionicons name="cellular" size={16} color={colors.foreground} />
+              <Ionicons name="wifi" size={16} color={colors.foreground} />
+              <Ionicons name="battery-full" size={18} color={colors.foreground} />
+            </View>
           </View>
-        </View>
+        ) : null}
         <View style={[styles.screenContent, { backgroundColor: colors.background }]}>{children}</View>
       </View>
     </View>

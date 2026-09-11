@@ -14,6 +14,10 @@ function isVoiceFabHidden(segments: string[]): boolean {
     return true;
   }
 
+  if (top === '(tabs)' && second === 'book') {
+    return true;
+  }
+
   if (top === 'client' && (second === 'chat' || second === 'tracking')) {
     return true;
   }

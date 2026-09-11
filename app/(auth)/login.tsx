@@ -140,7 +140,8 @@ export default function LoginScreen() {
                 label="Try AI Matching"
                 onPress={() => {
                   void continueAsGuest().then(() => {
-                    router.replace('/smart-match');
+                    router.replace('/(tabs)/services');
+                    router.push('/smart-match');
                   });
                 }}
               />

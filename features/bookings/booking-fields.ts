@@ -162,8 +162,13 @@ const FALLBACK_FIELDS: BookingFieldDef[] = [
   { id: 'documentType', labelKey: 'book.documentType', optionKeys: GENERIC_DOC_KEYS },
 ];
 
+const FIELD_SLUG_ALIASES: Record<string, string> = {
+  'basic-translation-fixed-price': 'translation-services',
+};
+
 export function getBookingFieldsForSlug(slug: string): BookingFieldDef[] {
-  return FIELDS_BY_SLUG[slug] ?? FALLBACK_FIELDS;
+  const key = FIELD_SLUG_ALIASES[slug] ?? slug;
+  return FIELDS_BY_SLUG[key] ?? FALLBACK_FIELDS;
 }
 
 export function toSelectOptions(keys: readonly string[], t: (key: string) => string): SelectOption[] {

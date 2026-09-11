@@ -24,7 +24,7 @@ export default function GuestAccountScreen() {
             Create an account or sign in to track cases, upload documents, and manage your services.
           </Text>
           <View className="mt-4 gap-3">
-            <Button label={t('auth.signIn')} onPress={() => router.replace('/(auth)/login')} />
+            <Button label={t('auth.signIn')} onPress={() => router.push('/(auth)/login')} />
             <Button label={t('auth.signUp')} variant="secondary" onPress={() => router.push('/(auth)/signup')} />
           </View>
         </Card>

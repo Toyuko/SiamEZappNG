@@ -131,25 +131,26 @@ export function SocialButton({ label, onPress, kind }: { label: string; onPress:
   const badge = SOCIAL_BADGE[kind];
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => ({ width: '100%', opacity: pressed ? 0.9 : 1 })}
-    >
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          marginBottom: spacing.stackLg,
-          borderRadius: radius.button,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: palette.bg,
-          borderColor: palette.border,
-          borderWidth: palette.borderWidth,
-        }}
+    <View style={{ width: '100%', marginBottom: spacing.stackLg }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        onPress={onPress}
+        style={({ pressed }) => ({ width: '100%', opacity: pressed ? 0.9 : 1 })}
       >
+        <View
+          style={{
+            width: '100%',
+            height: 50,
+            borderRadius: radius.button,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: palette.bg,
+            borderColor: palette.border,
+            borderWidth: palette.borderWidth,
+          }}
+        >
         {badge ? (
           <View style={socialStyles.badgeSlot}>
             <Text
@@ -165,8 +166,9 @@ export function SocialButton({ label, onPress, kind }: { label: string; onPress:
           </View>
         ) : null}
         <Text style={{ fontSize: 15, fontWeight: '700', color: palette.text }}>{label}</Text>
-      </View>
-    </Pressable>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 

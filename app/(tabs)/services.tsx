@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Keyboard, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import type { CategoryFilterId } from '../../components/services/CategoryChips';
@@ -37,6 +37,14 @@ export default function ServicesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryFilterId>('all');
   const [shuffledServices] = useState(() => shuffleServices(getActiveServices()));
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        Keyboard.dismiss();
+      };
+    }, []),
+  );
 
   useEffect(() => {
     if (categoryParam && isServiceCategoryId(categoryParam)) {
@@ -80,27 +88,34 @@ export default function ServicesScreen() {
       <View className="flex-1" style={{ paddingHorizontal: spacing.screenPaddingX }}>
         <View style={{ gap: spacing.stackMd, paddingTop: spacing.stackSm, paddingBottom: spacing.stackSm }}>
           <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
-          <Pressable
-            onPress={() => router.push('/smart-match')}
-            accessibilityRole="button"
-            accessibilityLabel="Try AI Matching"
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.9 : 1,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 8,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
+          <View
+            style={{
               borderRadius: radius.button,
               backgroundColor: colors.primary,
-            })}
+              overflow: 'hidden',
+            }}
           >
-            <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
-              Smart Match · Try AI Matching
-            </Text>
-            <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
-          </Pressable>
+            <Pressable
+              onPress={() => router.push('/smart-match')}
+              accessibilityRole="button"
+              accessibilityLabel="Try AI Matching"
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.9 : 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 8,
+                minHeight: 44,
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+              })}
+            >
+              <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
+                Smart Match · Try AI Matching
+              </Text>
+              <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
+            </Pressable>
+          </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
             <View style={{ flex: 1 }}>

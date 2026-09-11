@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import { Keyboard, Pressable, TextInput, View } from 'react-native';
 
 import { ServiceSearchModal } from '../search/ServiceSearchModal';
 import { t } from '../../lib/i18n/i18n';
@@ -16,6 +17,16 @@ type ServiceSearchBarProps = {
 export function ServiceSearchBar({ value, onChangeText, placeholder }: ServiceSearchBarProps) {
   const { colors } = useTheme();
   const [modalOpen, setModalOpen] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        inputRef.current?.blur();
+        Keyboard.dismiss();
+      };
+    }, []),
+  );
 
   return (
     <>
@@ -34,6 +45,7 @@ export function ServiceSearchBar({ value, onChangeText, placeholder }: ServiceSe
       >
         <Ionicons name="search" size={20} color={colors.muted} />
         <TextInput
+          ref={inputRef}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder ?? t('services.searchPlaceholder')}
