@@ -15,6 +15,7 @@ import { getActiveServices } from '../../features/services/services.data';
 import { shuffleServices } from '../../features/services/shuffle-services';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import type { ServiceCategoryId } from '../../features/services/services.types';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { radius, spacing } from '../../lib/theme/tokens';
@@ -31,6 +32,7 @@ function isServiceCategoryId(value: string): value is ServiceCategoryId {
 export default function ServicesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const language = useLanguageStore((state) => state.language);
   const { category: categoryParam } = useLocalSearchParams<{ category?: string }>();
@@ -88,34 +90,36 @@ export default function ServicesScreen() {
       <View className="flex-1" style={{ paddingHorizontal: spacing.screenPaddingX }}>
         <View style={{ gap: spacing.stackMd, paddingTop: spacing.stackSm, paddingBottom: spacing.stackSm }}>
           <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
-          <View
-            style={{
-              borderRadius: radius.button,
-              backgroundColor: colors.primary,
-              overflow: 'hidden',
-            }}
-          >
-            <Pressable
-              onPress={() => router.push('/smart-match')}
-              accessibilityRole="button"
-              accessibilityLabel="Try AI Matching"
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.9 : 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 8,
-                minHeight: 44,
-                paddingHorizontal: 14,
-                paddingVertical: 10,
-              })}
+          {softLaunch.showSmartMatch ? (
+            <View
+              style={{
+                borderRadius: radius.button,
+                backgroundColor: colors.primary,
+                overflow: 'hidden',
+              }}
             >
-              <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
-                Smart Match · Try AI Matching
-              </Text>
-              <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={() => router.push('/smart-match')}
+                accessibilityRole="button"
+                accessibilityLabel="Try AI Matching"
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.9 : 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  minHeight: 44,
+                  paddingHorizontal: 14,
+                  paddingVertical: 10,
+                })}
+              >
+                <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
+                  Smart Match · Try AI Matching
+                </Text>
+                <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
+              </Pressable>
+            </View>
+          ) : null}
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
             <View style={{ flex: 1 }}>

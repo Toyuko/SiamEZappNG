@@ -157,6 +157,9 @@ export default function MoreScreen() {
     if (item.path === '/freelancers' && !softLaunch.showFreelancers) {
       return false;
     }
+    if (item.path === '/smart-match' && !softLaunch.showSmartMatch) {
+      return false;
+    }
     return true;
   });
 

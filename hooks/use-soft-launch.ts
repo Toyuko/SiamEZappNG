@@ -13,6 +13,7 @@ export type SoftLaunchState = {
   showLifeEvents: boolean;
   showWorkflows: boolean;
   showCompanies: boolean;
+  showSmartMatch: boolean;
   isLoading: boolean;
 };
 
@@ -40,6 +41,7 @@ export function useSoftLaunch(): SoftLaunchState {
     showLifeEvents: enabled ? softLaunchDefaults.showLifeEvents : true,
     showWorkflows: enabled ? softLaunchDefaults.showWorkflows : true,
     showCompanies: enabled ? softLaunchDefaults.showCompanies : true,
+    showSmartMatch: enabled ? softLaunchDefaults.showSmartMatch : true,
     isLoading: flagsQuery.isLoading,
   };
 }

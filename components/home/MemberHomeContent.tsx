@@ -39,7 +39,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { key: 'concierge', label: 'tabs.more', icon: 'chatbubbles-outline', href: '/(tabs)/concierge' },
 ];
 
-const SOFT_LAUNCH_QUICK_KEYS = new Set(['services', 'sales', 'real-estate', 'cases', 'documents', 'concierge', 'smart-match']);
+const SOFT_LAUNCH_QUICK_KEYS = new Set(['services', 'sales', 'real-estate', 'cases', 'documents', 'concierge']);
 
 function firstName(displayName: string): string {
   const trimmed = displayName.trim();
@@ -87,6 +87,7 @@ export function MemberHomeContent() {
   const { drafts } = useBookingDrafts(true);
   const quickActions = softLaunch.enabled
     ? QUICK_ACTIONS.filter((action) => {
+        if (action.key === 'smart-match') return softLaunch.showSmartMatch;
         if (SOFT_LAUNCH_QUICK_KEYS.has(action.key)) return true;
         return action.key === 'freelancers' && softLaunch.showFreelancers;
       })

@@ -25,6 +25,7 @@ import {
 } from '../../components/auth/auth-ui';
 import { FadeInView } from '../../components/ui/FadeInView';
 import { useAuth } from '../../hooks/use-auth';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { ApiError } from '../../lib/api';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
@@ -46,6 +47,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, pageBackground } = useAuthColors();
+  const softLaunch = useSoftLaunch();
   const { loginMutation, loginWithProvider, continueAsGuest } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -135,16 +137,18 @@ export default function LoginScreen() {
                   });
                 }}
               />
-              <SocialButton
-                kind="guest"
-                label="Try AI Matching"
-                onPress={() => {
-                  void continueAsGuest().then(() => {
-                    router.replace('/(tabs)/services');
-                    router.push('/smart-match');
-                  });
-                }}
-              />
+              {softLaunch.showSmartMatch ? (
+                <SocialButton
+                  kind="guest"
+                  label="Try AI Matching"
+                  onPress={() => {
+                    void continueAsGuest().then(() => {
+                      router.replace('/(tabs)/services');
+                      router.push('/smart-match');
+                    });
+                  }}
+                />
+              ) : null}
 
               <OrDivider label={t('auth.orContinueWith')} />
 

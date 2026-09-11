@@ -14,6 +14,7 @@ import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { useFreelancerDashboard } from '../../hooks/use-freelancer-dashboard';
 import { useMarkJobComplete } from '../../hooks/use-mark-job-complete';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import type { FreelancerVerificationStatus } from '../../features/freelancer/freelancer.types';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
@@ -34,6 +35,7 @@ function verificationLabel(status: FreelancerVerificationStatus | undefined) {
 export default function FreelancerScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
   const { userRole, accessToken, isGuest } = useAuthStore();
   const dashboardQuery = useFreelancerDashboard();
   const completeMutation = useMarkJobComplete();
@@ -110,19 +112,23 @@ export default function FreelancerScreen() {
               fullWidth={false}
               onPress={() => router.push('/freelancers')}
             />
-            <Button
-              label="Smart Job Matches"
-              size="md"
-              fullWidth={false}
-              onPress={() => router.push('/smart-match/freelancer-deck')}
-            />
-            <Button
-              label="Work preferences"
-              variant="secondary"
-              size="md"
-              fullWidth={false}
-              onPress={() => router.push('/smart-match/work-preferences')}
-            />
+            {softLaunch.showSmartMatch ? (
+              <>
+                <Button
+                  label="Smart Job Matches"
+                  size="md"
+                  fullWidth={false}
+                  onPress={() => router.push('/smart-match/freelancer-deck')}
+                />
+                <Button
+                  label="Work preferences"
+                  variant="secondary"
+                  size="md"
+                  fullWidth={false}
+                  onPress={() => router.push('/smart-match/work-preferences')}
+                />
+              </>
+            ) : null}
           </View>
         </View>
 

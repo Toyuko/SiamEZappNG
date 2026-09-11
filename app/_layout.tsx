@@ -95,7 +95,6 @@ function RootNavigator() {
     const isProtectedRoute = segments[0] !== '(auth)';
     const inAuthGroup = segments[0] === '(auth)';
     const [topLevel, tabRoute] = segments as string[];
-    const isPublicDemoRoute = topLevel === 'smart-match';
     const isCorporateTab =
       tabRoute === 'corporate' ||
       tabRoute === 'corporate-jobs' ||
@@ -125,9 +124,11 @@ function RootNavigator() {
       SOFT_LAUNCH_DEFERRED_ROUTES.has(topLevel) ||
       (topLevel === '(tabs)' && SOFT_LAUNCH_DEFERRED_ROUTES.has(tabRoute));
     const freelancersAllowed = topLevel === 'freelancers' && softLaunch.showFreelancers;
-    const deferredSoftLaunchRoute = softLaunch.enabled && hitsDeferredRoute && !freelancersAllowed;
+    const smartMatchAllowed = topLevel === 'smart-match' && softLaunch.showSmartMatch;
+    const deferredSoftLaunchRoute =
+      softLaunch.enabled && hitsDeferredRoute && !freelancersAllowed && !smartMatchAllowed;
 
-    if (!accessToken && !isGuest && isProtectedRoute && !isPublicDemoRoute) {
+    if (!accessToken && !isGuest && isProtectedRoute) {
       router.replace('/(auth)/login');
       return;
     }

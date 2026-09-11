@@ -23,6 +23,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import type { FreelancerPublicCard } from '../../features/freelancer/freelancer-profile.types';
 import { useDebouncedValue } from '../../hooks/use-debounced-value';
 import { useFreelancerDirectory } from '../../hooks/use-freelancer-directory';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { formatJobAmount } from '../../lib/jobs/format-amount';
 import { spacing } from '../../lib/theme/tokens';
@@ -111,6 +112,7 @@ function FreelancerCard({ item, onPress }: { item: FreelancerPublicCard; onPress
 export function FreelancerDirectoryScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
   const [query, setQuery] = useState('');
   const [skillFilter, setSkillFilter] = useState('');
   const debouncedQuery = useDebouncedValue(query, 300);
@@ -152,7 +154,11 @@ export function FreelancerDirectoryScreen() {
               title={t('freelancer.publicProfile.directory.title')}
               subtitle={t('freelancer.publicProfile.directory.subtitle')}
               onBack={() => router.back()}
-              primaryCta={{ label: 'Try AI Matching', onPress: () => router.push('/smart-match') }}
+              primaryCta={
+                softLaunch.showSmartMatch
+                  ? { label: 'Try AI Matching', onPress: () => router.push('/smart-match') }
+                  : undefined
+              }
             />
             <Input
               value={query}

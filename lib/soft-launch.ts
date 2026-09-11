@@ -23,6 +23,9 @@ export const softLaunchDefaults = {
 
   /** Company / B2B signup & discovery. */
   showCompanies: false,
+
+  /** Smart Match AI matching demo — hidden from public release. */
+  showSmartMatch: false,
 } as const;
 
 /** Tab/route names deferred during soft launch (still exist for deep links / legacy roles). */
@@ -41,6 +44,7 @@ export const SOFT_LAUNCH_DEFERRED_ROUTES = new Set([
   'workflows',
   'saved',
   'freelancers',
+  'smart-match',
 ]);
 
 export function isSoftLaunchEnvEnabled(): boolean {

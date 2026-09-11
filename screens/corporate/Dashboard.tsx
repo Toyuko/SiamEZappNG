@@ -11,6 +11,7 @@ import { MetricCard } from '../../components/ui/metric-card';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { useCorporateDashboard } from '../../hooks/use-corporate-dashboard';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
@@ -20,6 +21,7 @@ import { useAuthStore } from '../../store/auth-store';
 export function CorporateDashboardScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
   const { userRole, user, accessToken, isGuest } = useAuthStore();
   const isCorporate = isCorporateRole(userRole, user?.role);
   const dashboardQuery = useCorporateDashboard();
@@ -95,11 +97,13 @@ export function CorporateDashboardScreen() {
                 gradient
                 onPress={() => router.push('/(tabs)/corporate-ads')}
               />
-              <Button
-                label="Smart Hiring"
-                variant="secondary"
-                onPress={() => router.push('/smart-match')}
-              />
+              {softLaunch.showSmartMatch ? (
+                <Button
+                  label="Smart Hiring"
+                  variant="secondary"
+                  onPress={() => router.push('/smart-match')}
+                />
+              ) : null}
               <Button
                 label={t('corporate.dashboard.viewPublicProfile')}
                 variant="secondary"
