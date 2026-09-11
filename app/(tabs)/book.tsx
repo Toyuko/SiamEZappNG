@@ -487,19 +487,26 @@ export default function BookScreen() {
             {canPay ? (
               <Button label={t('book.payNow')} onPress={() => void openGuestCheckout()} />
             ) : null}
-            {isGuest ? (
-              <Button
-                label={t('book.createAccount')}
-                variant={canPay ? 'secondary' : 'primary'}
-                onPress={() => router.push('/(auth)/signup')}
-              />
+            {isGuest && !canPay ? (
+              <Button label={t('book.createAccount')} onPress={() => router.push('/(auth)/signup')} />
             ) : null}
             <Button
               label={t('book.trackCase')}
-              variant={isGuest || canPay ? 'secondary' : 'primary'}
+              variant={canPay || isGuest ? 'secondary' : 'primary'}
               onPress={() => router.push(isGuest ? '/(auth)/login' : '/(tabs)/dashboard')}
             />
             <Button label={t('book.chatWhatsApp')} variant="secondary" onPress={() => void openWhatsApp()} />
+            {isGuest && canPay ? (
+              <Pressable
+                onPress={() => router.push('/(auth)/signup')}
+                accessibilityRole="link"
+                className="items-center py-2"
+              >
+                <Text className="text-sm font-semibold underline" style={{ color: colors.primary }}>
+                  {t('book.createAccount')}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
         </Card>
       );
@@ -678,35 +685,19 @@ export default function BookScreen() {
   const primaryLabel =
     step === 1 ? t('book.continue') : step === 2 ? t('book.reviewBooking') : t('book.confirmSubmit');
 
-  const wizardActions =
-    draftReady && !submitted ? (
-      <>
-        <View className="mt-2 flex-row gap-2">
-          <View className="flex-1">
-            <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
-          </View>
-          <View className="flex-1">
-            {step < 3 ? (
-              <Button label={primaryLabel} onPress={goNext} />
-            ) : (
-              <Button
-                label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
-                onPress={() => void submitBooking()}
-                disabled={bookingMutation.isPending}
-              />
-            )}
-          </View>
-        </View>
-        {renderHelpFooter()}
-      </>
-    ) : null;
+  const showWizardActions = draftReady && !submitted;
 
   return (
     <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
       <ScrollView
         ref={scrollRef}
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 24 }}
+        contentContainerStyle={{
+          padding: 16,
+          gap: 16,
+          // Keep last fields / help links clear of the sticky Back/Continue bar (~72px).
+          paddingBottom: showWizardActions ? 88 : 24,
+        }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="interactive"
         automaticallyAdjustKeyboardInsets
@@ -733,9 +724,9 @@ export default function BookScreen() {
           </Text>
         )}
 
-        {submitted ? renderHelpFooter() : null}
+        {draftReady ? renderHelpFooter() : null}
       </ScrollView>
-      {wizardActions ? (
+      {showWizardActions ? (
         <View
           style={{
             paddingHorizontal: 16,
@@ -746,7 +737,22 @@ export default function BookScreen() {
             backgroundColor: colors.background,
           }}
         >
-          {wizardActions}
+          <View className="flex-row gap-2">
+            <View className="flex-1">
+              <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
+            </View>
+            <View className="flex-1">
+              {step < 3 ? (
+                <Button label={primaryLabel} onPress={goNext} />
+              ) : (
+                <Button
+                  label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
+                  onPress={() => void submitBooking()}
+                  disabled={bookingMutation.isPending}
+                />
+              )}
+            </View>
+          </View>
         </View>
       ) : null}
     </SafeAreaView>

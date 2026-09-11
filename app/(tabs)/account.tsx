@@ -17,11 +17,11 @@ export default function GuestAccountScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 + VOICE_FAB_SCROLL_EXTRA }}>
-        <PageHeader title={t('tabs.account')} subtitle="Sign in to access your client portal." />
+        <PageHeader title={t('tabs.account')} subtitle={t('auth.welcomeSubtitle')} />
 
         <Card>
           <Text className="text-sm leading-5" style={{ color: colors.muted }}>
-            Create an account or sign in to track cases, upload documents, and manage your services.
+            {t('auth.guestAccountHint')}
           </Text>
           <View className="mt-4 gap-3">
             <Button label={t('auth.signIn')} onPress={() => router.push('/(auth)/login')} />
@@ -31,7 +31,7 @@ export default function GuestAccountScreen() {
 
         <Card>
           <Text className="text-xs font-bold uppercase tracking-wide" style={{ color: colors.muted }}>
-            Quick access
+            {t('auth.quickAccess')}
           </Text>
           <View className="mt-3 gap-3">
             <Button label={t('tabs.services')} variant="secondary" onPress={() => router.push('/(tabs)/services')} />

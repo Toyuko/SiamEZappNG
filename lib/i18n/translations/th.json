@@ -6,7 +6,10 @@
     "submit": "ส่ง",
     "cancel": "ยกเลิก",
     "tryAgain": "ลองอีกครั้ง",
-    "unknownUser": "ผู้ใช้ไม่ทราบชื่อ"
+    "unknownUser": "ผู้ใช้ไม่ทราบชื่อ",
+    "offlineBanner": "คุณออฟไลน์อยู่ การดำเนินการบางอย่างอาจใช้ไม่ได้จนกว่าจะกลับมาออนไลน์",
+    "pageNotFoundTitle": "ไม่พบหน้านี้",
+    "pageNotFoundBody": "ลิงก์นี้ไม่มีในแอป ดูบริการของเรา หรือติดต่อทีมงานเพื่อขอความช่วยเหลือ"
   },
   "cta": {
     "getStarted": "เริ่มต้นใช้งาน",
@@ -226,6 +229,9 @@
     "useDemoFreelancerAccount": "ใช้บัญชีทดลองฟรีแลนซ์",
     "creatingAccount": "กำลังสร้างบัญชี...",
     "continueAsGuest": "ใช้งานแบบผู้เยี่ยมชม",
+    "tryAiMatching": "ลองจับคู่อัจฉริยะ",
+    "guestAccountHint": "สร้างบัญชีหรือเข้าสู่ระบบเพื่อติดตามเคส อัปโหลดเอกสาร และจัดการบริการของคุณ",
+    "quickAccess": "ทางลัด",
     "backToLogin": "กลับไปหน้าเข้าสู่ระบบ",
     "email": "อีเมล",
     "password": "รหัสผ่าน",
@@ -286,7 +292,8 @@
   "services": {
     "title": "บริการ",
     "subtitle": "เลือกบริการที่ตรงกับความต้องการของคุณ",
-    "searchPlaceholder": "ค้นหา วีซ่า จดทะเบียนสมรส แปลเอกสาร...",
+    "searchPlaceholder": "ค้นหาบริการ...",
+    "smartMatchBanner": "Smart Match · ลองจับคู่อัจฉริยะ",
     "allCategory": "ทั้งหมด",
     "filterVisa": "วีซ่า",
     "filterMarriage": "จดทะเบียนสมรส",

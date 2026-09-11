@@ -140,7 +140,7 @@ export default function LoginScreen() {
               {softLaunch.showSmartMatch ? (
                 <SocialButton
                   kind="guest"
-                  label="Try AI Matching"
+                  label={t('auth.tryAiMatching')}
                   onPress={() => {
                     void continueAsGuest().then(() => {
                       router.replace('/(tabs)/services');

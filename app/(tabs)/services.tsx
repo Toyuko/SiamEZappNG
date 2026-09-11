@@ -101,7 +101,7 @@ export default function ServicesScreen() {
               <Pressable
                 onPress={() => router.push('/smart-match')}
                 accessibilityRole="button"
-                accessibilityLabel="Try AI Matching"
+                accessibilityLabel={t('auth.tryAiMatching')}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.9 : 1,
                   flexDirection: 'row',
@@ -114,7 +114,7 @@ export default function ServicesScreen() {
                 })}
               >
                 <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
-                  Smart Match · Try AI Matching
+                  {t('services.smartMatchBanner')}
                 </Text>
                 <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
               </Pressable>

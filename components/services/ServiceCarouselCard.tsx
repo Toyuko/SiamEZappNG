@@ -33,7 +33,7 @@ type ServiceCarouselCardProps = {
 const PORTRAIT_BUTTON_HEIGHT = 26;
 const PORTRAIT_BUTTON_GAP = 4;
 /** Title, price, padding, and stacked CTAs below the image. */
-const PORTRAIT_BODY_RESERVED_HEIGHT = 94;
+const PORTRAIT_BODY_RESERVED_HEIGHT = 118;
 const PORTRAIT_BODY_INSET = 5;
 
 export function ServiceCarouselCard({
@@ -71,6 +71,7 @@ export function ServiceCarouselCard({
           borderWidth: 1,
           borderColor: colors.border,
           backgroundColor: colors.card,
+          overflow: 'hidden',
         }}
       >
         <View style={{ width: cardWidth, height: heroHeight, overflow: 'hidden' }}>

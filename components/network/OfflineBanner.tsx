@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { t } from '../../lib/i18n/i18n';
+
 /**
  * Non-blocking banner when the device reports no connectivity.
  */
@@ -12,8 +14,9 @@ export function OfflineBanner() {
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
-      const connected = state.isConnected !== false && state.isInternetReachable !== false;
-      setOffline(!connected);
+      // Treat only an explicit disconnect as offline. Android often reports
+      // isInternetReachable as null while Wi-Fi is still usable.
+      setOffline(state.isConnected === false);
     });
     return unsubscribe;
   }, []);
@@ -33,7 +36,7 @@ export function OfflineBanner() {
       }}
     >
       <Text style={{ color: '#FFFBEB', textAlign: 'center', fontSize: 13, fontWeight: '600' }}>
-        You’re offline. Some actions may not work until you’re back online.
+        {t('common.offlineBanner')}
       </Text>
     </View>
   );

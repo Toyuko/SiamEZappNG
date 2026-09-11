@@ -6,7 +6,10 @@
     "submit": "Submit",
     "cancel": "Cancel",
     "tryAgain": "Try again",
-    "unknownUser": "Unknown user"
+    "unknownUser": "Unknown user",
+    "offlineBanner": "You’re offline. Some actions may not work until you’re back online.",
+    "pageNotFoundTitle": "Page not found",
+    "pageNotFoundBody": "This link isn’t available in the app. Browse services or contact us for help."
   },
   "cta": {
     "getStarted": "Get Started",
@@ -226,6 +229,9 @@
     "useDemoFreelancerAccount": "Use demo freelancer account",
     "creatingAccount": "Creating account...",
     "continueAsGuest": "Continue as Guest",
+    "tryAiMatching": "Try AI Matching",
+    "guestAccountHint": "Create an account or sign in to track cases, upload documents, and manage your services.",
+    "quickAccess": "Quick access",
     "backToLogin": "Back to Login",
     "email": "Email",
     "password": "Password",
@@ -286,7 +292,8 @@
   "services": {
     "title": "Services",
     "subtitle": "Find the right service for your needs",
-    "searchPlaceholder": "Search visa, marriage, translation...",
+    "searchPlaceholder": "Search services...",
+    "smartMatchBanner": "Smart Match · Try AI Matching",
     "allCategory": "All",
     "filterVisa": "Visa",
     "filterMarriage": "Marriage",
