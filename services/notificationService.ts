@@ -3,6 +3,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { EZ_NOTIFICATION_SOUND } from '../lib/audio/play-notification-sound';
 import { api } from '../lib/api';
 import { t } from '../lib/i18n/i18n';
 
@@ -12,7 +13,9 @@ export const AUTO_APPROVAL_NOTIFICATION_TYPE = 'auto_approval';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: true,
+    // Android needs this for the heads-up banner; channel sound is `ez_notification.wav`.
+    // iOS/web: we play the EZ cue ourselves in the received listener / toast helpers.
+    shouldPlaySound: Platform.OS === 'android',
     shouldSetBadge: false,
     shouldShowBanner: true,
     shouldShowList: true,
@@ -41,6 +44,8 @@ async function ensureAndroidChannel() {
   await Notifications.setNotificationChannelAsync('default', {
     name: t('notifications.channelName'),
     importance: Notifications.AndroidImportance.HIGH,
+    sound: EZ_NOTIFICATION_SOUND,
+    enableVibrate: true,
   });
 }
 

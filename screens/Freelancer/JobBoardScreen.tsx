@@ -20,6 +20,7 @@ import { EmptyState } from '../../components/ui/empty-state';
 import { getOpenJobs } from '../../features/jobs/jobs.api';
 import { useAcceptFreelancerJob } from '../../hooks/use-accept-freelancer-job';
 import { feedPayoutAmount } from '../../lib/jobs/job-board-mapper';
+import { playNotificationSound } from '../../lib/audio/play-notification-sound';
 import { t } from '../../lib/i18n/i18n';
 import { formatJobAmount } from '../../lib/jobs/format-amount';
 import { siam, spacing } from '../../lib/theme/tokens';
@@ -226,6 +227,7 @@ export function JobBoardScreen({ nestedInScrollView = false, isSpecialMember = f
   const pushToast = useCallback((message: string) => {
     const id = `toast-${++toastIdRef.current}`;
     setToasts((prev) => [...prev, { id, message }]);
+    void playNotificationSound();
     setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, TOAST_MS);

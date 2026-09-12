@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
@@ -6,6 +7,7 @@ import {
   getNotificationJobId,
   registerPushTokenWithBackend,
 } from '../services/notificationService';
+import { playNotificationSound } from '../lib/audio/play-notification-sound';
 import { handleFreelancerNotification } from '../lib/notifications/freelancer-notifications';
 import { useAuthStore } from '../store/auth-store';
 
@@ -34,6 +36,10 @@ export function usePushNotifications() {
 
     const onNotification = (notification: Notifications.Notification) => {
       try {
+        // Android already plays the channel sound via shouldPlaySound.
+        if (Platform.OS !== 'android') {
+          void playNotificationSound();
+        }
         handleFreelancerNotification(notification);
       } catch {
         // ignore malformed foreground notifications

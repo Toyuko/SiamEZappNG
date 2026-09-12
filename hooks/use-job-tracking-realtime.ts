@@ -3,6 +3,7 @@ import { AppState, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { mergeTrackingUpdatedPayload } from '../lib/tracking/pusher-payload';
+import { playNotificationSound } from '../lib/audio/play-notification-sound';
 import { t } from '../lib/i18n/i18n';
 import { fetchJobTracking } from '../services/trackingApi';
 import { subscribeToJobChannel } from '../services/pusherService';
@@ -62,6 +63,7 @@ export function useJobTrackingRealtime({
   const pushToast = useCallback((message: string) => {
     const id = `tracking-toast-${++toastIdRef.current}`;
     setToasts((previous) => [...previous, { id, message }]);
+    void playNotificationSound();
     const timer = setTimeout(() => dismissToast(id), TOAST_MS);
     return () => clearTimeout(timer);
   }, [dismissToast]);
