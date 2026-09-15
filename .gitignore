@@ -46,3 +46,8 @@ android-logcat.txt
 # generated native folders
 /ios
 /android
+
+# Store binaries (signed locally; never commit)
+*.apk
+*.aab
+/play-store/release/

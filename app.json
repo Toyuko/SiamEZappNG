@@ -178,6 +178,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/with-android-release-signing",
       "expo-router",
       "expo-document-picker",
       [
@@ -236,7 +237,7 @@
           "android": {
             "minSdkVersion": 24,
             "compileSdkVersion": 36,
-            "targetSdkVersion": 35,
+            "targetSdkVersion": 36,
             "enableMinifyInReleaseBuilds": false
           },
           "ios": {
