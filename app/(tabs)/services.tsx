@@ -1,32 +1,55 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import type { CategoryFilterId } from '../../components/services/CategoryChips';
-import { ServiceCarousel } from '../../components/services/ServiceCarousel';
+import { FeaturedServiceCarousel } from '../../components/services/FeaturedServiceCarousel';
 import { ServiceSearchBar } from '../../components/services/ServiceSearchBar';
 import { ServicesScreenHeader } from '../../components/services/ServicesScreenHeader';
 import { MockAdPanel } from '../../components/ui/MockAdPanel';
 import { DEFAULT_MOCK_AD, getImageAdHeight, getMockAdForCategory } from '../../features/ads/mock-ads';
+import { nextFeaturedVisit } from '../../features/services/featured-visit';
 import { filterServicesByQuery, getCategoryLabel } from '../../features/services/service-display';
 import { getActiveServices } from '../../features/services/services.data';
-import { shuffleServices } from '../../features/services/shuffle-services';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
-import type { ServiceCategoryId } from '../../features/services/services.types';
+import type { ServiceCategoryId, ServiceItem } from '../../features/services/services.types';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import type { AppLanguage } from '../../lib/i18n/i18n';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
-const CAROUSEL_HEIGHT_FRACTION = 0.38;
-const AD_HEIGHT_FRACTION = 0.30;
-const PAGE_HEADER_HEIGHT = 160;
+type FeaturedVisit = {
+  id: number;
+  services: ServiceItem[];
+};
 
 function isServiceCategoryId(value: string): value is ServiceCategoryId {
   return SERVICE_CATEGORIES.some((item) => item.id === value);
+}
+
+function readCategoryParam(value: string | string[] | undefined): CategoryFilterId {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw && isServiceCategoryId(raw)) {
+    return raw;
+  }
+  return 'all';
+}
+
+function visibleSlugSet(
+  services: ServiceItem[],
+  category: CategoryFilterId,
+  query: string,
+  language: AppLanguage,
+): Set<string> | null {
+  if (category === 'all' && query.trim().length === 0) {
+    return null;
+  }
+  const categoryList = category === 'all' ? services : services.filter((item) => item.category === category);
+  return new Set(filterServicesByQuery(categoryList, query, language).map((item) => item.slug));
 }
 
 export default function ServicesScreen() {
@@ -35,32 +58,70 @@ export default function ServicesScreen() {
   const softLaunch = useSoftLaunch();
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const language = useLanguageStore((state) => state.language);
-  const { category: categoryParam } = useLocalSearchParams<{ category?: string }>();
+  const { category: categoryParam } = useLocalSearchParams<{ category?: string | string[] }>();
+  const initialCategory = readCategoryParam(categoryParam);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<CategoryFilterId>('all');
-  const [shuffledServices] = useState(() => shuffleServices(getActiveServices()));
+  const [activeCategory, setActiveCategory] = useState<CategoryFilterId>(initialCategory);
+  const filtersRef = useRef({ activeCategory: initialCategory, searchQuery: '', language });
+  filtersRef.current = { activeCategory, searchQuery, language };
+  const hasFocusedOnce = useRef(false);
+  const [visit, setVisit] = useState<FeaturedVisit>(() => {
+    const catalog = getActiveServices();
+    const visible =
+      initialCategory === 'all' ? null : new Set(catalog.filter((item) => item.category === initialCategory).map((item) => item.slug));
+    return { id: 1, services: nextFeaturedVisit(catalog, visible) };
+  });
+
+  const refreshVisit = useCallback(() => {
+    const filters = filtersRef.current;
+    const catalog = getActiveServices();
+    const visible = visibleSlugSet(catalog, filters.activeCategory, filters.searchQuery, filters.language);
+    setVisit((current) => ({
+      id: current.id + 1,
+      services: nextFeaturedVisit(catalog, visible),
+    }));
+  }, []);
+
+  const catalogCount = getActiveServices().length;
+  const awaitingCatalog = useRef(catalogCount === 0);
+
+  useEffect(() => {
+    if (!awaitingCatalog.current || catalogCount === 0) {
+      return;
+    }
+    awaitingCatalog.current = false;
+    refreshVisit();
+  }, [catalogCount, refreshVisit]);
 
   useFocusEffect(
     useCallback(() => {
+      if (!hasFocusedOnce.current) {
+        hasFocusedOnce.current = true;
+        return () => {
+          Keyboard.dismiss();
+        };
+      }
+      refreshVisit();
       return () => {
         Keyboard.dismiss();
       };
-    }, []),
+    }, [refreshVisit]),
   );
 
   useEffect(() => {
-    if (categoryParam && isServiceCategoryId(categoryParam)) {
-      setActiveCategory(categoryParam);
+    const nextCategory = readCategoryParam(categoryParam);
+    if (nextCategory !== 'all') {
+      setActiveCategory(nextCategory);
     }
   }, [categoryParam]);
 
   const filteredServices = useMemo(() => {
-    let list = shuffledServices;
+    let list = visit.services;
     if (activeCategory !== 'all') {
       list = list.filter((item) => item.category === activeCategory);
     }
     return filterServicesByQuery(list, searchQuery, language);
-  }, [activeCategory, language, searchQuery, shuffledServices]);
+  }, [activeCategory, language, searchQuery, visit.services]);
 
   const sectionTitle =
     activeCategory === 'all'
@@ -68,26 +129,18 @@ export default function ServicesScreen() {
       : getCategoryLabel(activeCategory);
 
   const mockAd = activeCategory !== 'all' ? getMockAdForCategory(activeCategory) : DEFAULT_MOCK_AD;
+  const adWidth = windowWidth - spacing.screenPaddingX * 2;
+  const naturalAdHeight = mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || 96 : 96;
+  const adHeight = Math.min(naturalAdHeight, windowHeight < 760 ? 76 : 100);
 
   const clearCategoryFilter = () => {
     setActiveCategory('all');
     router.replace('/(tabs)/services');
   };
 
-  const contentHeight = windowHeight - PAGE_HEADER_HEIGHT - 100;
-  const adWidth = windowWidth - spacing.screenPaddingX * 2;
-  const carouselHeight = Math.round(
-    contentHeight * (CAROUSEL_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)),
-  );
-  const gradientAdHeight = Math.round(
-    contentHeight * (AD_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)),
-  );
-  const adHeight =
-    mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || gradientAdHeight : gradientAdHeight;
-
   return (
     <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
-      <View className="flex-1" style={{ paddingHorizontal: spacing.screenPaddingX }}>
+      <View style={{ flex: 1, paddingHorizontal: spacing.screenPaddingX, paddingBottom: spacing.stackSm }}>
         <View style={{ gap: spacing.stackMd, paddingTop: spacing.stackSm, paddingBottom: spacing.stackSm }}>
           <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
           {softLaunch.showSmartMatch ? (
@@ -175,10 +228,14 @@ export default function ServicesScreen() {
           ) : null}
         </View>
 
-        <View style={{ paddingBottom: spacing.stackMd }}>
-          <ServiceCarousel services={filteredServices} carouselHeight={carouselHeight} />
-          <View style={{ height: spacing.stackMd }} />
-          <MockAdPanel key={activeCategory} width={adWidth} height={adHeight} ad={mockAd} />
+        <View style={{ flex: 1, minHeight: 0 }}>
+          <FeaturedServiceCarousel
+            services={filteredServices}
+            visitKey={visit.id}
+            belowFeature={
+              <MockAdPanel key={activeCategory} width={adWidth} height={adHeight} ad={mockAd} />
+            }
+          />
         </View>
       </View>
     </SafeAreaView>

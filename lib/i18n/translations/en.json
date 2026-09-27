@@ -337,7 +337,9 @@
     "emptyTitle": "No services found",
     "emptyHint": "Try a different search or clear filters to see all services.",
     "viewDetails": "Details",
-    "moreDetails": "More Details"
+    "moreDetails": "More Details",
+    "moreInfo": "More Info",
+    "featuredServiceLabel": "%{title}, %{current} of %{total}"
   },
   "search": {
     "title": "Search services",

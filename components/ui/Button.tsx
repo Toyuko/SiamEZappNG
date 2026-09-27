@@ -18,6 +18,8 @@ type ButtonProps = {
   label?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
+  /** Overrides the size preset when a taller touch target is needed. */
+  minHeight?: number;
   rounded?: boolean;
   fullWidth?: boolean;
   disabled?: boolean;
@@ -36,6 +38,7 @@ export function Button({
   label,
   variant = 'primary',
   size = 'lg',
+  minHeight,
   rounded = true,
   fullWidth = true,
   disabled = false,
@@ -72,8 +75,8 @@ export function Button({
 
   const sizeStyle =
     size === 'lg'
-      ? { minHeight: 52, minWidth: 48, paddingHorizontal: 20, paddingVertical: 14 }
-      : { minHeight: 48, minWidth: 48, paddingHorizontal: 16, paddingVertical: 12 };
+      ? { minHeight: minHeight ?? 52, minWidth: 48, paddingHorizontal: 20, paddingVertical: 14 }
+      : { minHeight: minHeight ?? 48, minWidth: 48, paddingHorizontal: 16, paddingVertical: 12 };
 
   return (
     <AnimatedPressable

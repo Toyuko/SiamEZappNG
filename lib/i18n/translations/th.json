@@ -337,7 +337,9 @@
     "emptyTitle": "ไม่พบบริการ",
     "emptyHint": "ลองค้นหาด้วยคำอื่น หรือรีเซ็ตตัวกรองเพื่อดูบริการทั้งหมด",
     "viewDetails": "รายละเอียด",
-    "moreDetails": "รายละเอียดเพิ่มเติม"
+    "moreDetails": "รายละเอียดเพิ่มเติม",
+    "moreInfo": "ข้อมูลเพิ่มเติม",
+    "featuredServiceLabel": "%{title} %{current} จาก %{total}"
   },
   "search": {
     "title": "ค้นหาบริการ",
