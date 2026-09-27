@@ -25,6 +25,8 @@ type FeaturedServiceCarouselProps = {
   visitKey: number;
   /** Stays fixed under the poster while featured services swipe. */
   belowFeature?: ReactNode;
+  /** Title and search, drawn over the top of the poster. */
+  topOverlay?: ReactNode;
 };
 
 type Frame = {
@@ -46,7 +48,7 @@ export function paginationWindow(count: number, active: number, max = MAX_DOTS):
   return { start, end };
 }
 
-export function FeaturedServiceCarousel({ services, visitKey, belowFeature }: FeaturedServiceCarouselProps) {
+export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topOverlay }: FeaturedServiceCarouselProps) {
   const { colors, isDark } = useTheme();
   const listRef = useRef<FlatList<ServiceItem>>(null);
   const appliedVisit = useRef<number | null>(null);
@@ -202,19 +204,22 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature }: Fe
           />
         ) : null}
 
-        <View pointerEvents="none" style={styles.headerRow}>
-          <View style={[styles.headerChip, { backgroundColor: isDark ? 'rgba(24,24,27,0.78)' : 'rgba(255,255,255,0.88)' }]}>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.foreground }} numberOfLines={1}>
-              {t('services.featuredServices')}
-            </Text>
-          </View>
-          {services.length > 1 ? (
+        <View pointerEvents="box-none" style={styles.topChrome}>
+          {topOverlay}
+          <View pointerEvents="none" style={styles.headerRow}>
             <View style={[styles.headerChip, { backgroundColor: isDark ? 'rgba(24,24,27,0.78)' : 'rgba(255,255,255,0.88)' }]}>
-              <Text style={{ fontSize: 12, color: colors.muted }} numberOfLines={1}>
-                {t('services.swipeToExplore')}
+              <Text style={{ fontSize: 14, fontWeight: '700', color: colors.foreground }} numberOfLines={1}>
+                {t('services.featuredServices')}
               </Text>
             </View>
-          ) : null}
+            {services.length > 1 ? (
+              <View style={[styles.headerChip, { backgroundColor: isDark ? 'rgba(24,24,27,0.78)' : 'rgba(255,255,255,0.88)' }]}>
+                <Text style={{ fontSize: 12, color: colors.muted }} numberOfLines={1}>
+                  {t('services.swipeToExplore')}
+                </Text>
+              </View>
+            ) : null}
+          </View>
         </View>
 
         {activeService ? (
@@ -253,11 +258,15 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature }: Fe
 }
 
 const styles = {
-  headerRow: {
+  topChrome: {
     position: 'absolute' as const,
-    top: spacing.stackSm,
-    left: spacing.screenPaddingX,
-    right: spacing.screenPaddingX,
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  headerRow: {
+    marginTop: spacing.stackSm,
+    paddingHorizontal: spacing.screenPaddingX,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,

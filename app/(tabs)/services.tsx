@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -54,6 +54,7 @@ function visibleSlugSet(
 
 export default function ServicesScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const softLaunch = useSoftLaunch();
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -139,106 +140,110 @@ export default function ServicesScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
+    <SafeAreaView className="flex-1" edges={['left', 'right']} style={{ backgroundColor: colors.background }}>
       <View style={{ flex: 1, paddingBottom: spacing.stackSm }}>
-        <View
-          style={{
-            gap: spacing.stackMd,
-            paddingTop: spacing.stackSm,
-            paddingBottom: spacing.stackSm,
-            paddingHorizontal: spacing.screenPaddingX,
-          }}
-        >
-          <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
-          {softLaunch.showSmartMatch ? (
-            <View
-              style={{
-                borderRadius: radius.button,
-                backgroundColor: colors.primary,
-                overflow: 'hidden',
-              }}
-            >
-              <Pressable
-                onPress={() => router.push('/smart-match')}
-                accessibilityRole="button"
-                accessibilityLabel={t('auth.tryAiMatching')}
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.9 : 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                  minHeight: 44,
-                  paddingHorizontal: 14,
-                  paddingVertical: 10,
-                })}
-              >
-                <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
-                  {t('services.smartMatchBanner')}
-                </Text>
-                <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
-              </Pressable>
-            </View>
-          ) : null}
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
-            <View style={{ flex: 1 }}>
-              <ServiceSearchBar value={searchQuery} onChangeText={setSearchQuery} />
-            </View>
-            <Pressable
-              onPress={() => router.push('/categories')}
-              accessibilityRole="button"
-              accessibilityLabel={t('services.categoriesButton')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.88 : 1,
-                height: 52,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                paddingHorizontal: 12,
-                borderRadius: radius.button,
-                backgroundColor: colors.card,
-                borderWidth: 1,
-                borderColor: colors.border,
-              })}
-            >
-              <Ionicons name="grid-outline" size={18} color={colors.primary} />
-              <Text className="text-xs font-semibold" style={{ color: colors.primary }}>
-                {t('services.categoriesButton')}
-              </Text>
-            </Pressable>
-          </View>
-
-          {activeCategory !== 'all' ? (
-            <Pressable
-              onPress={clearCategoryFilter}
-              accessibilityRole="button"
-              accessibilityLabel={t('services.clearCategoryFilter')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.88 : 1,
-                alignSelf: 'flex-start',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 6,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: radius.full,
-                backgroundColor: colors.primary,
-              })}
-            >
-              <Text className="text-xs font-semibold" style={{ color: '#ffffff' }}>
-                {sectionTitle}
-              </Text>
-              <Ionicons name="close" size={14} color="#ffffff" />
-            </Pressable>
-          ) : null}
-        </View>
-
         <View style={{ flex: 1, minHeight: 0 }}>
           <FeaturedServiceCarousel
             services={filteredServices}
             visitKey={visit.id}
+            topOverlay={
+              <View
+                pointerEvents="box-none"
+                style={{
+                  paddingTop: insets.top + spacing.stackSm,
+                  paddingHorizontal: spacing.screenPaddingX,
+                  gap: spacing.stackMd,
+                }}
+              >
+                <View pointerEvents="none" style={{ opacity: 0.75 }}>
+                  <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
+                </View>
+                {softLaunch.showSmartMatch ? (
+                  <View
+                    style={{
+                      opacity: 0.75,
+                      borderRadius: radius.button,
+                      backgroundColor: colors.primary,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Pressable
+                      onPress={() => router.push('/smart-match')}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('auth.tryAiMatching')}
+                      style={({ pressed }) => ({
+                        opacity: pressed ? 0.9 : 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                        minHeight: 44,
+                        paddingHorizontal: 14,
+                        paddingVertical: 10,
+                      })}
+                    >
+                      <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
+                        {t('services.smartMatchBanner')}
+                      </Text>
+                      <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
+                    </Pressable>
+                  </View>
+                ) : null}
+
+                <View pointerEvents="auto" style={{ opacity: 0.75, flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
+                  <View style={{ flex: 1 }}>
+                    <ServiceSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+                  </View>
+                  <Pressable
+                    onPress={() => router.push('/categories')}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('services.categoriesButton')}
+                    style={({ pressed }) => ({
+                      opacity: pressed ? 0.88 : 1,
+                      height: 52,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      paddingHorizontal: 12,
+                      borderRadius: radius.button,
+                      backgroundColor: colors.card,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                    })}
+                  >
+                    <Ionicons name="grid-outline" size={18} color={colors.primary} />
+                    <Text className="text-xs font-semibold" style={{ color: colors.primary }}>
+                      {t('services.categoriesButton')}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                {activeCategory !== 'all' ? (
+                  <Pressable
+                    onPress={clearCategoryFilter}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('services.clearCategoryFilter')}
+                    style={({ pressed }) => ({
+                      opacity: pressed ? 0.66 : 0.75,
+                      alignSelf: 'flex-start',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: radius.full,
+                      backgroundColor: colors.primary,
+                    })}
+                  >
+                    <Text className="text-xs font-semibold" style={{ color: '#ffffff' }}>
+                      {sectionTitle}
+                    </Text>
+                    <Ionicons name="close" size={14} color="#ffffff" />
+                  </Pressable>
+                ) : null}
+              </View>
+            }
             belowFeature={
               <MockAdPanel key={activeCategory} width={adWidth} height={adHeight} ad={mockAd} />
             }

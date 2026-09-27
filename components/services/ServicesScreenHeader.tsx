@@ -1,6 +1,5 @@
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 type ServicesScreenHeaderProps = {
@@ -14,12 +13,25 @@ export function ServicesScreenHeader({ title, subtitle }: ServicesScreenHeaderPr
 
   return (
     <View style={{ gap: 4 }}>
-      <Text className="text-2xl font-bold tracking-tight" style={{ color: colors.foreground }}>
+      <Text className="text-2xl font-bold tracking-tight" style={[styles.title, { color: colors.foreground }]}>
         {title}
       </Text>
-      <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+      <Text className="text-sm leading-5" style={[styles.subtitle, { color: colors.muted }]}>
         {subtitle}
       </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    textShadowColor: 'rgba(255,255,255,0.95)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  subtitle: {
+    textShadowColor: 'rgba(255,255,255,0.95)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
+  },
+});
