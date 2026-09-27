@@ -9,14 +9,19 @@ type ServicesScreenHeaderProps = {
 
 /** Compact header — avoids the large gradient hero on the launcher grid screen */
 export function ServicesScreenHeader({ title, subtitle }: ServicesScreenHeaderProps) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   return (
-    <View style={{ gap: 4 }}>
-      <Text className="text-2xl font-bold tracking-tight" style={[styles.title, { color: colors.foreground }]}>
+    <View
+      style={[
+        styles.plate,
+        { backgroundColor: isDark ? 'rgba(9,9,11,0.94)' : 'rgba(255,255,255,0.94)' },
+      ]}
+    >
+      <Text className="text-2xl font-bold tracking-tight" style={{ color: colors.foreground }}>
         {title}
       </Text>
-      <Text className="text-sm leading-5" style={[styles.subtitle, { color: colors.muted }]}>
+      <Text className="text-sm leading-5" style={{ color: colors.muted }}>
         {subtitle}
       </Text>
     </View>
@@ -24,14 +29,12 @@ export function ServicesScreenHeader({ title, subtitle }: ServicesScreenHeaderPr
 }
 
 const styles = StyleSheet.create({
-  title: {
-    textShadowColor: 'rgba(255,255,255,0.95)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-  },
-  subtitle: {
-    textShadowColor: 'rgba(255,255,255,0.95)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 6,
+  plate: {
+    alignSelf: 'flex-start',
+    gap: 2,
+    maxWidth: '100%',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
 });

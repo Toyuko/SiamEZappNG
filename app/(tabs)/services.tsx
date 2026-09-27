@@ -155,7 +155,7 @@ export default function ServicesScreen() {
                   gap: spacing.stackMd,
                 }}
               >
-                <View pointerEvents="none" style={{ opacity: 0.75 }}>
+                <View pointerEvents="none">
                   <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
                 </View>
                 {softLaunch.showSmartMatch ? (
