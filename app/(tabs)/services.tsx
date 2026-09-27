@@ -129,7 +129,7 @@ export default function ServicesScreen() {
       : getCategoryLabel(activeCategory);
 
   const mockAd = activeCategory !== 'all' ? getMockAdForCategory(activeCategory) : DEFAULT_MOCK_AD;
-  const adWidth = windowWidth - spacing.screenPaddingX * 2;
+  const adWidth = windowWidth;
   const naturalAdHeight = mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || 96 : 96;
   const adHeight = Math.min(naturalAdHeight, windowHeight < 760 ? 76 : 100);
 
@@ -140,8 +140,15 @@ export default function ServicesScreen() {
 
   return (
     <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
-      <View style={{ flex: 1, paddingHorizontal: spacing.screenPaddingX, paddingBottom: spacing.stackSm }}>
-        <View style={{ gap: spacing.stackMd, paddingTop: spacing.stackSm, paddingBottom: spacing.stackSm }}>
+      <View style={{ flex: 1, paddingBottom: spacing.stackSm }}>
+        <View
+          style={{
+            gap: spacing.stackMd,
+            paddingTop: spacing.stackSm,
+            paddingBottom: spacing.stackSm,
+            paddingHorizontal: spacing.screenPaddingX,
+          }}
+        >
           <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
           {softLaunch.showSmartMatch ? (
             <View

@@ -1,33 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
 import { getServiceTitle } from '../../features/services/service-display';
-import { getServicePosterImageUrl } from '../../features/services/service-poster-images';
 import type { ServiceItem } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { radius, shadows } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { ServicePosterHero } from './ServicePosterHero';
-
-const posterRatioCache = new Map<string, number>();
-
-function fitPoster(maxWidth: number, maxHeight: number, widthOverHeight: number | null) {
-  if (!widthOverHeight || maxWidth <= 0 || maxHeight <= 0) {
-    return { width: maxWidth, height: maxHeight };
-  }
-  let cardWidth = maxWidth;
-  let cardHeight = cardWidth / widthOverHeight;
-  if (cardHeight > maxHeight) {
-    cardHeight = maxHeight;
-    cardWidth = cardHeight * widthOverHeight;
-  }
-  return {
-    width: Math.max(1, Math.round(cardWidth)),
-    height: Math.max(1, Math.round(cardHeight)),
-  };
-}
 
 type FeaturedServiceSlideProps = {
   service: ServiceItem;
@@ -53,34 +33,6 @@ export function FeaturedServiceSlide({
   const title = getServiceTitle(service, language);
   const frame = isDark ? colors.background : '#101828';
   const shadowStyle = isDark ? shadows.cardDarkMedium : shadows.cardMedium;
-  const [widthOverHeight, setWidthOverHeight] = useState<number | null>(() => posterRatioCache.get(service.slug) ?? null);
-  const fitted = fitPoster(width, height, widthOverHeight);
-
-  useEffect(() => {
-    const cached = posterRatioCache.get(service.slug);
-    if (cached) {
-      setWidthOverHeight(cached);
-      return;
-    }
-
-    let cancelled = false;
-    Image.getSize(
-      getServicePosterImageUrl(service.slug),
-      (imageWidth, imageHeight) => {
-        if (cancelled || imageWidth <= 0 || imageHeight <= 0) {
-          return;
-        }
-        const ratio = imageWidth / imageHeight;
-        posterRatioCache.set(service.slug, ratio);
-        setWidthOverHeight(ratio);
-      },
-      () => {},
-    );
-
-    return () => {
-      cancelled = true;
-    };
-  }, [service.slug]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const position = index * width;
@@ -94,11 +46,11 @@ export function FeaturedServiceSlide({
 
   return (
     <View
-      style={{ width, height, alignItems: 'center', justifyContent: 'flex-end' }}
+      style={{ width, height }}
       accessibilityElementsHidden={!isActive}
       importantForAccessibility={isActive ? 'auto' : 'no-hide-descendants'}
     >
-      <Animated.View style={[{ width: fitted.width, height: fitted.height }, animatedStyle]}>
+      <Animated.View style={[{ width, height }, animatedStyle]}>
         <View
           style={[
             styles.stage,
@@ -111,9 +63,9 @@ export function FeaturedServiceSlide({
         >
           <ServicePosterHero
             service={service}
-            width={fitted.width}
-            height={fitted.height}
-            resizeMode="contain"
+            width={width}
+            height={height}
+            resizeMode="cover"
             showLoading
             indicatorColor={isDark ? '#e4e4e7' : '#ffffff'}
             accessibilityLabel={

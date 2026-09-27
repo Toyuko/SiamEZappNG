@@ -236,9 +236,13 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature }: Fe
         <View style={{ height: DOTS_HEIGHT }} />
       ) : null}
 
-      {belowFeature ? <View style={{ flexShrink: 0 }}>{belowFeature}</View> : null}
+      {activeService ? (
+        <View style={{ flexShrink: 0 }}>
+          <ServiceActionButtons service={activeService} />
+        </View>
+      ) : null}
 
-      {activeService ? <ServiceActionButtons service={activeService} /> : null}
+      {belowFeature ? <View style={{ flexShrink: 0 }}>{belowFeature}</View> : null}
     </View>
   );
 }
