@@ -147,21 +147,10 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature }: Fe
   const dotWindow = paginationWindow(services.length, activeIndex);
 
   return (
-    <View style={{ flex: 1, gap: spacing.stackSm }}>
-      <View style={styles.headerRow}>
-        <Text style={{ flex: 1, fontSize: 14, fontWeight: '700', color: colors.foreground }} numberOfLines={1}>
-          {t('services.featuredServices')}
-        </Text>
-        {services.length > 1 ? (
-          <Text style={{ fontSize: 12, color: colors.muted }} numberOfLines={1}>
-            {t('services.swipeToExplore')}
-          </Text>
-        ) : null}
-      </View>
-
+    <View style={{ flex: 1 }}>
       <View
         style={{ flex: 1, minHeight: 180, overflow: 'hidden' }}
-          onLayout={(event) => {
+        onLayout={(event) => {
           const width = Math.round(event.nativeEvent.layout.width);
           const height = Math.round(event.nativeEvent.layout.height);
           setFrame((current) =>
@@ -212,48 +201,85 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature }: Fe
             style={{ height: frame.height, flexGrow: 0 }}
           />
         ) : null}
+
+        <View pointerEvents="none" style={styles.headerRow}>
+          <View style={[styles.headerChip, { backgroundColor: isDark ? 'rgba(24,24,27,0.78)' : 'rgba(255,255,255,0.88)' }]}>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: colors.foreground }} numberOfLines={1}>
+              {t('services.featuredServices')}
+            </Text>
+          </View>
+          {services.length > 1 ? (
+            <View style={[styles.headerChip, { backgroundColor: isDark ? 'rgba(24,24,27,0.78)' : 'rgba(255,255,255,0.88)' }]}>
+              <Text style={{ fontSize: 12, color: colors.muted }} numberOfLines={1}>
+                {t('services.swipeToExplore')}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        {activeService ? (
+          <View pointerEvents="box-none" style={styles.floatingActions}>
+            {showDots ? (
+              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" pointerEvents="none" style={styles.dots}>
+                {Array.from({ length: dotWindow.end - dotWindow.start }, (_, offset) => {
+                  const index = dotWindow.start + offset;
+                  const selected = index === activeIndex;
+                  return (
+                    <View
+                      key={`dot-${index}`}
+                      style={{
+                        width: selected ? 18 : 6,
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: selected ? colors.primary : 'rgba(255,255,255,0.92)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(15,23,42,0.28)',
+                      }}
+                    />
+                  );
+                })}
+              </View>
+            ) : null}
+            <View pointerEvents="auto" style={styles.floatingButtons}>
+              <ServiceActionButtons service={activeService} />
+            </View>
+          </View>
+        ) : null}
       </View>
 
-      {showDots ? (
-        <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.dots}>
-          {Array.from({ length: dotWindow.end - dotWindow.start }, (_, offset) => {
-            const index = dotWindow.start + offset;
-            const selected = index === activeIndex;
-            return (
-              <View
-                key={`dot-${index}`}
-                style={{
-                  width: selected ? 18 : 6,
-                  height: 6,
-                  borderRadius: 3,
-                  backgroundColor: selected ? colors.primary : isDark ? '#52525b' : '#cbd5e1',
-                }}
-              />
-            );
-          })}
-        </View>
-      ) : services.length === 1 ? (
-        <View style={{ height: DOTS_HEIGHT }} />
-      ) : null}
-
-      {activeService ? (
-        <View style={{ flexShrink: 0 }}>
-          <ServiceActionButtons service={activeService} />
-        </View>
-      ) : null}
-
-      {belowFeature ? <View style={{ flexShrink: 0 }}>{belowFeature}</View> : null}
+      {belowFeature ? <View style={{ flexShrink: 0, marginTop: spacing.stackSm }}>{belowFeature}</View> : null}
     </View>
   );
 }
 
 const styles = {
   headerRow: {
-    height: 22,
+    position: 'absolute' as const,
+    top: spacing.stackSm,
+    left: spacing.screenPaddingX,
+    right: spacing.screenPaddingX,
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,
     gap: 12,
+  },
+  headerChip: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    maxWidth: '68%' as const,
+  },
+  floatingActions: {
+    position: 'absolute' as const,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: spacing.screenPaddingX,
+    paddingBottom: spacing.stackMd,
+    gap: spacing.stackSm,
+  },
+  floatingButtons: {
+    opacity: 0.75,
   },
   empty: {
     flex: 1,

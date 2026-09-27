@@ -5,7 +5,6 @@ import { getServiceTitle } from '../../features/services/service-display';
 import type { ServiceItem } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
-import { radius, shadows } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { ServicePosterHero } from './ServicePosterHero';
 
@@ -28,20 +27,15 @@ export function FeaturedServiceSlide({
   isActive,
   total,
 }: FeaturedServiceSlideProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const language = useLanguageStore((state) => state.language);
   const title = getServiceTitle(service, language);
-  const frame = isDark ? colors.background : '#101828';
-  const shadowStyle = isDark ? shadows.cardDarkMedium : shadows.cardMedium;
+  const frame = isDark ? '#09090b' : '#101828';
 
   const animatedStyle = useAnimatedStyle(() => {
     const position = index * width;
-    const scale = interpolate(scrollX.value, [position - width, position, position + width], [0.96, 1, 0.96], 'clamp');
     const opacity = interpolate(scrollX.value, [position - width, position, position + width], [0.84, 1, 0.84], 'clamp');
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
+    return { opacity };
   }, [index, width]);
 
   return (
@@ -51,16 +45,7 @@ export function FeaturedServiceSlide({
       importantForAccessibility={isActive ? 'auto' : 'no-hide-descendants'}
     >
       <Animated.View style={[{ width, height }, animatedStyle]}>
-        <View
-          style={[
-            styles.stage,
-            shadowStyle,
-            {
-              backgroundColor: frame,
-              borderColor: colors.border,
-            },
-          ]}
-        >
+        <View style={[styles.stage, { backgroundColor: frame }]}>
           <ServicePosterHero
             service={service}
             width={width}
@@ -82,8 +67,6 @@ const styles = StyleSheet.create({
   stage: {
     width: '100%',
     height: '100%',
-    borderRadius: radius.xl,
-    borderWidth: 1,
     overflow: 'hidden',
   },
 });
