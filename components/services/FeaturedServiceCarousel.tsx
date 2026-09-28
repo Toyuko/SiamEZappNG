@@ -150,8 +150,9 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topO
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, minHeight: 180 }}>
       <View
-        style={{ flex: 1, minHeight: 180, overflow: 'hidden' }}
+        style={{ flex: 1, overflow: 'hidden' }}
         onLayout={(event) => {
           const width = Math.round(event.nativeEvent.layout.width);
           const height = Math.round(event.nativeEvent.layout.height);
@@ -203,6 +204,7 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topO
             style={{ height: frame.height, flexGrow: 0 }}
           />
         ) : null}
+      </View>
 
         <View pointerEvents="box-none" style={styles.topChrome}>
           {topOverlay}
@@ -263,6 +265,8 @@ const styles = {
     top: 0,
     left: 0,
     right: 0,
+    zIndex: 2,
+    elevation: 8,
   },
   headerRow: {
     marginTop: spacing.stackSm,
@@ -283,6 +287,8 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 2,
+    elevation: 8,
     paddingHorizontal: spacing.screenPaddingX,
     paddingBottom: spacing.stackMd,
     gap: spacing.stackSm,

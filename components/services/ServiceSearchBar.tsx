@@ -12,9 +12,11 @@ type ServiceSearchBarProps = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  /** Overrides the field fill. Use this instead of a parent opacity, which blocks typing on Android. */
+  backgroundColor?: string;
 };
 
-export function ServiceSearchBar({ value, onChangeText, placeholder }: ServiceSearchBarProps) {
+export function ServiceSearchBar({ value, onChangeText, placeholder, backgroundColor }: ServiceSearchBarProps) {
   const { colors } = useTheme();
   const [modalOpen, setModalOpen] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -38,7 +40,7 @@ export function ServiceSearchBar({ value, onChangeText, placeholder }: ServiceSe
           borderRadius: radius.button,
           borderWidth: 1,
           borderColor: colors.border,
-          backgroundColor: colors.card,
+          backgroundColor: backgroundColor ?? colors.card,
           paddingHorizontal: 14,
           gap: 8,
         }}

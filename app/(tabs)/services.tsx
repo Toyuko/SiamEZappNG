@@ -27,6 +27,17 @@ type FeaturedVisit = {
   services: ServiceItem[];
 };
 
+function withAlpha(hex: string, alpha: number): string {
+  const raw = hex.replace('#', '');
+  if (raw.length !== 6) {
+    return hex;
+  }
+  const red = Number.parseInt(raw.slice(0, 2), 16);
+  const green = Number.parseInt(raw.slice(2, 4), 16);
+  const blue = Number.parseInt(raw.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
 function isServiceCategoryId(value: string): value is ServiceCategoryId {
   return SERVICE_CATEGORIES.some((item) => item.id === value);
 }
@@ -190,9 +201,13 @@ export default function ServicesScreen() {
                   </View>
                 ) : null}
 
-                <View pointerEvents="auto" style={{ opacity: 0.75, flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
-                  <View style={{ flex: 1 }}>
-                    <ServiceSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+                <View pointerEvents="box-none" style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
+                  <View collapsable={false} style={{ flex: 1 }}>
+                    <ServiceSearchBar
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                      backgroundColor={withAlpha(colors.card, 0.94)}
+                    />
                   </View>
                   <Pressable
                     onPress={() => router.push('/categories')}
