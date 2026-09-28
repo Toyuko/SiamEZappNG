@@ -3,13 +3,14 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-import { getServiceTitle } from '../../features/services/service-display';
+import { getCategoryLabel, getServiceDescription, getServiceTitle } from '../../features/services/service-display';
 import { fuzzySearchServicesWithScores } from '../../features/services/service-search';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
-import { radius } from '../../lib/theme/tokens';
+import { radius, shadows } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { ServiceSearchModal } from '../search/ServiceSearchModal';
+import { SERVICE_ICON_SURFACE } from './service-icon-surface';
 
 type ServiceSearchBarProps = {
   value: string;
@@ -86,11 +87,11 @@ type ServiceSearchResultsProps = {
 
 export function ServiceSearchResults({ query }: ServiceSearchResultsProps) {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const language = useLanguageStore((state) => state.language);
   const trimmed = query.trim();
   const results = useMemo(
-    () => (trimmed.length > 0 ? fuzzySearchServicesWithScores(trimmed, 6).map((hit) => hit.item) : []),
+    () => (trimmed.length > 0 ? fuzzySearchServicesWithScores(trimmed, 4).map((hit) => hit.item) : []),
     [trimmed],
   );
 
@@ -106,42 +107,73 @@ export function ServiceSearchResults({ query }: ServiceSearchResultsProps) {
   return (
     <View
       pointerEvents="auto"
-      style={{
-        maxHeight: 280,
-        borderRadius: radius.lg,
-        borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.card,
-        overflow: 'hidden',
-        zIndex: 30,
-        elevation: 12,
-      }}
+      style={[
+        {
+          maxHeight: 320,
+          borderRadius: radius.xl,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.card,
+          overflow: 'hidden',
+          zIndex: 30,
+        },
+        isDark ? shadows.cardDarkMedium : shadows.cardMedium,
+      ]}
     >
-      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
+      <Text style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4, fontSize: 12, fontWeight: '600', color: colors.muted }}>
+        {results.length === 0 ? t('search.emptyTitle') : t('search.resultCount', { count: results.length })}
+      </Text>
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ padding: 8, gap: 6 }}>
         {results.length === 0 ? (
-          <Text style={{ paddingHorizontal: 14, paddingVertical: 16, fontSize: 15, color: colors.muted }}>
-            {t('search.emptyTitle')}
+          <Text style={{ paddingHorizontal: 8, paddingBottom: 12, fontSize: 14, lineHeight: 20, color: colors.muted }}>
+            {t('search.emptyHint')}
           </Text>
         ) : (
           results.map((item) => {
             const title = getServiceTitle(item, language);
+            const description = getServiceDescription(item, language);
+            const tint = SERVICE_ICON_SURFACE[item.category][isDark ? 'dark' : 'light'];
             return (
               <Pressable
                 key={item.slug}
                 onPress={() => openResult(item.slug)}
                 accessibilityRole="button"
-                accessibilityLabel={title}
+                accessibilityLabel={`${title}. ${t('services.viewDetails')}`}
                 style={({ pressed }) => ({
-                  opacity: pressed ? 0.88 : 1,
-                  paddingHorizontal: 14,
-                  paddingVertical: 12,
-                  borderBottomWidth: 1,
-                  borderBottomColor: colors.border,
+                  opacity: pressed ? 0.9 : 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  paddingHorizontal: 10,
+                  paddingVertical: 10,
+                  borderRadius: radius.lg,
+                  backgroundColor: pressed ? (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(44,84,198,0.06)') : 'transparent',
                 })}
               >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: colors.foreground }} numberOfLines={1}>
-                  {title}
-                </Text>
+                <View
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: tint,
+                  }}
+                >
+                  <Ionicons name={item.icon} size={20} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }} numberOfLines={1}>
+                    {title}
+                  </Text>
+                  <Text style={{ marginTop: 2, fontSize: 13, lineHeight: 18, color: colors.muted }} numberOfLines={1}>
+                    {description}
+                  </Text>
+                  <Text style={{ marginTop: 3, fontSize: 12, fontWeight: '600', color: colors.primary }} numberOfLines={1}>
+                    {getCategoryLabel(item.category)}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={colors.muted} />
               </Pressable>
             );
           })

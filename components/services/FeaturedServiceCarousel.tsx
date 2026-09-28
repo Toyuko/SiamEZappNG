@@ -27,6 +27,8 @@ type FeaturedServiceCarouselProps = {
   belowFeature?: ReactNode;
   /** Title and search, drawn over the top of the poster. */
   topOverlay?: ReactNode;
+  /** Hides the featured caption while a search list is open. */
+  hideCaption?: boolean;
 };
 
 type Frame = {
@@ -48,7 +50,7 @@ export function paginationWindow(count: number, active: number, max = MAX_DOTS):
   return { start, end };
 }
 
-export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topOverlay }: FeaturedServiceCarouselProps) {
+export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topOverlay, hideCaption = false }: FeaturedServiceCarouselProps) {
   const { colors, isDark } = useTheme();
   const listRef = useRef<FlatList<ServiceItem>>(null);
   const appliedVisit = useRef<number | null>(null);
@@ -208,7 +210,7 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topO
 
         <View pointerEvents="box-none" style={styles.topChrome}>
           {topOverlay}
-          <View pointerEvents="none" style={styles.headerRow}>
+          {hideCaption ? null : <View pointerEvents="none" style={styles.headerRow}>
             <View style={[styles.headerChip, { backgroundColor: isDark ? 'rgba(24,24,27,0.78)' : 'rgba(255,255,255,0.88)' }]}>
               <Text style={{ fontSize: 14, fontWeight: '700', color: colors.foreground }} numberOfLines={1}>
                 {t('services.featuredServices')}
@@ -221,7 +223,7 @@ export function FeaturedServiceCarousel({ services, visitKey, belowFeature, topO
                 </Text>
               </View>
             ) : null}
-          </View>
+          </View>}
         </View>
 
         {activeService ? (

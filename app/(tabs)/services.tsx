@@ -157,6 +157,7 @@ export default function ServicesScreen() {
           <FeaturedServiceCarousel
             services={filteredServices}
             visitKey={visit.id}
+            hideCaption={searchQuery.trim().length > 0}
             topOverlay={
               <View
                 pointerEvents="box-none"
