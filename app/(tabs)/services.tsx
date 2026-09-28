@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import type { CategoryFilterId } from '../../components/services/CategoryChips';
 import { FeaturedServiceCarousel } from '../../components/services/FeaturedServiceCarousel';
-import { ServiceSearchBar } from '../../components/services/ServiceSearchBar';
+import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
 import { ServicesScreenHeader } from '../../components/services/ServicesScreenHeader';
 import { MockAdPanel } from '../../components/ui/MockAdPanel';
 import { DEFAULT_MOCK_AD, getImageAdHeight, getMockAdForCategory } from '../../features/ads/mock-ads';
@@ -233,6 +233,8 @@ export default function ServicesScreen() {
                     </Text>
                   </Pressable>
                 </View>
+
+                <ServiceSearchResults query={searchQuery} />
 
                 {activeCategory !== 'all' ? (
                   <Pressable
