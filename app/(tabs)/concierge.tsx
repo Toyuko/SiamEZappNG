@@ -41,7 +41,15 @@ const SUGGESTED = [
   'Show property for rent in Bangkok',
 ];
 
+function isTawkLink(link: ConciergeDeepLink): boolean {
+  const href = link.href.toLowerCase();
+  return href.startsWith('tawk:') || href.includes('tawk.to') || (link.kind as string) === 'live_chat';
+}
+
 function openDeepLink(router: ReturnType<typeof useRouter>, href: string) {
+  if (href.toLowerCase().startsWith('tawk:') || href.toLowerCase().includes('tawk.to')) {
+    return;
+  }
   const path = href.replace(/^\/(en|th)/, '') || href;
   if (path.startsWith('/sales/')) {
     router.push(`/sales/${path.split('/').pop()}`);
@@ -124,7 +132,7 @@ export default function ConciergeScreen() {
           role: 'assistant',
           content: reply.content,
           recommendations: reply.recommendations,
-          deepLinks: reply.deepLinks,
+          deepLinks: reply.deepLinks?.filter((link) => !isTawkLink(link)),
           explanations: reply.explanations,
           goalChangeLabel,
         },
