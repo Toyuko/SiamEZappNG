@@ -24,6 +24,7 @@ import type { FreelancerPublicCard } from '../../features/freelancer/freelancer-
 import { useDebouncedValue } from '../../hooks/use-debounced-value';
 import { useFreelancerDirectory } from '../../hooks/use-freelancer-directory';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { t } from '../../lib/i18n/i18n';
 import { formatJobAmount } from '../../lib/jobs/format-amount';
 import { spacing } from '../../lib/theme/tokens';
@@ -109,7 +110,7 @@ function FreelancerCard({ item, onPress }: { item: FreelancerPublicCard; onPress
   );
 }
 
-export function FreelancerDirectoryScreen() {
+export function FreelancerDirectoryScreen({ showBack = true }: { showBack?: boolean }) {
   const router = useRouter();
   const { colors } = useTheme();
   const softLaunch = useSoftLaunch();
@@ -143,17 +144,26 @@ export function FreelancerDirectoryScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+    <SafeAreaView
+      className="flex-1"
+      edges={showBack ? ['top', 'left', 'right', 'bottom'] : ['top', 'left', 'right']}
+      style={{ backgroundColor: colors.background }}
+    >
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16, gap: spacing.stackMd, paddingBottom: 40, flexGrow: 1 }}
+        contentContainerStyle={{
+          padding: 16,
+          gap: spacing.stackMd,
+          paddingBottom: showBack ? 40 : 40 + VOICE_FAB_SCROLL_EXTRA,
+          flexGrow: 1,
+        }}
         ListHeaderComponent={
           <View style={{ gap: spacing.stackMd, marginBottom: spacing.stackSm }}>
             <PageHeader
               title={t('freelancer.publicProfile.directory.title')}
               subtitle={t('freelancer.publicProfile.directory.subtitle')}
-              onBack={() => router.back()}
+              onBack={showBack ? () => router.back() : undefined}
               primaryCta={
                 softLaunch.showSmartMatch
                   ? { label: 'Try AI Matching', onPress: () => router.push('/smart-match') }

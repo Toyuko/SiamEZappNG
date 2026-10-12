@@ -8,6 +8,7 @@ import { Card } from '../../components/ui/Card';
 import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ThemePicker } from '../../components/ui/ThemePicker';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -15,6 +16,7 @@ import { useTheme } from '../../lib/theme/theme';
 export default function GuestAccountScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const softLaunch = useSoftLaunch();
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
@@ -57,6 +59,13 @@ export default function GuestAccountScreen() {
           </Text>
           <View className="mt-3 gap-3">
             <Button label={t('tabs.services')} variant="secondary" onPress={() => router.push('/(tabs)/services')} />
+            {softLaunch.showFreelancers ? (
+              <Button
+                label={t('freelancer.publicProfile.directory.title')}
+                variant="secondary"
+                onPress={() => router.push('/(tabs)/freelancers')}
+              />
+            ) : null}
             <Button label={t('tabs.contact')} variant="secondary" onPress={() => router.push('/(tabs)/contact')} />
           </View>
         </Card>

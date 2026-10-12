@@ -123,7 +123,9 @@ function RootNavigator() {
     const hitsDeferredRoute =
       SOFT_LAUNCH_DEFERRED_ROUTES.has(topLevel) ||
       (topLevel === '(tabs)' && SOFT_LAUNCH_DEFERRED_ROUTES.has(tabRoute));
-    const freelancersAllowed = topLevel === 'freelancers' && softLaunch.showFreelancers;
+    const freelancersAllowed =
+      softLaunch.showFreelancers &&
+      (topLevel === 'freelancers' || (topLevel === '(tabs)' && tabRoute === 'freelancers'));
     const smartMatchAllowed = topLevel === 'smart-match' && softLaunch.showSmartMatch;
     const deferredSoftLaunchRoute =
       softLaunch.enabled && hitsDeferredRoute && !freelancersAllowed && !smartMatchAllowed;

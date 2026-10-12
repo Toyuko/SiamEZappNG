@@ -33,6 +33,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { key: 'book', label: 'tabs.book', icon: 'calendar-outline', href: '/(tabs)/book' },
   { key: 'cases', label: 'tabs.cases', icon: 'briefcase-outline', href: '/(tabs)/cases' },
   { key: 'documents', label: 'tabs.documents', icon: 'document-text-outline', href: '/(tabs)/documents' },
+  { key: 'freelancers', label: 'home.hub.freelancers', icon: 'people-outline', href: '/(tabs)/freelancers' },
   { key: 'smart-match', label: 'Smart Match', icon: 'sparkles-outline', href: '/smart-match' },
   { key: 'sales', label: 'tabs.sales', icon: 'car-outline', href: '/(tabs)/sales' },
   { key: 'real-estate', label: 'tabs.realEstate', icon: 'home-outline', href: '/(tabs)/real-estate' },
@@ -85,13 +86,14 @@ export function MemberHomeContent() {
   const casesQuery = useCases();
   const documentsQuery = useDocuments();
   const { drafts } = useBookingDrafts(true);
-  const quickActions = softLaunch.enabled
-    ? QUICK_ACTIONS.filter((action) => {
-        if (action.key === 'smart-match') return softLaunch.showSmartMatch;
-        if (SOFT_LAUNCH_QUICK_KEYS.has(action.key)) return true;
-        return action.key === 'freelancers' && softLaunch.showFreelancers;
-      })
-    : QUICK_ACTIONS.filter((action) => action.key !== 'real-estate' && action.key !== 'concierge');
+  const quickActions = QUICK_ACTIONS.filter((action) => {
+    if (action.key === 'smart-match') return softLaunch.showSmartMatch;
+    if (action.key === 'freelancers') return softLaunch.showFreelancers;
+    if (!softLaunch.enabled) {
+      return action.key !== 'real-estate' && action.key !== 'concierge';
+    }
+    return SOFT_LAUNCH_QUICK_KEYS.has(action.key);
+  });
 
   const displayName = user?.name?.trim() || user?.email || t('common.unknownUser');
   const greetingName = firstName(String(displayName));

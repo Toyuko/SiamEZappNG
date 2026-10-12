@@ -14,9 +14,10 @@ import {
   Megaphone,
   Menu,
   User,
+  Users,
   type LucideIcon,
 } from 'lucide-react-native';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -42,7 +43,7 @@ function TabBarIcon({
   Icon: LucideIcon;
   activeColor: string;
   inactiveColor: string;
-  /** Soft-launch guest IA shows 6 tabs; shrink icon chrome so labels fit. */
+  /** Soft-launch IA can show several tabs; shrink icon chrome so labels fit. */
   compact?: boolean;
 }) {
   const { isDark } = useTheme();
@@ -78,6 +79,16 @@ export default function TabsLayout() {
   const hideWhenMember: { href: null } | Record<string, never> = isGuest ? {} : { href: null };
   const hideFreelancerTabForClient: { href: null } | Record<string, never> =
     isFreelancer && !isCorporate ? {} : { href: null };
+  /** Public directory. Freelancer accounts already reach it from their dashboard tab. */
+  const showPublicFreelancersTab =
+    softLaunch.enabled && softLaunch.showFreelancers && !isCorporate && !isFreelancer;
+  const hidePublicFreelancersTab: { href: null } | Record<string, never> = showPublicFreelancersTab
+    ? {}
+    : { href: null };
+  /** Keep the guest tab bar at six items so "Freelancers" is readable. Contact stays in More and Account. */
+  const hideGuestContactTab: { href: null } | Record<string, never> = showPublicFreelancersTab
+    ? { href: null }
+    : {};
   /** Corporate portal: Insights / Jobs / Ads / Profile — hide standard member tabs. */
   const hideForCorporate: { href: null } | Record<string, never> = isCorporate ? { href: null } : {};
   const showOnlyCorporate: { href: null } | Record<string, never> = isCorporate ? {} : { href: null };
@@ -87,7 +98,7 @@ export default function TabsLayout() {
   const hideInSoftLaunch: { href: null } | Record<string, never> = softLaunch.enabled
     ? { href: null }
     : {};
-  /** Soft launch: guests need More (Ask SiamEZ / Search); Contact stays as guest tab. */
+  /** Soft launch: guests need More (Ask SiamEZ / Search / Contact). */
   const hideMoreTab: { href: null } | Record<string, never> = isCorporate
     ? { href: null }
     : softLaunch.enabled
@@ -96,7 +107,7 @@ export default function TabsLayout() {
         ? { href: null }
         : {};
 
-  // Soft-launch guest IA shows six primary tabs; tighten chrome so labels fit.
+  // Soft launch shows the public freelancer directory beside the launch tabs.
   const compactTabs = softLaunch.enabled;
   // Include system nav / home-indicator inset so 3-button and gesture bars don't cover tabs.
   const tabBarPaddingBottom = TAB_BAR_PADDING_BOTTOM + insets.bottom;
@@ -120,6 +131,24 @@ export default function TabsLayout() {
           marginTop: 4,
           letterSpacing: compactTabs ? 0 : 0.2,
         },
+        tabBarLabel: compactTabs
+          ? ({ color, children }) => (
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.72}
+                style={{
+                  color,
+                  fontSize: 10,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  marginTop: 4,
+                }}
+              >
+                {children}
+              </Text>
+            )
+          : undefined,
         tabBarItemStyle: compactTabs ? { paddingHorizontal: 0 } : undefined,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.mutedText,
@@ -188,6 +217,23 @@ export default function TabsLayout() {
             />
           ),
           ...hideForCorporate,
+        }}
+      />
+      <Tabs.Screen
+        name="freelancers"
+        options={{
+          title: t('tabs.freelancers'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Users}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+              compact={compactTabs}
+            />
+          ),
+          ...hideForCorporate,
+          ...hidePublicFreelancersTab,
         }}
       />
       <Tabs.Screen
@@ -303,6 +349,7 @@ export default function TabsLayout() {
           ),
           ...hideWhenMember,
           ...hideForCorporate,
+          ...hideGuestContactTab,
         }}
       />
       <Tabs.Screen

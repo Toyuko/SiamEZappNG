@@ -48,6 +48,12 @@ const MORE_LINKS: MoreLink[] = [
     path: '/(tabs)/concierge',
   },
   {
+    label: 'Freelancers',
+    subtitle: 'Browse public freelancer profiles',
+    icon: 'people-outline',
+    path: '/freelancers',
+  },
+  {
     label: 'SiamEZ Smart Match',
     subtitle: 'AI job ↔ freelancer matching (demo)',
     icon: 'sparkles-outline',
@@ -117,12 +123,6 @@ const MORE_LINKS: MoreLink[] = [
     path: '/(tabs)/saved',
     memberOnly: true,
     softLaunch: false,
-  },
-  {
-    label: 'Freelancers',
-    subtitle: 'Browse public freelancer profiles',
-    icon: 'people-outline',
-    path: '/freelancers',
   },
   {
     label: 'Contact',

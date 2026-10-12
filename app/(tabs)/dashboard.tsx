@@ -111,6 +111,13 @@ export default function DashboardScreen() {
             <View className="gap-2">
               {[
                 { label: t('dashboard.askSiamez'), path: '/(tabs)/concierge' as const, meta: 'Concierge', softLaunch: true },
+                {
+                  label: t('freelancer.publicProfile.directory.title'),
+                  path: '/freelancers' as const,
+                  meta: t('tabs.freelancers'),
+                  softLaunch: true,
+                  requiresFreelancers: true,
+                },
                 { label: 'Search', path: '/(tabs)/search' as const, meta: 'Unified', softLaunch: true },
                 {
                   label: 'Goals',
@@ -155,7 +162,12 @@ export default function DashboardScreen() {
                   softLaunch: true,
                 },
               ]
-                .filter((item) => !softLaunch.enabled || item.softLaunch !== false)
+                .filter((item) => {
+                  if ('requiresFreelancers' in item && item.requiresFreelancers && !softLaunch.showFreelancers) {
+                    return false;
+                  }
+                  return !softLaunch.enabled || item.softLaunch !== false;
+                })
                 .map((item) => (
                 <Pressable
                   key={item.path}
