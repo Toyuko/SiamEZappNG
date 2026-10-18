@@ -91,7 +91,19 @@
     "deleteAccount": "Delete account",
     "deleteAccountTitle": "Delete your account?",
     "deleteAccountMessage": "To delete your SiamEZ account and associated data, contact support. We’ll verify it’s you and complete the request.",
-    "contactSupport": "Contact support"
+    "contactSupport": "Contact support",
+    "chatWithSiamEZSubtitle": "Message our support team in the app"
+  },
+  "support": {
+    "chatWithSiamEZ": "Chat with SiamEZ",
+    "offlineTitle": "You're offline",
+    "offlineMessage": "Connect to the internet to chat with SiamEZ, then try again.",
+    "retry": "Retry",
+    "unavailableTitle": "Chat unavailable",
+    "unavailableMessage": "Support chat is not available right now. Please try again later or use another contact method.",
+    "identityError": "We couldn't start support chat for this account. Please try again.",
+    "aboutThisCase": "Chat about this case",
+    "askAboutService": "Ask about this service"
   },
   "tabs": {
     "home": "Home",
@@ -423,6 +435,8 @@
     "title": "Get In Touch",
     "subtitle": "Ready to get started? Contact us today.",
     "contactDetails": "Contact details",
+    "liveChat": "Live chat",
+    "liveChatSubtitle": "Chat with our team inside the SiamEZ app.",
     "bookService": "Book a Service",
     "fullNameRequired": "Full name is required.",
     "emailRequired": "Email address is required.",

@@ -15,6 +15,7 @@ import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { SupportChatButton } from '../../features/support';
 import { useClientJobTracking } from '../../hooks/use-client-job-tracking';
 import { useJobTrackingRealtime } from '../../hooks/use-job-tracking-realtime';
 import { t } from '../../lib/i18n/i18n';
@@ -291,6 +292,15 @@ export function ClientTrackingScreen({ jobId }: ClientTrackingScreenProps) {
             ) : null}
           </Card>
         )}
+
+        <SupportChatButton
+          variant="secondary"
+          context={{
+            source: 'job',
+            jobId,
+            service: 'general',
+          }}
+        />
       </ScrollView>
 
       <ReviewBottomSheet

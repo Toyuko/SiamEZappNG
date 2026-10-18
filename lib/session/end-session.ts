@@ -1,3 +1,4 @@
+import { resetSupportLocalSession, useSupportChatStore } from '../../features/support';
 import { clearUserRole } from '../storage/user-role-storage';
 import { clearAccessToken } from '../storage/session-storage';
 import { getAppQueryClient } from '../query/query-client';
@@ -15,7 +16,13 @@ export async function endSession() {
   } catch {
     // best-effort — continue teardown
   }
-  await Promise.all([clearAccessToken(), clearUserRole(), clearUserLocalData()]);
+  useSupportChatStore.getState().reset();
+  await Promise.all([
+    clearAccessToken(),
+    clearUserRole(),
+    clearUserLocalData(),
+    resetSupportLocalSession(),
+  ]);
   getAppQueryClient().clear();
   useAuthStore.getState().clearSession();
 }

@@ -11,6 +11,7 @@ import { FadeInView } from '../../components/ui/FadeInView';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
+import { SupportChatButton, isChatwootEnabled } from '../../features/support';
 import { t } from '../../lib/i18n/i18n';
 import { radius, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -146,6 +147,16 @@ export default function ContactScreen() {
         <FadeInView delay={0} distance={22}>
           <PageHeader title={t('contact.title')} subtitle={t('contact.subtitle')} />
         </FadeInView>
+
+        {isChatwootEnabled() ? (
+          <FadeInView delay={40}>
+            <Section title={t('contact.liveChat')} subtitle={t('contact.liveChatSubtitle')}>
+              <Card>
+                <SupportChatButton context={{ source: 'contact', service: 'general' }} />
+              </Card>
+            </Section>
+          </FadeInView>
+        ) : null}
 
         <FadeInView delay={80}>
           <Section title={t('contact.contactDetails')}>

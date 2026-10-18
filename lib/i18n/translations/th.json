@@ -91,7 +91,19 @@
     "deleteAccount": "ลบบัญชี",
     "deleteAccountTitle": "ลบบัญชีของคุณ?",
     "deleteAccountMessage": "หากต้องการลบบัญชี SiamEZ และข้อมูลที่เกี่ยวข้อง กรุณาติดต่อฝ่ายสนับสนุน เราจะยืนยันตัวตนของคุณแล้วดำเนินการให้",
-    "contactSupport": "ติดต่อฝ่ายสนับสนุน"
+    "contactSupport": "ติดต่อฝ่ายสนับสนุน",
+    "chatWithSiamEZSubtitle": "แชทกับทีมสนับสนุนในแอป"
+  },
+  "support": {
+    "chatWithSiamEZ": "แชทกับ SiamEZ",
+    "offlineTitle": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต",
+    "offlineMessage": "เชื่อมต่ออินเทอร์เน็ตเพื่อแชทกับ SiamEZ แล้วลองอีกครั้ง",
+    "retry": "ลองอีกครั้ง",
+    "unavailableTitle": "แชทไม่พร้อมใช้งาน",
+    "unavailableMessage": "แชทสนับสนุนยังไม่พร้อมในขณะนี้ กรุณาลองใหม่ภายหลัง หรือใช้ช่องทางติดต่ออื่น",
+    "identityError": "ไม่สามารถเริ่มแชทสนับสนุนสำหรับบัญชีนี้ได้ กรุณาลองอีกครั้ง",
+    "aboutThisCase": "แชทเกี่ยวกับเคสนี้",
+    "askAboutService": "สอบถามเกี่ยวกับบริการนี้"
   },
   "tabs": {
     "home": "หน้าแรก",
@@ -423,6 +435,8 @@
     "title": "ติดต่อเรา",
     "subtitle": "พร้อมเริ่มต้นแล้วหรือยัง ติดต่อเราได้เลยวันนี้",
     "contactDetails": "ข้อมูลติดต่อ",
+    "liveChat": "แชทสด",
+    "liveChatSubtitle": "แชทกับทีมของเราได้ในแอป SiamEZ",
     "bookService": "จองบริการ",
     "fullNameRequired": "กรุณากรอกชื่อ-นามสกุล",
     "emailRequired": "กรุณากรอกอีเมล",

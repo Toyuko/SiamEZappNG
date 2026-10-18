@@ -8,6 +8,7 @@ import { Card } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/error-state';
 import { LoadingState } from '../../components/ui/loading-state';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { SupportChatButton, mapToSupportServiceKey } from '../../features/support';
 import { useCase } from '../../hooks/use-case';
 import { formatDisplayDate } from '../../lib/datetime/format';
 import { t } from '../../lib/i18n/i18n';
@@ -58,10 +59,20 @@ export default function CaseDetailScreen() {
               {t('cases.lastUpdated')}: {formatDisplayDate(data.updatedAt, language)}
             </Text>
           ) : null}
-          <View className="mt-4">
+          <View className="mt-4 gap-3">
             <Button
               label={t('tracking.pageTitle')}
               onPress={() => router.push(`/client/tracking/${id}`)}
+            />
+            <SupportChatButton
+              variant="secondary"
+              label={t('support.aboutThisCase')}
+              context={{
+                source: 'booking',
+                bookingId: String(id),
+                service: mapToSupportServiceKey(data?.serviceType),
+                caseTitle: data?.title,
+              }}
             />
           </View>
         </Card>

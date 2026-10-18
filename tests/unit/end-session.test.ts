@@ -37,6 +37,16 @@ vi.mock('../../services/notificationService', () => ({
   unregisterPushTokenFromBackend: () => unregisterPushTokenFromBackend(),
 }));
 
+const resetSupportLocalSession = vi.fn();
+const supportReset = vi.fn();
+
+vi.mock('../../features/support', () => ({
+  resetSupportLocalSession: () => resetSupportLocalSession(),
+  useSupportChatStore: {
+    getState: () => ({ reset: supportReset }),
+  },
+}));
+
 describe('endSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -50,13 +60,16 @@ describe('endSession', () => {
     clearAccessToken.mockResolvedValue(undefined);
     clearUserRole.mockResolvedValue(undefined);
     unregisterPushTokenFromBackend.mockResolvedValue(undefined);
+    resetSupportLocalSession.mockResolvedValue(undefined);
   });
 
-  it('clears token, role, query cache, local PII, and zustand session', async () => {
+  it('clears token, role, query cache, local PII, support chat, and zustand session', async () => {
     const { endSession } = await import('../../lib/session/end-session');
     await endSession();
 
     expect(unregisterPushTokenFromBackend).toHaveBeenCalledTimes(1);
+    expect(supportReset).toHaveBeenCalledTimes(1);
+    expect(resetSupportLocalSession).toHaveBeenCalledTimes(1);
     expect(clearAccessToken).toHaveBeenCalledTimes(1);
     expect(clearUserRole).toHaveBeenCalledTimes(1);
     expect(multiRemove).toHaveBeenCalledWith([

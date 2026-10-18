@@ -6,6 +6,8 @@ type AuthUser = {
   id: string;
   email: string;
   name?: string;
+  /** Present when /api/auth/me (or login) returns it — optional for Chatwoot identity. */
+  phone?: string;
   /** From SiamEZ web API: `customer` | `freelancer` | `corporate` | `CORPORATE` | `company` */
   role?: string;
 };

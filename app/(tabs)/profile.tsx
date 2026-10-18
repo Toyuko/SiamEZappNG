@@ -10,6 +10,7 @@ import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ThemePicker } from '../../components/ui/ThemePicker';
 import { TrustStats } from '../../components/ui/TrustStats';
+import { SupportChatButton, isChatwootEnabled } from '../../features/support';
 import { useAuth } from '../../hooks/use-auth';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
@@ -208,6 +209,16 @@ export default function ProfileScreen() {
                 Support
               </Text>
               <View className="mt-2">
+                {isChatwootEnabled() ? (
+                  <>
+                    <SupportChatButton
+                      variant="row"
+                      context={{ source: 'profile', service: 'general' }}
+                      subtitle={t('profile.chatWithSiamEZSubtitle')}
+                    />
+                    <Divider />
+                  </>
+                ) : null}
                 <RowItem icon="help-buoy-outline" label="Contact support" onPress={() => router.push('/(tabs)/contact')} />
                 <Divider />
                 <RowItem

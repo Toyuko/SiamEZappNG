@@ -17,6 +17,7 @@ import {
 import { AppProviders } from '../components/providers/app-providers';
 import { VoiceFirstProvider } from '../components/voice/VoiceFirstProvider';
 import { LaunchAnimation } from '../components/ui/LaunchAnimation';
+import { SupportChatHost } from '../features/support';
 import { useAuth } from '../hooks/use-auth';
 import { LaunchAnimationProvider } from '../hooks/use-launch-animation';
 import { useSoftLaunch } from '../hooks/use-soft-launch';
@@ -194,6 +195,7 @@ export default function RootLayout() {
     <AppProviders>
       <VoiceFirstProvider>
         <RootNavigator />
+        <SupportChatHost />
       </VoiceFirstProvider>
     </AppProviders>
   );
