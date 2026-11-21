@@ -88,10 +88,10 @@ export function ServicesPageHeader() {
         </View>
       </View>
 
-      <Text className="mt-4 text-[28px] font-bold tracking-tight" style={{ color: '#FFFFFF' }}>
+      <Text className="mt-3 text-[24px] font-bold tracking-tight" style={{ color: '#FFFFFF' }}>
         {t('services.title')}
       </Text>
-      <Text className="mt-1.5 text-[15px] leading-5" style={{ color: 'rgba(255,255,255,0.88)' }}>
+      <Text className="mt-1 text-[14px] leading-5" style={{ color: 'rgba(255,255,255,0.88)' }}>
         {t('services.subtitle')}
       </Text>
     </LinearGradient>

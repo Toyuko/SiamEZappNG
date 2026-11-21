@@ -391,7 +391,8 @@
     "popularTitle": "Popular Services",
     "popularSubtitle": "Explore the services our customers use most",
     "viewAll": "View All →",
-    "browseByCategory": "Categories"
+    "browseByCategory": "Categories",
+    "directorySubtitle": "Everything you need, all in one place"
   },
   "search": {
     "title": "Search services",

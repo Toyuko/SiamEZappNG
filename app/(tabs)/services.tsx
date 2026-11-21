@@ -5,9 +5,9 @@ import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryChips, type CategoryFilterId } from '../../components/services/CategoryChips';
-import { FeaturedPromoCarousel } from '../../components/services/FeaturedPromoCarousel';
-import { PopularServicesGrid } from '../../components/services/PopularServicesGrid';
+import { FeaturedServicesStrip } from '../../components/services/FeaturedServicesStrip';
 import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
+import { ServicesDirectory } from '../../components/services/ServicesDirectory';
 import { ServicesPageHeader } from '../../components/services/ServicesPageHeader';
 import { MockAdPanel } from '../../components/ui/MockAdPanel';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
@@ -17,7 +17,7 @@ import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import type { ServiceCategoryId } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
-import { radius, shadows, spacing } from '../../lib/theme/tokens';
+import { shadows, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 function isServiceCategoryId(value: string): value is ServiceCategoryId {
@@ -68,14 +68,8 @@ export default function ServicesScreen() {
     return filterServicesByQuery(byCategory, searchQuery, language);
   }, [activeCategory, catalog, language, searchQuery]);
 
-  const popular = useMemo(() => {
-    const featuredSlugs = new Set(getFeaturedServices().map((item) => item.slug));
-    const preferred = filtered.filter((item) => featuredSlugs.has(item.slug));
-    const pool = preferred.length > 0 ? preferred : filtered;
-    return pool.slice(0, 8);
-  }, [filtered]);
-
   const searching = searchQuery.trim().length > 0;
+  const showGroupedDirectory = !searching && activeCategory === 'all';
 
   const onSelectCategory = (category: CategoryFilterId) => {
     setActiveCategory(category);
@@ -98,10 +92,9 @@ export default function ServicesScreen() {
             paddingHorizontal: spacing.medium,
             paddingTop: spacing.standard,
             paddingBottom: 100 + VOICE_FAB_SCROLL_EXTRA,
-            gap: spacing.section,
+            gap: spacing.stackLg,
           }}
         >
-          {/* Search + Categories shortcut */}
           <View className="flex-row items-center" style={{ gap: 10 }}>
             <View style={{ flex: 1 }}>
               <ServiceSearchBar
@@ -116,21 +109,21 @@ export default function ServicesScreen() {
               onPress={() => router.push('/categories')}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.88 : 1,
-                height: 54,
-                minWidth: 96,
+                height: 48,
+                minWidth: 88,
                 paddingHorizontal: 12,
-                borderRadius: 18,
+                borderRadius: 16,
                 borderWidth: 1,
                 borderColor: colors.border,
                 backgroundColor: colors.card,
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 4,
+                gap: 2,
                 ...shadows.cardLight,
               })}
             >
-              <Ionicons name="grid-outline" size={18} color={colors.primary} />
-              <Text className="text-[11px] font-semibold" style={{ color: colors.primary }}>
+              <Ionicons name="grid-outline" size={17} color={colors.primary} />
+              <Text className="text-[10px] font-semibold" style={{ color: colors.primary }}>
                 {t('services.categoriesButton')}
               </Text>
             </Pressable>
@@ -138,40 +131,34 @@ export default function ServicesScreen() {
 
           <ServiceSearchResults query={searchQuery} />
 
+          <View style={{ gap: spacing.stackSm }}>
+            <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
+              {t('services.browseByCategory')}
+            </Text>
+            <CategoryChips activeCategory={activeCategory} onSelect={onSelectCategory} />
+          </View>
+
           {!searching ? (
             <>
-              <FeaturedPromoCarousel services={featured} />
+              {activeCategory === 'all' ? <FeaturedServicesStrip services={featured} /> : null}
 
-              <MockAdPanel height={132} />
+              {activeCategory === 'all' ? <MockAdPanel height={108} /> : null}
 
-              <View style={{ gap: spacing.stackSm }}>
-                <Text className="text-base font-bold" style={{ color: colors.foreground }}>
-                  {t('services.browseByCategory')}
-                </Text>
-                <CategoryChips activeCategory={activeCategory} onSelect={onSelectCategory} />
-              </View>
-
-              <PopularServicesGrid
-                services={popular}
-                onViewAll={() => {
-                  setActiveCategory('all');
-                  router.replace('/(tabs)/services');
-                }}
+              <ServicesDirectory
+                services={filtered}
+                groupByCategory={showGroupedDirectory}
+                title={t('services.allServices')}
+                subtitle={t('services.directorySubtitle')}
+                source="services_directory"
               />
             </>
           ) : (
-            <View style={{ gap: spacing.stackMd }}>
-              <CategoryChips activeCategory={activeCategory} onSelect={onSelectCategory} />
-              {filtered.length === 0 ? (
-                <View className="items-center py-10">
-                  <Text className="text-sm" style={{ color: colors.muted }}>
-                    {t('services.noResults')}
-                  </Text>
-                </View>
-              ) : (
-                <PopularServicesGrid services={filtered.slice(0, 12)} />
-              )}
-            </View>
+            <ServicesDirectory
+              services={filtered}
+              groupByCategory={false}
+              title={t('search.resultCount', { count: filtered.length })}
+              source="services_search"
+            />
           )}
         </ScrollView>
       </SafeAreaView>
