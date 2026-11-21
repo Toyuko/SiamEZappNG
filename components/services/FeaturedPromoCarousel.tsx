@@ -14,8 +14,9 @@ import { siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { FeaturedPromoCard } from './FeaturedPromoCard';
 
-const CARD_HEIGHT = 500;
 const H_PAD = spacing.medium;
+/** Tall promo card — dominant but not taller than the viewport. */
+const CARD_ASPECT = 1.08;
 
 type FeaturedPromoCarouselProps = {
   services: ServiceItem[];
@@ -26,9 +27,13 @@ type FeaturedPromoCarouselProps = {
  */
 export function FeaturedPromoCarousel({ services }: FeaturedPromoCarouselProps) {
   const { colors } = useTheme();
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const pageWidth = windowWidth;
   const cardWidth = Math.max(280, windowWidth - H_PAD * 2);
+  const cardHeight = Math.min(
+    Math.round(windowHeight * 0.52),
+    Math.max(340, Math.round(cardWidth * CARD_ASPECT)),
+  );
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<FlatList<ServiceItem>>(null);
 
@@ -56,12 +61,12 @@ export function FeaturedPromoCarousel({ services }: FeaturedPromoCarouselProps) 
         <FeaturedPromoCard
           service={item}
           width={cardWidth}
-          height={CARD_HEIGHT}
+          height={cardHeight}
           isActive={index === activeIndex}
         />
       </View>
     ),
-    [activeIndex, cardWidth, pageWidth],
+    [activeIndex, cardHeight, cardWidth, pageWidth],
   );
 
   if (data.length === 0) {

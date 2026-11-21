@@ -33,15 +33,10 @@ export function PopularServicesGrid({ services, onViewAll }: PopularServicesGrid
   return (
     <View style={{ gap: spacing.stackMd }}>
       <View className="flex-row items-end justify-between gap-3">
-        <View className="min-w-0 flex-1">
-          <View className="flex-row items-center gap-2">
-            <View style={{ width: 4, height: 18, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
-            <Text className="text-xl font-bold" style={{ color: colors.foreground }}>
-              {t('services.popularTitle')}
-            </Text>
-          </View>
-          <Text className="mt-1 text-sm leading-5" style={{ color: colors.muted }}>
-            {t('services.popularSubtitle')}
+        <View className="min-w-0 flex-1 flex-row items-center gap-2">
+          <View style={{ width: 4, height: 18, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
+          <Text className="text-xl font-bold" style={{ color: colors.foreground }}>
+            {t('services.popularTitle')}
           </Text>
         </View>
         {onViewAll ? (
@@ -69,7 +64,7 @@ export function PopularServicesGrid({ services, onViewAll }: PopularServicesGrid
               }}
               style={({ pressed }) => ({
                 width: '48%',
-                minHeight: 148,
+                minHeight: 142,
                 padding: spacing.small,
                 borderRadius: radius.xl,
                 backgroundColor: colors.card,
@@ -79,27 +74,26 @@ export function PopularServicesGrid({ services, onViewAll }: PopularServicesGrid
                 ...shadows.cardLight,
               })}
             >
-              <View
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: radius.md,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: tint,
-                  marginBottom: 10,
-                }}
-              >
-                <Ionicons name={service.icon} size={22} color={accent} />
+              <View className="flex-row items-start justify-between">
+                <View
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: radius.md,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: tint,
+                  }}
+                >
+                  <Ionicons name={service.icon} size={22} color={accent} />
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={colors.muted} />
               </View>
-              <Text className="text-[15px] font-semibold" numberOfLines={2} style={{ color: colors.foreground }}>
+              <Text className="mt-2.5 text-[15px] font-semibold" numberOfLines={2} style={{ color: colors.foreground }}>
                 {title}
               </Text>
               <Text className="mt-1 text-xs leading-4" numberOfLines={2} style={{ color: colors.muted }}>
                 {getServiceDescription(service, language)}
-              </Text>
-              <Text className="mt-auto pt-2 text-sm font-semibold" style={{ color: accent }}>
-                →
               </Text>
             </Pressable>
           );

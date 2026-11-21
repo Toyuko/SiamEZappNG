@@ -4,10 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CategoryChips, type CategoryFilterId } from '../../components/services/CategoryChips';
-import { PopularServices } from '../../components/services/PopularServices';
+import type { CategoryFilterId } from '../../components/services/CategoryChips';
+import { CategoryTiles } from '../../components/services/CategoryTiles';
+import { FeaturedPromoCarousel } from '../../components/services/FeaturedPromoCarousel';
+import { PopularServicesGrid } from '../../components/services/PopularServicesGrid';
 import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
-import { ServicesDirectory } from '../../components/services/ServicesDirectory';
 import { ServicesPageHeader } from '../../components/services/ServicesPageHeader';
 import { MockAdPanel } from '../../components/ui/MockAdPanel';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
@@ -69,13 +70,13 @@ export default function ServicesScreen() {
   }, [activeCategory, catalog, language, searchQuery]);
 
   const popular = useMemo(() => {
-    const featuredSlugs = new Set(featured.map((item) => item.slug));
+    const featuredSlugs = new Set(getFeaturedServices().map((item) => item.slug));
     const preferred = filtered.filter((item) => featuredSlugs.has(item.slug));
-    return (preferred.length > 0 ? preferred : filtered).slice(0, 6);
-  }, [featured, filtered]);
+    const pool = preferred.length > 0 ? preferred : filtered;
+    return pool.slice(0, 4);
+  }, [filtered]);
 
   const searching = searchQuery.trim().length > 0;
-  const showGroupedDirectory = !searching && activeCategory === 'all';
 
   const onSelectCategory = (category: CategoryFilterId) => {
     setActiveCategory(category);
@@ -88,7 +89,7 @@ export default function ServicesScreen() {
 
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ServicesPageHeader compact />
+      <ServicesPageHeader />
 
       <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
         <ScrollView
@@ -96,12 +97,12 @@ export default function ServicesScreen() {
           keyboardDismissMode="on-drag"
           contentContainerStyle={{
             paddingHorizontal: spacing.medium,
-            paddingTop: spacing.stackMd,
+            paddingTop: spacing.standard,
             paddingBottom: 100 + VOICE_FAB_SCROLL_EXTRA,
-            gap: spacing.stackMd,
+            gap: spacing.section,
           }}
         >
-          <View className="flex-row items-center" style={{ gap: 8 }}>
+          <View className="flex-row items-center" style={{ gap: 10 }}>
             <View style={{ flex: 1 }}>
               <ServiceSearchBar
                 value={searchQuery}
@@ -115,21 +116,21 @@ export default function ServicesScreen() {
               onPress={() => router.push('/categories')}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.88 : 1,
-                height: 48,
-                minWidth: 80,
-                paddingHorizontal: 10,
-                borderRadius: 16,
+                height: 54,
+                minWidth: 96,
+                paddingHorizontal: 12,
+                borderRadius: 18,
                 borderWidth: 1,
                 borderColor: colors.border,
                 backgroundColor: colors.card,
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 2,
+                gap: 4,
                 ...shadows.cardLight,
               })}
             >
-              <Ionicons name="grid-outline" size={16} color={colors.primary} />
-              <Text className="text-[10px] font-semibold" style={{ color: colors.primary }}>
+              <Ionicons name="grid-outline" size={18} color={colors.primary} />
+              <Text className="text-[11px] font-semibold" style={{ color: colors.primary }}>
                 {t('services.categoriesButton')}
               </Text>
             </Pressable>
@@ -137,32 +138,21 @@ export default function ServicesScreen() {
 
           <ServiceSearchResults query={searchQuery} />
 
-          <CategoryChips activeCategory={activeCategory} onSelect={onSelectCategory} />
-
           {!searching ? (
             <>
-              {/* Directory first — browseable services above the fold */}
-              <ServicesDirectory
-                services={filtered}
-                groupByCategory={showGroupedDirectory}
-                title={t('services.allServices')}
-                subtitle={t('services.directorySubtitle')}
-                source="services_directory"
+              {activeCategory === 'all' ? <FeaturedPromoCarousel services={featured} /> : null}
+
+              <CategoryTiles activeCategory={activeCategory} onSelect={onSelectCategory} />
+
+              <PopularServicesGrid
+                services={popular}
+                onViewAll={() => router.push('/all-services')}
               />
 
-              {activeCategory === 'all' && popular.length > 0 ? (
-                <PopularServices services={popular} />
-              ) : null}
-
-              {activeCategory === 'all' ? <MockAdPanel height={96} /> : null}
+              <MockAdPanel height={148} />
             </>
           ) : (
-            <ServicesDirectory
-              services={filtered}
-              groupByCategory={false}
-              title={t('search.resultCount', { count: filtered.length })}
-              source="services_search"
-            />
+            <PopularServicesGrid services={filtered.slice(0, 12)} />
           )}
         </ScrollView>
       </SafeAreaView>
