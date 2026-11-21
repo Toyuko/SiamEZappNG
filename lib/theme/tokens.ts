@@ -5,28 +5,28 @@
 
 export const siam = {
   blue: {
-    /** Primary brand blue */
-    DEFAULT: '#0645B5',
+    /** Primary brand blue (booking wizard / site) */
+    DEFAULT: '#0647C7',
     /** Interactive / bright */
-    light: '#1559D6',
-    bright: '#1559D6',
+    light: '#1457D9',
+    bright: '#1457D9',
     /** Primary dark */
     dark: '#06358E',
     /** Primary deep / navy */
-    navy: '#052A70',
+    navy: '#062B78',
     /** Soft tint for chips / icon wells */
     tint: '#EEF4FF',
   },
   yellow: {
-    /** Primary conversion yellow (Services marketplace CTA) */
-    DEFAULT: '#FFD400',
+    /** Primary conversion yellow */
+    DEFAULT: '#FFD500',
     light: '#FFDF32',
     dark: '#F0BF00',
   },
   gray: {
-    DEFAULT: '#5C7395',
+    DEFAULT: '#60789C',
     light: '#A5B5CC',
-    dark: '#102858',
+    dark: '#102A5E',
   },
 } as const;
 
@@ -34,9 +34,9 @@ export const siam = {
 export const surfaces = {
   background: '#F3F7FF',
   card: '#FFFFFF',
-  textPrimary: '#102858',
-  textSecondary: '#5C7395',
-  border: '#DCE6F7',
+  textPrimary: '#102A5E',
+  textSecondary: '#60789C',
+  border: '#DCE6F8',
   disabled: '#A5B5CC',
   success: '#16A34A',
   warning: '#F59E0B',
@@ -76,7 +76,7 @@ export const radius = {
 } as const;
 
 /** Foreground on yellow/accent surfaces */
-export const accentForeground = '#102858';
+export const accentForeground = '#102A5E';
 
 export type ShadowStyle = {
   shadowColor: string;

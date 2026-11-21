@@ -533,6 +533,8 @@
     "pricingQuote": "เริ่มจากใบเสนอราคา — ยืนยันหลังตรวจสอบ",
     "selectServiceTitle": "เลือกบริการ",
     "selectServiceSubtitle": "เลือกสิ่งที่คุณต้องการ — จากนั้นเราจะเก็บรายละเอียดสั้น ๆ",
+    "chooseServiceHint": "เลือกบริการเพื่อเริ่มต้น",
+    "notSureAsk": "ไม่แน่ใจว่าต้องการอะไร? ถาม SiamEZ",
     "changeService": "เปลี่ยนบริการ",
     "documents": "เอกสาร (ไม่บังคับ)",
     "uploadFromFilesOrCamera": "แนบไฟล์ตอนนี้ถ้าสะดวก",

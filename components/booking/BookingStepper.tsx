@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 
 import { t } from '../../lib/i18n/i18n';
-import { radius, siam, spacing } from '../../lib/theme/tokens';
+import { accentForeground, radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 type BookingStepperProps = {
@@ -16,37 +16,77 @@ const STEPS = [
 ] as const;
 
 /**
- * Compact 3-step progress indicator for the booking wizard.
+ * Capsule progress indicator — yellow active step, compact for the booking header.
  */
 export function BookingStepper({ step }: BookingStepperProps) {
   const { colors, isDark } = useTheme();
 
   return (
-    <View className="flex-row items-center justify-between" style={{ gap: spacing.compact }}>
-      {STEPS.map((item) => {
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: spacing.compact,
+        backgroundColor: isDark ? colors.card : '#FFFFFF',
+        borderRadius: radius.full,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderWidth: 1,
+        borderColor: isDark ? colors.border : 'rgba(255,255,255,0.65)',
+      }}
+    >
+      {STEPS.map((item, index) => {
         const active = item.id === step;
         const done = item.id < step;
-        const barColor = active || done ? siam.yellow.DEFAULT : isDark ? colors.border : '#E8EEF9';
-        const textColor = active || done ? siam.blue.navy : colors.muted;
+        const showLine = index < STEPS.length - 1;
 
         return (
-          <View key={item.id} className="min-w-0 flex-1 items-center">
-            <View
-              style={{
-                width: '100%',
-                height: 4,
-                borderRadius: radius.full,
-                backgroundColor: barColor,
-                marginBottom: 8,
-              }}
-            />
-            <Text
-              className="text-center text-[11px] font-semibold"
-              numberOfLines={1}
-              style={{ color: active ? colors.foreground : textColor }}
-            >
-              {`${item.id} ${t(item.labelKey)}`}
-            </Text>
+          <View key={item.id} style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 }}>
+              <View
+                style={{
+                  width: 26,
+                  height: 26,
+                  borderRadius: 13,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: active || done ? siam.yellow.DEFAULT : isDark ? colors.border : '#E8EEF9',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: '700',
+                    color: active || done ? accentForeground : colors.muted,
+                  }}
+                >
+                  {item.id}
+                </Text>
+              </View>
+              <Text
+                numberOfLines={1}
+                style={{
+                  fontSize: 12,
+                  fontWeight: active ? '700' : '600',
+                  color: active ? accentForeground : done ? siam.blue.navy : colors.muted,
+                  flexShrink: 1,
+                }}
+              >
+                {t(item.labelKey)}
+              </Text>
+            </View>
+            {showLine ? (
+              <View
+                style={{
+                  flex: 1,
+                  height: 3,
+                  marginHorizontal: 6,
+                  borderRadius: 2,
+                  backgroundColor: done || active ? siam.yellow.DEFAULT : isDark ? colors.border : '#E8EEF9',
+                }}
+              />
+            ) : null}
           </View>
         );
       })}

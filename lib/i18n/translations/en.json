@@ -533,6 +533,8 @@
     "pricingQuote": "Starting from a custom quote — we’ll confirm after review",
     "selectServiceTitle": "Choose a service",
     "selectServiceSubtitle": "Pick what you need — then we’ll collect a few details.",
+    "chooseServiceHint": "Choose a service to get started.",
+    "notSureAsk": "Not sure what you need? Ask SiamEZ",
     "changeService": "Change service",
     "documents": "Documents (optional)",
     "uploadFromFilesOrCamera": "Add files now if you have them handy.",

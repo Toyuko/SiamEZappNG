@@ -6,28 +6,28 @@ module.exports = {
     extend: {
       colors: {
         background: '#F3F7FF',
-        foreground: '#102858',
-        muted: '#5C7395',
-        border: '#DCE6F7',
+        foreground: '#102A5E',
+        muted: '#60789C',
+        border: '#DCE6F8',
         card: '#ffffff',
         siam: {
           blue: {
-            DEFAULT: '#0645B5',
-            light: '#1559D6',
+            DEFAULT: '#0647C7',
+            light: '#1457D9',
             dark: '#06358E',
-            bright: '#1559D6',
-            navy: '#052A70',
+            bright: '#1457D9',
+            navy: '#062B78',
             tint: '#EEF4FF',
           },
           yellow: {
-            DEFAULT: '#FFD400',
+            DEFAULT: '#FFD500',
             light: '#FFDF32',
             dark: '#F0BF00',
           },
           gray: {
-            DEFAULT: '#5C7395',
+            DEFAULT: '#60789C',
             light: '#A5B5CC',
-            dark: '#102858',
+            dark: '#102A5E',
           },
         },
       },

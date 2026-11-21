@@ -74,6 +74,22 @@ Shared: `Button`, `Card`, `BrandHeader`, `MenuRow`, `Section` (yellow bar), `Pag
 Booking: Featured **Book Now** → `/(tabs)/book?serviceSlug=`; **More Info** → `/services/[slug]`.  
 Reused: `ServicePosterHero`, `ServiceSearchBar`, `MockAdPanel`, catalog APIs.
 
+### Booking wizard migration (follow-up)
+
+Replaced the plain service list + PageHeader shell with a website-aligned mobile wizard:
+
+| New / updated | Role |
+| --- | --- |
+| `components/booking/BookingWizardHeader.tsx` | Blue branded header + capsule stepper |
+| `components/booking/BookingStepper.tsx` | Compact Service → Details → Confirm |
+| `components/booking/BookingServicePicker.tsx` | Searchable premium service cards + Ask SiamEZ |
+| `app/(tabs)/book.tsx` | Wired shell; sticky yellow CTA; polished review/success |
+| `tailwind.config.js` / tokens | Synced to `#0647C7` / `#FFD500` / `#F3F7FF` |
+
+**Preserved:** `POST /api/bookings`, drafts, guest checkout, uploads, field validation, pricing lines, funnel tracking, WhatsApp help.  
+**Not removed:** booking API / admin / draft storage.  
+**Perf:** wizard state kept across steps (no remount of whole flow); press-scale on cards only; no new deps.
+
 ## I. Risks / next
 
 1. Device visual QA vs screenshot on mid-range Android  

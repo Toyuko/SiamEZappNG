@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -19,11 +20,11 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import * as WebBrowser from 'expo-web-browser';
 
-import { BookingStepper } from '../../components/booking/BookingStepper';
+import { BookingServicePicker } from '../../components/booking/BookingServicePicker';
+import { BookingWizardHeader } from '../../components/booking/BookingWizardHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { SelectField } from '../../components/ui/SelectField';
 import { radius, shadows, siam } from '../../lib/theme/tokens';
@@ -506,49 +507,15 @@ export default function BookScreen() {
   );
 
   const renderServicePicker = () => (
-    <Section title={t('book.selectServiceTitle')} subtitle={t('book.selectServiceSubtitle')}>
-      <View className="gap-2.5">
-        {activeServices.map((item) => (
-          <Pressable
-            key={item.slug}
-            accessibilityRole="button"
-            accessibilityLabel={getServiceTitle(item, language)}
-            onPress={() => {
-              trackFunnel('booking_started', { slug: item.slug, source: 'book_picker' });
-              router.setParams({ serviceSlug: item.slug });
-            }}
-            style={({ pressed }) => ({
-              paddingVertical: 16,
-              paddingHorizontal: 16,
-              borderRadius: radius.lg,
-              borderWidth: 1,
-              borderColor: colors.border,
-              backgroundColor: colors.card,
-              opacity: pressed ? 0.88 : 1,
-              ...shadows.cardLight,
-            })}
-          >
-            <View className="flex-row items-start justify-between gap-3">
-              <View className="min-w-0 flex-1">
-                <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
-                  {getServiceTitle(item, language)}
-                </Text>
-                <Text className="mt-1 text-sm leading-5" numberOfLines={2} style={{ color: colors.mutedText }}>
-                  {language === 'th' ? item.descriptionTh : item.descriptionEn}
-                </Text>
-              </View>
-              <Text className="text-lg font-bold" style={{ color: siam.blue.DEFAULT }}>
-                →
-              </Text>
-            </View>
-          </Pressable>
-        ))}
-      </View>
-      <View className="mt-3">
-        <Button label={t('home.browseServices')} variant="secondary" onPress={() => router.push('/(tabs)/services')} />
-      </View>
-    </Section>
+    <BookingServicePicker
+      services={activeServices}
+      onSelect={(slug) => router.setParams({ serviceSlug: slug })}
+    />
   );
+
+  const clearSelectedService = () => {
+    router.setParams({ serviceSlug: '', service: '' });
+  };
 
   const renderStepContent = () => {
     if (!selectedService) {
@@ -573,26 +540,53 @@ export default function BookScreen() {
             : t('book.bookingSubmittedSubtitle');
 
       return (
-        <Card className="py-6">
-          <Text className="text-xl font-bold" style={{ color: colors.success }}>
+        <Card className="py-6" shadow="medium">
+          <View
+            style={{
+              alignSelf: 'center',
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: `${colors.success}22`,
+              marginBottom: 12,
+            }}
+          >
+            <Ionicons name="checkmark" size={32} color={colors.success} />
+          </View>
+          <Text className="text-center text-xl font-bold" style={{ color: colors.foreground }}>
             {t('book.bookingSubmitted')}
           </Text>
-          <Text className="mt-2 leading-6" style={{ color: colors.text }}>
+          <Text className="mt-2 text-center leading-6" style={{ color: colors.muted }}>
             {successSubtitle}
           </Text>
           {bookingResult?.caseNumber ? (
-            <Text className="mt-3 text-base font-semibold" style={{ color: colors.text }}>
-              {t('book.caseNumber')}: {bookingResult.caseNumber}
-            </Text>
+            <View
+              style={{
+                marginTop: 16,
+                padding: 12,
+                borderRadius: radius.lg,
+                backgroundColor: siam.blue.tint,
+                alignItems: 'center',
+              }}
+            >
+              <Text className="text-xs font-semibold uppercase" style={{ color: colors.muted }}>
+                {t('book.caseNumber')}
+              </Text>
+              <Text className="mt-1 text-lg font-bold" style={{ color: colors.foreground }}>
+                {bookingResult.caseNumber}
+              </Text>
+            </View>
           ) : null}
           {canPay ? (
-            <Text className="mt-3 text-sm leading-5" style={{ color: colors.mutedText }}>
+            <Text className="mt-3 text-center text-sm leading-5" style={{ color: colors.mutedText }}>
               {t('book.paymentNotConfirmedYet')}
             </Text>
           ) : null}
           <View className="mt-5 gap-3">
             {canPay ? (
-              <Button label={t('book.payNow')} onPress={() => void openGuestCheckout()} />
+              <Button label={t('book.payNow')} variant="accent" gradient onPress={() => void openGuestCheckout()} />
             ) : null}
             {isGuest && !canPay ? (
               <Button label={t('book.createAccount')} onPress={() => router.push('/(auth)/signup')} />
@@ -600,9 +594,10 @@ export default function BookScreen() {
             <Button
               label={t('book.trackCase')}
               variant={canPay || isGuest ? 'secondary' : 'primary'}
-              onPress={() => router.push(isGuest ? '/(auth)/login' : '/(tabs)/dashboard')}
+              onPress={() => router.push(isGuest ? '/(auth)/login' : '/(tabs)/cases')}
             />
             <Button label={t('book.chatWhatsApp')} variant="secondary" onPress={() => void openWhatsApp()} />
+            <Button label={t('tabs.home')} variant="secondary" onPress={() => router.replace('/(tabs)/home')} />
             {isGuest && canPay ? (
               <Pressable
                 onPress={() => router.push('/(auth)/signup')}
@@ -622,22 +617,27 @@ export default function BookScreen() {
     if (step === 1) {
       return (
         <Section title={t('book.clientDetails')}>
-          <Card>
-            <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
-              {t('book.service')}
-            </Text>
-            <Text className="mt-1 text-lg font-bold" style={{ color: colors.text }}>
-              {getServiceTitle(selectedService, language)}
-            </Text>
-            <Text className="mt-2 text-base font-semibold" style={{ color: colors.primary }}>
-              {startingPriceLine}
-            </Text>
-            <Text className="mt-1 text-xs" style={{ color: colors.mutedText }}>
-              {t('book.quoteNote')}
-            </Text>
+          <Card shadow="medium">
+            <View className="flex-row items-start gap-2.5">
+              <View style={{ width: 4, height: 44, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
+              <View className="min-w-0 flex-1">
+                <Text className="text-xs font-semibold uppercase tracking-wide" style={{ color: colors.mutedText }}>
+                  {t('book.service')}
+                </Text>
+                <Text className="mt-1 text-lg font-bold" style={{ color: colors.foreground }}>
+                  {getServiceTitle(selectedService, language)}
+                </Text>
+                <Text className="mt-2 text-base font-semibold" style={{ color: siam.blue.DEFAULT }}>
+                  {startingPriceLine}
+                </Text>
+                <Text className="mt-1 text-xs" style={{ color: colors.mutedText }}>
+                  {t('book.quoteNote')}
+                </Text>
+              </View>
+            </View>
             {renderTrustRow()}
             <View className="mt-4">
-              <Button label={t('book.changeService')} variant="secondary" onPress={() => router.push('/(tabs)/services')} />
+              <Button label={t('book.changeService')} variant="secondary" onPress={clearSelectedService} />
             </View>
           </Card>
           <Input
@@ -681,7 +681,7 @@ export default function BookScreen() {
       return (
         <Section title={t('book.serviceRequirements')}>
           <Card>
-            <Text className="text-sm font-semibold" style={{ color: colors.text }}>
+            <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
               {startingPriceLine}
             </Text>
             <Text className="mt-1 text-xs" style={{ color: colors.mutedText }}>
@@ -709,29 +709,70 @@ export default function BookScreen() {
           />
 
           <Card>
-            <Text className="font-semibold" style={{ color: colors.text }}>
-              {t('book.documents')}
-            </Text>
-            <Text className="mt-1 text-sm leading-5" style={{ color: colors.mutedText }}>
-              {t('book.uploadLaterHint')}
-            </Text>
-            <Text className="mt-2 text-xs" style={{ color: colors.mutedText }}>
+            <View className="flex-row items-center gap-2">
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: radius.md,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: siam.blue.tint,
+                }}
+              >
+                <Ionicons name="document-text-outline" size={20} color={siam.blue.DEFAULT} />
+              </View>
+              <View className="min-w-0 flex-1">
+                <Text className="font-semibold" style={{ color: colors.foreground }}>
+                  {t('book.documents')}
+                </Text>
+                <Text className="mt-0.5 text-sm leading-5" style={{ color: colors.mutedText }}>
+                  {t('book.uploadLaterHint')}
+                </Text>
+              </View>
+            </View>
+            <Text className="mt-3 text-xs" style={{ color: colors.mutedText }}>
               {t('book.uploadFromFilesOrCamera')}
             </Text>
             <View className="mt-3 flex-row gap-2">
               <View className="flex-1">
-                <Button label={t('book.uploadFile')} onPress={() => void pickFile()} disabled={uploadMutation.isPending} />
+                <Button
+                  label={t('book.uploadFile')}
+                  minHeight={52}
+                  onPress={() => void pickFile()}
+                  disabled={uploadMutation.isPending}
+                />
               </View>
               <View className="flex-1">
-                <Button label={t('book.camera')} variant="secondary" onPress={() => void takePhoto()} disabled={uploadMutation.isPending} />
+                <Button
+                  label={t('book.camera')}
+                  variant="secondary"
+                  minHeight={52}
+                  onPress={() => void takePhoto()}
+                  disabled={uploadMutation.isPending}
+                />
               </View>
             </View>
             {uploadedDocuments.length > 0 ? (
               <View className="mt-3 gap-2">
                 {uploadedDocuments.map((doc) => (
-                  <Text key={doc.id} className="text-sm" style={{ color: colors.mutedText }}>
-                    • {doc.name}
-                  </Text>
+                  <View
+                    key={doc.id}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 8,
+                      paddingVertical: 8,
+                      paddingHorizontal: 10,
+                      borderRadius: radius.md,
+                      backgroundColor: siam.blue.tint,
+                    }}
+                  >
+                    <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+                    <Text className="flex-1 text-sm" style={{ color: colors.foreground }}>
+                      {doc.name}
+                    </Text>
+                  </View>
                 ))}
               </View>
             ) : null}
@@ -742,34 +783,40 @@ export default function BookScreen() {
 
     return (
       <Section title={t('book.reviewConfirm')}>
-        <Card>
+        <Card shadow="medium">
           <Text className="text-sm" style={{ color: colors.mutedText }}>
             {t('book.service')}
           </Text>
-          <Text className="font-semibold" style={{ color: colors.text }}>
+          <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
             {getServiceTitle(selectedService, language)}
           </Text>
-          <Text className="mt-2 text-base font-semibold" style={{ color: colors.primary }}>
+          <Text className="mt-2 text-base font-semibold" style={{ color: siam.blue.DEFAULT }}>
             {startingPriceLine}
           </Text>
 
-          <Text className="mt-4 text-sm" style={{ color: colors.mutedText }}>
+          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: 14 }} />
+
+          <Text className="text-sm" style={{ color: colors.mutedText }}>
             {t('book.client')}
           </Text>
-          <Text style={{ color: colors.text }}>{fullName}</Text>
-          <Text style={{ color: colors.text }}>{email}</Text>
-          <Text style={{ color: colors.text }}>{phone}</Text>
+          <Text className="mt-1 font-semibold" style={{ color: colors.foreground }}>
+            {fullName}
+          </Text>
+          <Text style={{ color: colors.muted }}>{email}</Text>
+          <Text style={{ color: colors.muted }}>{phone}</Text>
 
-          <Text className="mt-4 text-sm" style={{ color: colors.mutedText }}>
+          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: 14 }} />
+
+          <Text className="text-sm" style={{ color: colors.mutedText }}>
             {t('book.requirements')}
           </Text>
           {requirementFields.map((field) => (
-            <Text key={field.id} style={{ color: colors.text }}>
+            <Text key={field.id} className="mt-1" style={{ color: colors.foreground }}>
               {t(field.labelKey)}: {req[field.id] ?? '—'}
             </Text>
           ))}
           {notes.trim() ? (
-            <Text className="mt-2" style={{ color: colors.text }}>
+            <Text className="mt-2" style={{ color: colors.foreground }}>
               {t('book.notes')}: {notes}
             </Text>
           ) : null}
@@ -798,8 +845,21 @@ export default function BookScreen() {
 
   const showWizardActions = draftReady && !submitted && Boolean(selectedService);
 
+  const headerSubtitle = submitted
+    ? t('book.confirmation')
+    : selectedService
+      ? getServiceTitle(selectedService, language)
+      : t('book.selectServiceSubtitle');
+
   return (
-    <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
+      <BookingWizardHeader
+        step={submitted ? 3 : visualStep}
+        title={submitted ? t('book.confirmation') : t('book.title')}
+        subtitle={headerSubtitle}
+        showStepper={!submitted}
+      />
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -809,34 +869,18 @@ export default function BookScreen() {
           ref={scrollRef}
           style={{ flex: 1 }}
           contentContainerStyle={{
-            padding: 16,
+            paddingHorizontal: spacing.medium,
+            paddingTop: spacing.standard,
             gap: 16,
-            // Keep last fields / help links clear of the sticky Back/Continue bar (~72px).
-            paddingBottom: showWizardActions ? 88 : 24,
+            paddingBottom: showWizardActions ? 96 : 28,
           }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
           automaticallyAdjustKeyboardInsets
         >
-          {!submitted ? (
-            <>
-              <PageHeader
-                title={t('book.title')}
-                subtitle={
-                  selectedService
-                    ? t('book.stepProgress', { step: visualStep, total: 3 })
-                    : t('book.selectServiceSubtitle')
-                }
-              />
-              <Card className="py-3">
-                <BookingStepper step={visualStep} />
-              </Card>
-            </>
+          {draftReady ? (
+            <View>{renderStepContent()}</View>
           ) : (
-            <PageHeader title={t('book.title')} subtitle={t('book.confirmation')} />
-          )}
-
-          {draftReady ? <View>{renderStepContent()}</View> : (
             <Text className="px-1 text-sm" style={{ color: colors.mutedText }}>
               {t('common.loading')}
             </Text>
@@ -844,46 +888,59 @@ export default function BookScreen() {
 
           {draftReady ? renderHelpFooter() : null}
         </ScrollView>
+
         {showWizardActions ? (
-          <View
-            style={{
-              paddingHorizontal: 16,
-              paddingTop: 10,
-              paddingBottom: 10,
-              borderTopWidth: 1,
-              borderTopColor: colors.border,
-              backgroundColor: colors.background,
-            }}
-          >
-            <View className="flex-row gap-2">
-              <View className="flex-1">
-                <Button label={t('common.back')} variant="secondary" onPress={goBack} disabled={step === 1} />
-              </View>
-              <View className="flex-1">
-                {step < 3 ? (
+          <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.card }}>
+            <View
+              style={{
+                paddingHorizontal: spacing.medium,
+                paddingTop: 12,
+                paddingBottom: 10,
+                borderTopWidth: 1,
+                borderTopColor: colors.border,
+                backgroundColor: colors.card,
+                ...shadows.cardLight,
+              }}
+            >
+              <View className="flex-row gap-2">
+                <View style={{ flex: step === 1 ? 0.42 : 0.38 }}>
                   <Button
-                    label={`${primaryLabel} →`}
-                    variant="accent"
-                    gradient
-                    onPress={() => {
-                      trackFunnel('booking_step_completed', { step, slug: selectedService?.slug });
-                      goNext();
-                    }}
+                    label={t('common.back')}
+                    variant="secondary"
+                    onPress={step === 1 ? clearSelectedService : goBack}
+                    disabled={step === 1 && !selectedService}
                   />
-                ) : (
-                  <Button
-                    label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
-                    variant="accent"
-                    gradient
-                    onPress={() => void submitBooking()}
-                    disabled={bookingMutation.isPending}
-                  />
-                )}
+                </View>
+                <View className="flex-1">
+                  {step < 3 ? (
+                    <Button
+                      label={`${primaryLabel} →`}
+                      variant="accent"
+                      gradient
+                      minHeight={54}
+                      onPress={() => {
+                        trackFunnel('booking_step_completed', { step, slug: selectedService?.slug });
+                        goNext();
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      label={
+                        bookingMutation.isPending ? t('book.submitting') : t('book.confirmBooking')
+                      }
+                      variant="accent"
+                      gradient
+                      minHeight={54}
+                      onPress={() => void submitBooking()}
+                      disabled={bookingMutation.isPending}
+                    />
+                  )}
+                </View>
               </View>
             </View>
-          </View>
+          </SafeAreaView>
         ) : null}
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
