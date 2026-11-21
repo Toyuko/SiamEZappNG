@@ -43,13 +43,17 @@ function FeaturedCard({ service }: { service: ServiceItem }) {
     router.push(`/services/${service.slug}`);
   };
 
-  const openBook = () => {
-    trackFunnel('booking_started', { slug: service.slug, source: 'featured_strip' });
-    router.push({ pathname: '/(tabs)/book', params: { serviceSlug: service.slug } });
-  };
-
   return (
-    <Animated.View
+    <AnimatedPressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      onPress={openDetails}
+      onPressIn={() => {
+        scale.value = withTiming(motion.pressScale, { duration: motion.cardPress });
+      }}
+      onPressOut={() => {
+        scale.value = withTiming(1, { duration: motion.cardPress });
+      }}
       style={[
         animatedStyle,
         {
@@ -63,89 +67,47 @@ function FeaturedCard({ service }: { service: ServiceItem }) {
         },
       ]}
     >
-      <AnimatedPressable
-        accessibilityRole="button"
-        accessibilityLabel={title}
-        onPress={openDetails}
-        onPressIn={() => {
-          scale.value = withTiming(motion.pressScale, { duration: motion.cardPress });
-        }}
-        onPressOut={() => {
-          scale.value = withTiming(1, { duration: motion.cardPress });
-        }}
-      >
-        <View className="flex-row items-start justify-between gap-2">
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: radius.md,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: tint,
-            }}
-          >
-            <Ionicons name={service.icon} size={22} color={colors.primary} accessibilityIgnoresInvertColors />
-          </View>
-          <View
-            style={{
-              backgroundColor: siam.yellow.DEFAULT,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              borderRadius: radius.full,
-            }}
-          >
-            <Text className="text-[9px] font-bold uppercase" style={{ color: accentForeground, letterSpacing: 0.4 }}>
-              {t('services.badgePopular')}
-            </Text>
-          </View>
-        </View>
-
-        <Text className="mt-2.5 text-[15px] font-bold leading-5" numberOfLines={2} style={{ color: colors.foreground }}>
-          {title}
-        </Text>
-        <Text className="mt-1 text-[12px] leading-4" numberOfLines={2} style={{ color: colors.muted }}>
-          {description}
-        </Text>
-      </AnimatedPressable>
-
-      <View className="mt-3 flex-row items-center justify-between">
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('cta.bookNow')}
-          hitSlop={6}
-          onPress={openBook}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.85 : 1,
-            backgroundColor: siam.blue.DEFAULT,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: radius.sm,
-          })}
-        >
-          <Text className="text-[12px] font-bold" style={{ color: '#FFFFFF' }}>
-            {t('cta.bookNow')}
-          </Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('services.moreInfo')}
-          hitSlop={6}
-          onPress={openDetails}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.85 : 1,
-            flexDirection: 'row',
+      <View className="flex-row items-start justify-between gap-2">
+        <View
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radius.md,
             alignItems: 'center',
-            gap: 2,
-          })}
+            justifyContent: 'center',
+            backgroundColor: tint,
+          }}
         >
-          <Text className="text-[12px] font-semibold" style={{ color: colors.primary }}>
-            {t('services.moreInfo')}
+          <Ionicons name={service.icon} size={22} color={colors.primary} accessibilityIgnoresInvertColors />
+        </View>
+        <View
+          style={{
+            backgroundColor: siam.yellow.DEFAULT,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: radius.full,
+          }}
+        >
+          <Text className="text-[9px] font-bold uppercase" style={{ color: accentForeground, letterSpacing: 0.4 }}>
+            {t('services.badgePopular')}
           </Text>
-          <Ionicons name="chevron-forward" size={14} color={colors.primary} />
-        </Pressable>
+        </View>
       </View>
-    </Animated.View>
+
+      <Text className="mt-2.5 text-[15px] font-bold leading-5" numberOfLines={2} style={{ color: colors.foreground }}>
+        {title}
+      </Text>
+      <Text className="mt-1 text-[12px] leading-4" numberOfLines={2} style={{ color: colors.muted }}>
+        {description}
+      </Text>
+
+      <View className="mt-3 flex-row items-center gap-0.5">
+        <Text className="text-[12px] font-semibold" style={{ color: colors.primary }}>
+          {t('services.moreInfo')}
+        </Text>
+        <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+      </View>
+    </AnimatedPressable>
   );
 }
 
