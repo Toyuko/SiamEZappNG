@@ -1,11 +1,12 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import {
   getPublicFreelancerBySlug,
   getPublicFreelancers,
 } from '../features/freelancer/freelancer-profile.api';
 
-const PAGE_SIZE = 12;
+/** Matches website `PUBLIC_FREELANCER_PAGE_SIZE` so the first screen lists the same people. */
+const PAGE_SIZE = 24;
 
 export function useFreelancerDirectory(filters: { q?: string; skill?: string }) {
   const q = filters.q?.trim() || undefined;
@@ -21,6 +22,7 @@ export function useFreelancerDirectory(filters: { q?: string; skill?: string }) 
         pageSize: PAGE_SIZE,
       }),
     initialPageParam: 1,
+    placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) => {
       const loaded = lastPage.page * lastPage.pageSize;
       if (loaded >= lastPage.total) {

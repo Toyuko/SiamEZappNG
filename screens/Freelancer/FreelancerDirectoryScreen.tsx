@@ -80,21 +80,25 @@ function FreelancerCard({ item, onPress }: { item: FreelancerPublicCard; onPress
               </View>
             ) : null}
 
-            {item.averageRating > 0 ? (
+            {item.totalReviews > 0 ? (
               <View className="mt-2 flex-row items-center gap-1">
                 <Star size={14} color={colors.primary} fill={colors.primary} />
                 <Text className="text-xs font-semibold" style={{ color: colors.foreground }}>
                   {item.averageRating.toFixed(1)}
                 </Text>
-                {item.totalReviews > 0 ? (
-                  <Text className="text-xs" style={{ color: colors.muted }}>
-                    ({item.totalReviews})
-                  </Text>
-                ) : null}
+                <Text className="text-xs" style={{ color: colors.muted }}>
+                  ({item.totalReviews})
+                </Text>
               </View>
             ) : null}
           </View>
         </View>
+
+        {item.bio ? (
+          <Text className="mt-3 text-sm leading-5" style={{ color: colors.muted }} numberOfLines={3}>
+            {item.bio}
+          </Text>
+        ) : null}
 
         <View className="mt-3">
           <FreelancerSkillChips skills={item.skills} maxVisible={4} />
@@ -128,6 +132,14 @@ export function FreelancerDirectoryScreen({ showBack = true }: { showBack?: bool
     () => directoryQuery.data?.pages.flatMap((page) => page.items) ?? [],
     [directoryQuery.data?.pages],
   );
+  const total = directoryQuery.data?.pages[0]?.total ?? 0;
+  const skillSuggestions = useMemo(() => {
+    const set = new Set<string>();
+    for (const item of items) {
+      for (const skill of item.skills) set.add(skill);
+    }
+    return Array.from(set).slice(0, 12);
+  }, [items]);
 
   if (directoryQuery.isLoading) {
     return <LoadingState label={t('freelancer.publicProfile.directory.loading')} />;
@@ -178,13 +190,53 @@ export function FreelancerDirectoryScreen({ showBack = true }: { showBack?: bool
               autoCorrect={false}
               leftIcon={<Search size={18} color={colors.muted} />}
             />
-            <Input
-              value={skillFilter}
-              onChangeText={setSkillFilter}
-              placeholder={t('freelancer.publicProfile.directory.skillPlaceholder')}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+            {skillSuggestions.length > 0 ? (
+              <View className="flex-row flex-wrap gap-2">
+                <Pressable
+                  onPress={() => setSkillFilter('')}
+                  className="rounded-full px-3 py-1"
+                  style={{
+                    backgroundColor: skillFilter ? colors.card : colors.primary,
+                    borderWidth: 1,
+                    borderColor: skillFilter ? colors.border : colors.primary,
+                  }}
+                >
+                  <Text
+                    className="text-xs font-semibold"
+                    style={{ color: skillFilter ? colors.foreground : '#ffffff' }}
+                  >
+                    {t('freelancer.publicProfile.directory.allSkills')}
+                  </Text>
+                </Pressable>
+                {skillSuggestions.map((skill) => {
+                  const selected = skillFilter === skill;
+                  return (
+                    <Pressable
+                      key={skill}
+                      onPress={() => setSkillFilter(skill)}
+                      className="rounded-full px-3 py-1"
+                      style={{
+                        backgroundColor: selected ? colors.primary : colors.card,
+                        borderWidth: 1,
+                        borderColor: selected ? colors.primary : colors.border,
+                      }}
+                    >
+                      <Text
+                        className="text-xs font-semibold"
+                        style={{ color: selected ? '#ffffff' : colors.foreground }}
+                      >
+                        {skill}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+            <Text className="text-sm" style={{ color: colors.muted }}>
+              {total === 0
+                ? t('freelancer.publicProfile.directory.resultsCountZero')
+                : t('freelancer.publicProfile.directory.resultsCount', { count: total })}
+            </Text>
           </View>
         }
         renderItem={({ item }) => (
@@ -210,7 +262,12 @@ export function FreelancerDirectoryScreen({ showBack = true }: { showBack?: bool
             </View>
           ) : null
         }
-        ListEmptyComponent={<EmptyState label={t('freelancer.publicProfile.directory.empty')} />}
+        ListEmptyComponent={
+          <EmptyState
+            label={t('freelancer.publicProfile.directory.empty')}
+            description={t('freelancer.publicProfile.directory.emptyDescription')}
+          />
+        }
       />
     </SafeAreaView>
   );

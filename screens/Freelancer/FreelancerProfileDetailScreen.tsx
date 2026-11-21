@@ -139,14 +139,14 @@ export function FreelancerProfileDetailScreen({ slug }: { slug: string }) {
                     <Badge label={t('freelancer.verified')} variant="success" />
                   </View>
                 ) : (
-                  <Badge label={t('freelancer.verificationPending')} variant="info" />
+                  <Badge label={t('freelancer.publicProfile.directory.freelancerBadge')} variant="info" />
                 )}
                 {profile.isSpecialMember ? (
                   <Badge label={t('freelancer.publicProfile.specialMember')} variant="pending" />
                 ) : null}
               </View>
 
-              {profile.averageRating > 0 ? (
+              {profile.totalReviews > 0 ? (
                 <View className="flex-row items-center gap-1.5">
                   <Star size={16} color={colors.primary} fill={colors.primary} />
                   <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
