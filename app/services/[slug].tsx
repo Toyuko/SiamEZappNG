@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { Alert, Linking, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
 import { Badge } from '../../components/ui/Badge';
@@ -14,6 +15,7 @@ import { toBackendServiceSlug } from '../../features/bookings/in-app-booking';
 import { serviceCatalog } from '../../features/services/services.data';
 import { getServiceDescription, getServiceTitle } from '../../features/services/service-display';
 import { SupportChatButton, supportContextFromServiceSlug } from '../../features/support';
+import { trackFunnel } from '../../lib/analytics/funnel';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
@@ -26,6 +28,12 @@ export default function ServiceDetailScreen() {
   const language = useLanguageStore((state) => state.language);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const service = serviceCatalog.find((item) => item.slug === slug);
+
+  useEffect(() => {
+    if (service) {
+      trackFunnel('service_viewed', { slug: service.slug });
+    }
+  }, [service?.slug]);
 
   if (!service) {
     return (
@@ -158,9 +166,15 @@ export default function ServiceDetailScreen() {
                 <View className="mt-4">
                   <Button
                     label={t('cta.bookNow')}
-                    onPress={() =>
-                      router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })
-                    }
+                    variant="accent"
+                    gradient
+                    onPress={() => {
+                      trackFunnel('booking_started', { slug: service.slug, source: 'service_detail_package' });
+                      router.push({
+                        pathname: '/(tabs)/book',
+                        params: { service: service.title, serviceSlug: service.slug },
+                      });
+                    }}
                   />
                 </View>
               </Card>
@@ -223,8 +237,13 @@ export default function ServiceDetailScreen() {
         ) : null}
 
         <Button
-          label={t('cta.bookNow')}
-          onPress={() => router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } })}
+          label={t('home.bookService')}
+          variant="accent"
+          gradient
+          onPress={() => {
+            trackFunnel('booking_started', { slug: service.slug, source: 'service_detail' });
+            router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } });
+          }}
         />
         <SupportChatButton
           variant="secondary"

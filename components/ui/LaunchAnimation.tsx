@@ -1,7 +1,6 @@
-import { useEventListener } from 'expo';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback, useEffect, useRef } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   runOnJS,
@@ -11,12 +10,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-const LAUNCH_VIDEO = require('../../assets/launch-intro.mp4');
+import { heroGradient, siam } from '../../lib/theme/tokens';
 
-const FULL_EXIT_MS = 750;
-const BRIEF_EXIT_MS = 500;
-const BRIEF_EXIT_DELAY_MS = 380;
-const MAX_INTRO_MS = 12_000;
+const LOGO = require('../../assets/brand/siamez-logo-circle.png');
+
+const FULL_EXIT_MS = 420;
+const BRIEF_EXIT_MS = 280;
+const BRIEF_EXIT_DELAY_MS = 180;
+const FULL_HOLD_MS = 520;
 
 type LaunchAnimationProps = {
   /** App bootstrap (auth + fonts) is finished — play the reveal / exit sequence. */
@@ -27,8 +28,7 @@ type LaunchAnimationProps = {
 };
 
 /**
- * Cold-start overlay: plays the branded launch video, then fades out to reveal
- * the screen underneath (login or home).
+ * Lightweight branded splash — gradient + logo (no 5MB video on cold start).
  */
 export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationProps) {
   const isFull = variant === 'full';
@@ -43,44 +43,18 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
     onCompleteRef.current();
   }, []);
 
-  const [videoEnded, setVideoEnded] = useState(false);
   const overlay = useSharedValue(1);
+  const logoScale = useSharedValue(0.88);
+  const logoOpacity = useSharedValue(0);
   const exitStarted = useRef(false);
 
-  const player = useVideoPlayer(LAUNCH_VIDEO, (instance) => {
-    instance.loop = false;
-    instance.muted = false;
-    instance.play();
-  });
-
-  useEventListener(player, 'playToEnd', () => {
-    setVideoEnded(true);
-  });
-
-  useEventListener(player, 'statusChange', ({ status }) => {
-    if (status === 'error') {
-      setVideoEnded(true);
-    }
-  });
-
   useEffect(() => {
-    const timeout = setTimeout(() => setVideoEnded(true), MAX_INTRO_MS);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  useEffect(() => {
-    if (!isFull && ready) {
-      player.pause();
-    }
-  }, [isFull, player, ready]);
+    logoOpacity.value = withTiming(1, { duration: 280, easing: Easing.out(Easing.cubic) });
+    logoScale.value = withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) });
+  }, [logoOpacity, logoScale]);
 
   useEffect(() => {
     if (!ready || exitStarted.current) {
-      return;
-    }
-
-    const canExit = isFull ? videoEnded : true;
-    if (!canExit) {
       return;
     }
 
@@ -94,17 +68,22 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
       runOnJS(notifyComplete)();
     };
 
-    const exitDelay = isFull ? 0 : BRIEF_EXIT_DELAY_MS;
+    const exitDelay = isFull ? FULL_HOLD_MS : BRIEF_EXIT_DELAY_MS;
     const exitDuration = isFull ? FULL_EXIT_MS : BRIEF_EXIT_MS;
 
     overlay.value = withDelay(
       exitDelay,
       withTiming(0, { duration: exitDuration, easing: Easing.inOut(Easing.cubic) }, finish),
     );
-  }, [isFull, notifyComplete, overlay, ready, videoEnded]);
+  }, [isFull, notifyComplete, overlay, ready]);
 
   const overlayStyle = useAnimatedStyle(() => ({
     opacity: overlay.value,
+  }));
+
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ scale: logoScale.value }],
   }));
 
   return (
@@ -112,14 +91,18 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
       style={[StyleSheet.absoluteFill, styles.root, overlayStyle]}
       pointerEvents={ready ? 'none' : 'auto'}
     >
-      <VideoView
-        player={player}
+      <LinearGradient
+        colors={[...heroGradient.colors]}
+        start={heroGradient.start}
+        end={heroGradient.end}
         style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        nativeControls={false}
-        fullscreenOptions={{ enable: false }}
-        allowsPictureInPicture={false}
       />
+      <View style={styles.wave} pointerEvents="none" />
+      <Animated.View style={[styles.content, logoStyle]}>
+        <Image source={LOGO} style={styles.logo} accessibilityIgnoresInvertColors />
+        <Text style={styles.wordmark}>SiamEZ</Text>
+        <Text style={styles.tagline}>Making life in Thailand EZ</Text>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -128,6 +111,41 @@ const styles = StyleSheet.create({
   root: {
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: '#000000',
+    backgroundColor: siam.blue.navy,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wave: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '28%',
+    backgroundColor: 'rgba(16, 43, 114, 0.55)',
+    borderTopLeftRadius: 48,
+    borderTopRightRadius: 48,
+  },
+  content: {
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  logo: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+  },
+  wordmark: {
+    marginTop: 18,
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.4,
+  },
+  tagline: {
+    marginTop: 8,
+    fontSize: 15,
+    fontWeight: '500',
+    color: siam.yellow.DEFAULT,
+    textAlign: 'center',
   },
 });

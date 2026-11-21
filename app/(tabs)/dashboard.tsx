@@ -15,7 +15,10 @@ import { useGoals } from '../../hooks/use-goals';
 import { useLifeEventRuns } from '../../hooks/use-life-events';
 import { useMarketplaceEngagement } from '../../hooks/use-marketplace-engagement';
 import { useRecommendations } from '../../hooks/use-recommendations';
+import { publicFreelancerDirectoryHref } from '../../features/freelancer/public-directory-route';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import { isCorporateRole } from '../../lib/auth/role';
+import { useAuthStore } from '../../store/auth-store';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -40,6 +43,14 @@ function toArray<T>(value: unknown): T[] {
 export default function DashboardScreen() {
   const router = useRouter();
   const softLaunch = useSoftLaunch();
+  const userRole = useAuthStore((s) => s.userRole);
+  const user = useAuthStore((s) => s.user);
+  const freelancersHref = publicFreelancerDirectoryHref({
+    softLaunchEnabled: softLaunch.enabled,
+    showFreelancers: softLaunch.showFreelancers,
+    isFreelancer: userRole === 'freelancer' || user?.role === 'freelancer',
+    isCorporate: isCorporateRole(userRole, user?.role),
+  });
   const { colors } = useTheme();
   const overviewQuery = useDashboard();
   const casesQuery = useCases();
@@ -113,7 +124,7 @@ export default function DashboardScreen() {
                 { label: t('dashboard.askSiamez'), path: '/(tabs)/concierge' as const, meta: 'Concierge', softLaunch: true },
                 {
                   label: t('freelancer.publicProfile.directory.title'),
-                  path: '/freelancers' as const,
+                  path: freelancersHref,
                   meta: t('tabs.freelancers'),
                   softLaunch: true,
                   requiresFreelancers: true,

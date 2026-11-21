@@ -34,12 +34,15 @@ import {
 import { BOOKING_DRAFT_PREFIX } from '../../features/bookings/booking-drafts';
 import { toBackendServiceSlug } from '../../features/bookings/in-app-booking';
 import { isAllowedDocumentUpload } from '../../features/documents/document-upload-rules';
-import { serviceCatalog } from '../../features/services/services.data';
+import { getServiceTitle } from '../../features/services/service-display';
+import { getActiveServices, serviceCatalog } from '../../features/services/services.data';
 import { useCreateBooking } from '../../hooks/use-create-booking';
 import { useUploadDocument } from '../../hooks/use-upload-document';
+import { trackFunnel } from '../../lib/analytics/funnel';
 import { buildGuestCheckoutUrl, canOpenGuestCheckout } from '../../lib/bookings/guest-checkout';
 import { createSingleFlight } from '../../lib/single-flight';
 import { t } from '../../lib/i18n/i18n';
+import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
@@ -61,6 +64,7 @@ type BookingDraft = {
 export default function BookScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const language = useLanguageStore((s) => s.language);
   const tabBarHeight = useBottomTabBarHeight();
   const { service, serviceSlug } = useLocalSearchParams<{ service?: string; serviceSlug?: string }>();
   const { isGuest, guestProfile, user, updateGuestProfile, accessToken } = useAuthStore();
@@ -95,19 +99,42 @@ export default function BookScreen() {
       }
     }
     if (service) {
-      return serviceCatalog.find((item) => item.title.toLowerCase() === service.toLowerCase()) ?? serviceCatalog[0];
+      return (
+        serviceCatalog.find((item) => item.title.toLowerCase() === service.toLowerCase()) ??
+        serviceCatalog.find((item) => item.titleEn.toLowerCase() === service.toLowerCase()) ??
+        null
+      );
     }
-    return serviceCatalog[0];
+    return null;
   }, [service, serviceSlug]);
 
-  const requirementFields = useMemo(() => getBookingFieldsForSlug(selectedService.slug), [selectedService.slug]);
-  const startingPriceLine = useMemo(() => getServiceStartingPriceLine(selectedService, t), [selectedService]);
+  const activeServices = useMemo(() => getActiveServices(), []);
+  const requirementFields = useMemo(
+    () => (selectedService ? getBookingFieldsForSlug(selectedService.slug) : []),
+    [selectedService],
+  );
+  const startingPriceLine = useMemo(
+    () => (selectedService ? getServiceStartingPriceLine(selectedService, t) : ''),
+    [selectedService],
+  );
   const progressPercent = `${(step / 3) * 100}%` as const;
+
+  useEffect(() => {
+    if (selectedService) {
+      trackFunnel('booking_started', { slug: selectedService.slug, source: 'book_tab' });
+    }
+  }, [selectedService?.slug]);
 
   const stepTitle = step === 1 ? t('book.clientDetails') : step === 2 ? t('book.serviceRequirements') : t('book.reviewConfirm');
 
   useEffect(() => {
     let cancelled = false;
+    if (!selectedService) {
+      setDraftReady(true);
+      setStep(1);
+      setSubmitted(false);
+      return;
+    }
     setDraftReady(false);
     void (async () => {
       const key = `${BOOKING_DRAFT_PREFIX}${selectedService.slug}`;
@@ -148,25 +175,25 @@ export default function BookScreen() {
     return () => {
       cancelled = true;
     };
-  }, [selectedService.slug]);
+  }, [selectedService?.slug]);
 
   useEffect(() => {
-    if (!draftReady) {
+    if (!draftReady || !selectedService) {
       return;
     }
     setFullName((v) => v || (isGuest ? guestProfile?.name ?? '' : user?.name ?? '') || v);
     setEmail((v) => v || (isGuest ? guestProfile?.email ?? '' : user?.email ?? '') || v);
     setPhone((v) => v || (isGuest ? guestProfile?.phone ?? '' : '') || v);
-  }, [draftReady, isGuest, guestProfile?.name, guestProfile?.email, guestProfile?.phone, user?.name, user?.email]);
+  }, [draftReady, selectedService, isGuest, guestProfile?.name, guestProfile?.email, guestProfile?.phone, user?.name, user?.email]);
 
   useEffect(() => {
-    if (!draftReady || submitted) {
+    if (!draftReady || submitted || !selectedService) {
       return;
     }
     const key = `${BOOKING_DRAFT_PREFIX}${selectedService.slug}`;
     const payload: BookingDraft = { step, fullName, email, phone, notes, req };
     void AsyncStorage.setItem(key, JSON.stringify(payload));
-  }, [draftReady, submitted, selectedService.slug, step, fullName, email, phone, notes, req]);
+  }, [draftReady, submitted, selectedService?.slug, step, fullName, email, phone, notes, req]);
 
   const setReqField = (id: BookingReqFieldId, value: string) => {
     setReq((prev) => ({ ...prev, [id]: value }));
@@ -246,7 +273,7 @@ export default function BookScreen() {
         return true;
       }
       if (submitted) {
-        router.replace('/(tabs)/services');
+        router.replace('/(tabs)/home');
         return true;
       }
       if (step > 1) {
@@ -258,7 +285,7 @@ export default function BookScreen() {
         router.back();
         return true;
       }
-      router.replace('/(tabs)/services');
+      router.replace('/(tabs)/home');
       return true;
     });
     return () => sub.remove();
@@ -384,7 +411,7 @@ export default function BookScreen() {
   };
 
   const submitBooking = async () => {
-    if (bookingMutation.isPending || submitted) {
+    if (bookingMutation.isPending || submitted || !selectedService) {
       return;
     }
     if (!validateStep1() || !validateStep2()) {
@@ -432,6 +459,8 @@ export default function BookScreen() {
         }
         await AsyncStorage.removeItem(storageKey);
         setSubmitted(true);
+        trackFunnel('booking_submitted', { slug: selectedService.slug });
+        trackFunnel('booking_confirmed', { slug: selectedService.slug });
       } catch (error) {
         Alert.alert(t('book.bookingFailed'), error instanceof Error ? error.message : t('book.retryMessage'));
         throw error;
@@ -475,7 +504,48 @@ export default function BookScreen() {
     </View>
   );
 
+  const renderServicePicker = () => (
+    <Section title={t('book.selectServiceTitle')} subtitle={t('book.selectServiceSubtitle')}>
+      <View className="gap-2">
+        {activeServices.map((item) => (
+          <Pressable
+            key={item.slug}
+            accessibilityRole="button"
+            accessibilityLabel={getServiceTitle(item, language)}
+            onPress={() => {
+              trackFunnel('booking_started', { slug: item.slug, source: 'book_picker' });
+              router.setParams({ serviceSlug: item.slug });
+            }}
+            style={({ pressed }) => ({
+              paddingVertical: 14,
+              paddingHorizontal: 14,
+              borderRadius: 14,
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+              opacity: pressed ? 0.88 : 1,
+            })}
+          >
+            <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
+              {getServiceTitle(item, language)}
+            </Text>
+            <Text className="mt-1 text-sm" numberOfLines={2} style={{ color: colors.mutedText }}>
+              {language === 'th' ? item.descriptionTh : item.descriptionEn}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+      <View className="mt-3">
+        <Button label={t('home.browseServices')} variant="secondary" onPress={() => router.push('/(tabs)/services')} />
+      </View>
+    </Section>
+  );
+
   const renderStepContent = () => {
+    if (!selectedService) {
+      return renderServicePicker();
+    }
+
     if (submitted) {
       const payAtOffice = bookingResult?.payAtOffice === true;
       const isFixed = bookingResult?.isFixed === true;
@@ -548,7 +618,7 @@ export default function BookScreen() {
               {t('book.service')}
             </Text>
             <Text className="mt-1 text-lg font-bold" style={{ color: colors.text }}>
-              {selectedService.title}
+              {getServiceTitle(selectedService, language)}
             </Text>
             <Text className="mt-2 text-base font-semibold" style={{ color: colors.primary }}>
               {startingPriceLine}
@@ -668,7 +738,7 @@ export default function BookScreen() {
             {t('book.service')}
           </Text>
           <Text className="font-semibold" style={{ color: colors.text }}>
-            {selectedService.title}
+            {getServiceTitle(selectedService, language)}
           </Text>
           <Text className="mt-2 text-base font-semibold" style={{ color: colors.primary }}>
             {startingPriceLine}
@@ -713,7 +783,7 @@ export default function BookScreen() {
   const primaryLabel =
     step === 1 ? t('book.continue') : step === 2 ? t('book.reviewBooking') : t('book.confirmSubmit');
 
-  const showWizardActions = draftReady && !submitted;
+  const showWizardActions = draftReady && !submitted && Boolean(selectedService);
 
   return (
     <SafeAreaView className="flex-1" edges={['top']} style={{ backgroundColor: colors.background }}>
@@ -736,17 +806,24 @@ export default function BookScreen() {
           automaticallyAdjustKeyboardInsets
         >
           {!submitted ? (
-            <>
-              <PageHeader
-                title={t('book.title')}
-                subtitle={`${t('book.stepProgress', { step, total: 3 })} · ${stepTitle}`}
-              />
-              <Card className="py-3">
-                <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
-                  <View className="h-2 rounded-full" style={{ width: progressPercent, backgroundColor: colors.primary }} />
-                </View>
-              </Card>
-            </>
+            selectedService ? (
+              <>
+                <PageHeader
+                  title={t('book.title')}
+                  subtitle={`${t('book.stepProgress', { step, total: 3 })} · ${stepTitle}`}
+                />
+                <Card className="py-3">
+                  <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
+                    <View
+                      className="h-2 rounded-full"
+                      style={{ width: progressPercent, backgroundColor: colors.primary }}
+                    />
+                  </View>
+                </Card>
+              </>
+            ) : (
+              <PageHeader title={t('book.title')} subtitle={t('book.selectServiceSubtitle')} />
+            )
           ) : (
             <PageHeader title={t('book.title')} subtitle={t('book.confirmation')} />
           )}
@@ -776,10 +853,20 @@ export default function BookScreen() {
               </View>
               <View className="flex-1">
                 {step < 3 ? (
-                  <Button label={primaryLabel} onPress={goNext} />
+                  <Button
+                    label={primaryLabel}
+                    variant="accent"
+                    gradient
+                    onPress={() => {
+                      trackFunnel('booking_step_completed', { step, slug: selectedService?.slug });
+                      goNext();
+                    }}
+                  />
                 ) : (
                   <Button
                     label={bookingMutation.isPending ? t('book.submitting') : t('book.confirmSubmit')}
+                    variant="accent"
+                    gradient
                     onPress={() => void submitBooking()}
                     disabled={bookingMutation.isPending}
                   />

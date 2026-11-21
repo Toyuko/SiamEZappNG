@@ -28,6 +28,7 @@ import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
 import { useTheme } from '../../lib/theme/theme';
+import { siam } from '../../lib/theme/tokens';
 import { useAuthStore } from '../../store/auth-store';
 
 const TAB_ICON_SIZE = 24;
@@ -38,6 +39,7 @@ function TabBarIcon({
   activeColor,
   inactiveColor,
   compact = false,
+  accent = false,
 }: {
   focused: boolean;
   Icon: LucideIcon;
@@ -45,10 +47,18 @@ function TabBarIcon({
   inactiveColor: string;
   /** Soft-launch IA can show several tabs; shrink icon chrome so labels fit. */
   compact?: boolean;
+  /** Gold highlight for the primary Book action. */
+  accent?: boolean;
 }) {
   const { isDark } = useTheme();
-  const tint = isDark ? 'rgba(91, 118, 224, 0.28)' : 'rgba(44, 84, 198, 0.14)';
-  const color = focused ? activeColor : inactiveColor;
+  const tint = accent
+    ? isDark
+      ? 'rgba(255, 211, 41, 0.22)'
+      : 'rgba(255, 211, 41, 0.28)'
+    : isDark
+      ? 'rgba(57, 121, 255, 0.28)'
+      : 'rgba(36, 84, 216, 0.14)';
+  const color = focused ? (accent ? siam.blue.navy : activeColor) : inactiveColor;
 
   return (
     <View
@@ -79,26 +89,31 @@ export default function TabsLayout() {
   const hideWhenMember: { href: null } | Record<string, never> = isGuest ? {} : { href: null };
   const hideFreelancerTabForClient: { href: null } | Record<string, never> =
     isFreelancer && !isCorporate ? {} : { href: null };
-  /** Public directory. Freelancer accounts already reach it from their dashboard tab. */
+  /** Public directory — soft launch keeps it in More to protect booking-focused tabs. */
   const showPublicFreelancersTab =
-    softLaunch.enabled && softLaunch.showFreelancers && !isCorporate && !isFreelancer;
+    !softLaunch.enabled && softLaunch.showFreelancers && !isCorporate && !isFreelancer;
   const hidePublicFreelancersTab: { href: null } | Record<string, never> = showPublicFreelancersTab
     ? {}
     : { href: null };
-  /** Keep the guest tab bar at six items so "Freelancers" is readable. Contact stays in More and Account. */
-  const hideGuestContactTab: { href: null } | Record<string, never> = showPublicFreelancersTab
+  /** Keep the guest tab bar readable. Contact stays in More and Account. */
+  const hideGuestContactTab: { href: null } | Record<string, never> = softLaunch.enabled
     ? { href: null }
-    : {};
+    : showPublicFreelancersTab
+      ? { href: null }
+      : {};
   /** Corporate portal: Insights / Jobs / Ads / Profile — hide standard member tabs. */
   const hideForCorporate: { href: null } | Record<string, never> = isCorporate ? { href: null } : {};
   const showOnlyCorporate: { href: null } | Record<string, never> = isCorporate ? {} : { href: null };
   const hideMemberTabsForCorporate: { href: null } | Record<string, never> =
     isGuest || isCorporate ? { href: null } : {};
-  /** Soft-launch IA: Services / Vehicles / RE / Concierge — hide deferred primary tabs. */
-  const hideInSoftLaunch: { href: null } | Record<string, never> = softLaunch.enabled
+  /**
+   * Soft-launch conversion IA: Home / Services / Book / Cases|More / Account.
+   * Marketplace (Sales / RE) stays reachable via More + Home — not primary tabs.
+   */
+  const hideMarketplaceInSoftLaunch: { href: null } | Record<string, never> = softLaunch.enabled
     ? { href: null }
     : {};
-  /** Soft launch: guests need More (Ask SiamEZ / Search / Contact). */
+  /** Soft launch: guests need More (Ask SiamEZ / Search / Contact / Vehicles / Property). */
   const hideMoreTab: { href: null } | Record<string, never> = isCorporate
     ? { href: null }
     : softLaunch.enabled
@@ -107,9 +122,7 @@ export default function TabsLayout() {
         ? { href: null }
         : {};
 
-  // Soft launch shows the public freelancer directory beside the launch tabs.
   const compactTabs = softLaunch.enabled;
-  // Include system nav / home-indicator inset so 3-button and gesture bars don't cover tabs.
   const tabBarPaddingBottom = TAB_BAR_PADDING_BOTTOM + insets.bottom;
   const tabBarHeight = VOICE_FAB_TAB_BAR_HEIGHT + insets.bottom;
 
@@ -155,6 +168,22 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
+        name="home"
+        options={{
+          title: t('tabs.home'),
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon
+              focused={focused}
+              Icon={Home}
+              activeColor={colors.primary}
+              inactiveColor={colors.mutedText}
+              compact={compactTabs}
+            />
+          ),
+          ...hideForCorporate,
+        }}
+      />
+      <Tabs.Screen
         name="services"
         options={{
           title: t('tabs.services'),
@@ -171,20 +200,20 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="home"
+        name="book"
         options={{
-          title: t('tabs.home'),
+          title: t('tabs.book'),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon
               focused={focused}
-              Icon={Home}
+              Icon={Calendar}
               activeColor={colors.primary}
               inactiveColor={colors.mutedText}
               compact={compactTabs}
+              accent
             />
           ),
-          ...hideForCorporate,
-          ...hideInSoftLaunch,
+          ...hideMemberTabsForCorporate,
         }}
       />
       <Tabs.Screen
@@ -201,6 +230,7 @@ export default function TabsLayout() {
             />
           ),
           ...hideForCorporate,
+          ...hideMarketplaceInSoftLaunch,
         }}
       />
       <Tabs.Screen
@@ -217,6 +247,7 @@ export default function TabsLayout() {
             />
           ),
           ...hideForCorporate,
+          ...hideMarketplaceInSoftLaunch,
         }}
       />
       <Tabs.Screen
@@ -234,23 +265,6 @@ export default function TabsLayout() {
           ),
           ...hideForCorporate,
           ...hidePublicFreelancersTab,
-        }}
-      />
-      <Tabs.Screen
-        name="book"
-        options={{
-          title: t('tabs.book'),
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon
-              focused={focused}
-              Icon={Calendar}
-              activeColor={colors.primary}
-              inactiveColor={colors.mutedText}
-              compact={compactTabs}
-            />
-          ),
-          ...hideMemberTabsForCorporate,
-          ...hideInSoftLaunch,
         }}
       />
       <Tabs.Screen

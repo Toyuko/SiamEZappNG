@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '../../components/ui/Card';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { publicFreelancerDirectoryHref } from '../../features/freelancer/public-directory-route';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
@@ -46,6 +48,18 @@ const MORE_LINKS: MoreLink[] = [
     subtitle: 'AI Concierge for services, vehicles, and property',
     icon: 'chatbubbles-outline',
     path: '/(tabs)/concierge',
+  },
+  {
+    label: 'Vehicles',
+    subtitle: 'Buy and sell cars & motorcycles',
+    icon: 'car-outline',
+    path: '/(tabs)/sales',
+  },
+  {
+    label: 'Property',
+    subtitle: 'Homes, condos, and rentals across Thailand',
+    icon: 'home-outline',
+    path: '/(tabs)/real-estate',
   },
   {
     label: 'Freelancers',
@@ -145,7 +159,15 @@ export default function MoreScreen() {
   const softLaunch = useSoftLaunch();
   const isGuest = useAuthStore((s) => s.isGuest);
   const accessToken = useAuthStore((s) => s.accessToken);
+  const userRole = useAuthStore((s) => s.userRole);
+  const user = useAuthStore((s) => s.user);
   const isMember = Boolean(accessToken) && !isGuest;
+  const freelancersHref = publicFreelancerDirectoryHref({
+    softLaunchEnabled: softLaunch.enabled,
+    showFreelancers: softLaunch.showFreelancers,
+    isFreelancer: userRole === 'freelancer' || user?.role === 'freelancer',
+    isCorporate: isCorporateRole(userRole, user?.role),
+  });
 
   const links = MORE_LINKS.filter((item) => {
     if (item.memberOnly && !isMember) return false;
@@ -180,7 +202,9 @@ export default function MoreScreen() {
             {links.map((item) => (
               <Pressable
                 key={item.path}
-                onPress={() => router.push(item.path)}
+                onPress={() =>
+                  router.push(item.path === '/freelancers' ? freelancersHref : item.path)
+                }
                 className="flex-row items-center gap-3 rounded-xl px-3 py-3"
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.75 : 1,

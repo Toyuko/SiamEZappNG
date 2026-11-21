@@ -1,22 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
-import { FadeInView } from '../ui/FadeInView';
-import { LanguageToggle } from '../ui/LanguageToggle';
-import { PageHeader } from '../ui/PageHeader';
-import { Section } from '../ui/Section';
-import { TestimonialCard } from '../ui/TestimonialCard';
-import { ThemePicker } from '../ui/ThemePicker';
-import { TrustStats } from '../ui/TrustStats';
-import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import { trackFunnel } from '../../lib/analytics/funnel';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { FadeInView } from '../ui/FadeInView';
+import { Section } from '../ui/Section';
+import { TestimonialCard } from '../ui/TestimonialCard';
+import { TrustStats } from '../ui/TrustStats';
+import { CategoryGrid } from './CategoryGrid';
+import { HomeHero } from './HomeHero';
+import { PopularServicesRow } from './PopularServicesRow';
 
 const TESTIMONIAL_CAROUSEL_GAP = 8;
 const TESTIMONIAL_AUTO_INTERVAL_MS = 4800;
@@ -38,10 +38,8 @@ const HOW_IT_WORKS_STEPS = [
 
 export function GuestHomeContent() {
   const router = useRouter();
-  const softLaunch = useSoftLaunch();
   const { colors } = useTheme();
   const language = useLanguageStore((state) => state.language);
-  const [preferencesExpanded, setPreferencesExpanded] = useState(false);
   const { width: windowWidth } = useWindowDimensions();
   const testimonialCardWidth = Math.min(windowWidth - spacing.screenPaddingX * 2 - 36, 300);
   const testimonialSlideWidth = testimonialCardWidth + TESTIMONIAL_CAROUSEL_GAP;
@@ -50,6 +48,10 @@ export function GuestHomeContent() {
   const testimonialAutoRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const testimonialResumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const testimonialProgrammaticScrollRef = useRef(false);
+
+  useEffect(() => {
+    trackFunnel('home_viewed', { audience: 'guest' });
+  }, []);
 
   const testimonials = useMemo(() => {
     const raw = t('trust.testimonials');
@@ -127,67 +129,37 @@ export function GuestHomeContent() {
     [startTestimonialAutoPlay, testimonials.length, testimonialSlideWidth],
   );
 
+  const openBook = () => {
+    trackFunnel('booking_started', { source: 'home_hero' });
+    router.push('/(tabs)/book');
+  };
+
   return (
     <>
-      <FadeInView delay={0} distance={22}>
-        <PageHeader
-          badge={t('home.badge')}
-          title={t('home.title')}
-          subtitle={t('home.subtitle')}
-          primaryCta={{ label: t('cta.getStarted'), onPress: () => router.push('/(auth)/signup') }}
-          secondaryCta={{
-            label: t('home.browseServices'),
-            onPress: () => router.push('/(tabs)/services'),
-          }}
-        />
-      </FadeInView>
+      <HomeHero
+        badge={t('home.badge')}
+        title={t('home.title')}
+        subtitle={t('home.subtitle')}
+        primaryLabel={t('home.bookService')}
+        onPrimaryPress={openBook}
+        secondaryLabel={t('home.browseServices')}
+        onSecondaryPress={() => router.push('/(tabs)/services')}
+      />
 
-      <Card>
-        <Pressable
-          onPress={() => setPreferencesExpanded((open) => !open)}
-          accessibilityRole="button"
-          accessibilityState={{ expanded: preferencesExpanded }}
-          accessibilityLabel={t('home.preferences')}
-          className="flex-row items-center justify-between gap-2"
-          style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-        >
-          <View className="min-w-0 flex-1">
-            <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
-              {t('home.preferences')}
-            </Text>
-            {!preferencesExpanded ? (
-              <Text className="mt-1 text-sm leading-5" numberOfLines={2} style={{ color: colors.muted }}>
-                {t('home.preferencesSubtitle')}
-              </Text>
-            ) : null}
-          </View>
-          <Ionicons name={preferencesExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={colors.muted} />
-        </Pressable>
-        {preferencesExpanded ? (
-          <View className="mt-4 gap-4">
-            <View className="flex-row items-center justify-between gap-3">
-              <Text className="text-sm font-medium" style={{ color: colors.muted }}>
-                {t('settings.theme')}
-              </Text>
-              <ThemePicker />
-            </View>
-            <View className="flex-row items-center justify-between gap-3">
-              <Text className="text-sm font-medium" style={{ color: colors.muted }}>
-                {t('settings.language')}
-              </Text>
-              <LanguageToggle />
-            </View>
-          </View>
-        ) : null}
-      </Card>
+      <CategoryGrid title={t('home.findService')} subtitle={t('home.categoriesSubtitle')} />
 
-      <FadeInView delay={120}>
+      <PopularServicesRow
+        title={t('home.popularServices')}
+        subtitle={t('home.popularServicesSubtitle')}
+      />
+
+      <FadeInView delay={80}>
         <TrustStats />
       </FadeInView>
 
       <Section title={t('home.howItWorks.title')} subtitle={t('home.howItWorks.subtitle')}>
         {HOW_IT_WORKS_STEPS.map((step, index) => (
-          <FadeInView key={step.titleKey} delay={160 + index * 70} distance={16}>
+          <FadeInView key={step.titleKey} delay={100 + index * 60} distance={14}>
             <Card>
               <View className="flex-row items-start gap-3">
                 <View
@@ -245,7 +217,7 @@ export function GuestHomeContent() {
         </ScrollView>
       </Section>
 
-      <FadeInView delay={280}>
+      <FadeInView delay={160}>
         <Card>
           <Text className="text-lg font-bold tracking-tight" style={{ color: colors.foreground }}>
             {t('home.readyTitle')}
@@ -254,36 +226,26 @@ export function GuestHomeContent() {
             {t('home.readySubtitle')}
           </Text>
           <View className="mt-4 gap-3">
-            <Button label={t('home.browseServices')} gradient onPress={() => router.push('/(tabs)/services')} />
-            {softLaunch.enabled ? (
-              <>
-                <Button label={t('tabs.sales')} variant="secondary" onPress={() => router.push('/(tabs)/sales')} />
-                <Button
-                  label={t('tabs.realEstate')}
-                  variant="secondary"
-                  onPress={() => router.push('/(tabs)/real-estate')}
-                />
-                <Button label="Ask SiamEZ" variant="secondary" onPress={() => router.push('/(tabs)/concierge')} />
-                {softLaunch.showFreelancers ? (
-                  <Button
-                    label={t('freelancer.publicProfile.directory.title')}
-                    variant="secondary"
-                    onPress={() => router.push('/freelancers')}
-                  />
-                ) : null}
-              </>
-            ) : (
-              <>
-                <Button label={t('cta.bookNow')} variant="secondary" onPress={() => router.push('/(tabs)/book')} />
-                {softLaunch.showFreelancers ? (
-                  <Button
-                    label={t('freelancer.publicProfile.directory.title')}
-                    variant="secondary"
-                    onPress={() => router.push('/freelancers')}
-                  />
-                ) : null}
-              </>
-            )}
+            <Button
+              label={t('home.bookService')}
+              variant="accent"
+              gradient
+              onPress={openBook}
+            />
+            <Button
+              label={t('home.askConcierge')}
+              variant="secondary"
+              onPress={() => {
+                trackFunnel('support_contacted', { source: 'home_concierge' });
+                router.push('/(tabs)/concierge');
+              }}
+            />
+            <Button label={t('tabs.sales')} variant="secondary" onPress={() => router.push('/(tabs)/sales')} />
+            <Button
+              label={t('tabs.realEstate')}
+              variant="secondary"
+              onPress={() => router.push('/(tabs)/real-estate')}
+            />
           </View>
         </Card>
       </FadeInView>

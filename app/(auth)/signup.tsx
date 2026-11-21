@@ -153,7 +153,7 @@ export default function SignUpScreen() {
             label={t('auth.continueAsGuest')}
             onPress={() => {
               void continueAsGuest().then(() => {
-                router.replace('/(tabs)/services');
+                router.replace('/(tabs)/home');
               });
             }}
           />

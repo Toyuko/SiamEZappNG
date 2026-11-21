@@ -10,8 +10,11 @@ import { LanguageToggle } from '../../components/ui/LanguageToggle';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ThemePicker } from '../../components/ui/ThemePicker';
 import { TrustStats } from '../../components/ui/TrustStats';
+import { publicFreelancerDirectoryHref } from '../../features/freelancer/public-directory-route';
 import { SupportChatButton, isChatwootEnabled } from '../../features/support';
 import { useAuth } from '../../hooks/use-auth';
+import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import { isCorporateRole } from '../../lib/auth/role';
 import { appConfig } from '../../lib/config';
 import { t } from '../../lib/i18n/i18n';
 import { spacing } from '../../lib/theme/tokens';
@@ -67,8 +70,15 @@ function Divider() {
 export default function ProfileScreen() {
   const router = useRouter();
   const { logout } = useAuth();
-  const { user, isGuest } = useAuthStore();
+  const { user, isGuest, userRole } = useAuthStore();
+  const softLaunch = useSoftLaunch();
   const { colors } = useTheme();
+  const freelancersHref = publicFreelancerDirectoryHref({
+    softLaunchEnabled: softLaunch.enabled,
+    showFreelancers: softLaunch.showFreelancers,
+    isFreelancer: userRole === 'freelancer' || user?.role === 'freelancer',
+    isCorporate: isCorporateRole(userRole, user?.role),
+  });
 
   const comingSoon = (title: string) => Alert.alert(title, 'This feature will be available soon.');
 
@@ -91,6 +101,14 @@ export default function ProfileScreen() {
       t('profile.deleteAccountMessage'),
       [
         { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('profile.openDeletionPage'),
+          style: 'destructive',
+          onPress: () => {
+            const url = `${appConfig.webBaseUrl}/en/delete-account`;
+            void openExternal(url, t('profile.deleteAccount'));
+          },
+        },
         {
           text: t('profile.contactSupport'),
           onPress: () => void openExternal('https://wa.me/66643438768', t('profile.contactSupport')),
@@ -160,7 +178,7 @@ export default function ProfileScreen() {
                   icon="people-outline"
                   label={t('freelancer.publicProfile.directory.title')}
                   subtitle={t('freelancer.publicProfile.directory.subtitle')}
-                  onPress={() => router.push('/freelancers')}
+                  onPress={() => router.push(freelancersHref)}
                 />
                 <Divider />
                 <RowItem icon="mail-outline" label="Change email" onPress={() => comingSoon('Change email')} />

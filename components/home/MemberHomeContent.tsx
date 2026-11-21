@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import type { ClientCase } from '../../features/cases/cases.types';
@@ -14,12 +14,12 @@ import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
+import { trackFunnel } from '../../lib/analytics/funnel';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { FadeInView } from '../ui/FadeInView';
-import { PageHeader } from '../ui/PageHeader';
 import { Section } from '../ui/Section';
 import { StatusBadge } from '../ui/status-badge';
+import { HomeHero } from './HomeHero';
 
 type QuickAction = {
   key: string;
@@ -33,14 +33,23 @@ const QUICK_ACTIONS: QuickAction[] = [
   { key: 'book', label: 'tabs.book', icon: 'calendar-outline', href: '/(tabs)/book' },
   { key: 'cases', label: 'tabs.cases', icon: 'briefcase-outline', href: '/(tabs)/cases' },
   { key: 'documents', label: 'tabs.documents', icon: 'document-text-outline', href: '/(tabs)/documents' },
-  { key: 'freelancers', label: 'home.hub.freelancers', icon: 'people-outline', href: '/(tabs)/freelancers' },
+  { key: 'freelancers', label: 'freelancer.publicProfile.directory.title', icon: 'people-outline', href: '/(tabs)/freelancers' },
   { key: 'smart-match', label: 'Smart Match', icon: 'sparkles-outline', href: '/smart-match' },
   { key: 'sales', label: 'tabs.sales', icon: 'car-outline', href: '/(tabs)/sales' },
   { key: 'real-estate', label: 'tabs.realEstate', icon: 'home-outline', href: '/(tabs)/real-estate' },
   { key: 'concierge', label: 'tabs.more', icon: 'chatbubbles-outline', href: '/(tabs)/concierge' },
 ];
 
-const SOFT_LAUNCH_QUICK_KEYS = new Set(['services', 'sales', 'real-estate', 'cases', 'documents', 'concierge']);
+const SOFT_LAUNCH_QUICK_KEYS = new Set([
+  'services',
+  'book',
+  'sales',
+  'real-estate',
+  'cases',
+  'documents',
+  'concierge',
+  'freelancers',
+]);
 
 function firstName(displayName: string): string {
   const trimmed = displayName.trim();
@@ -121,21 +130,24 @@ export function MemberHomeContent() {
 
   const hasAttention = waitingCases.length > 0 || pendingDocs > 0 || draftItems.length > 0;
 
+  useEffect(() => {
+    trackFunnel('home_viewed', { audience: 'member' });
+  }, []);
+
   return (
     <>
-      <FadeInView delay={0} distance={18}>
-        <PageHeader
-          badge={t('home.hub.badge')}
-          title={t('home.hub.greeting', { name: greetingName })}
-          subtitle={t('home.hub.subtitle')}
-          primaryCta={{ label: t('home.browseServices'), onPress: () => router.push('/(tabs)/services') }}
-          secondaryCta={
-            softLaunch.enabled
-              ? { label: 'Ask SiamEZ', onPress: () => router.push('/(tabs)/concierge') }
-              : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
-          }
-        />
-      </FadeInView>
+      <HomeHero
+        badge={t('home.hub.badge')}
+        title={t('home.hub.greeting', { name: greetingName })}
+        subtitle={t('home.hub.subtitle')}
+        primaryLabel={t('home.bookService')}
+        onPrimaryPress={() => {
+          trackFunnel('booking_started', { source: 'member_home_hero' });
+          router.push('/(tabs)/book');
+        }}
+        secondaryLabel={t('home.browseServices')}
+        onSecondaryPress={() => router.push('/(tabs)/services')}
+      />
 
       {hasAttention ? (
         <Section title={t('home.hub.needsAttention')} subtitle={t('home.hub.needsAttentionSubtitle')}>
@@ -218,7 +230,15 @@ export function MemberHomeContent() {
               {t('home.hub.emptyCases')}
             </Text>
             <View className="mt-4">
-              <Button label={t('cta.bookNow')} gradient onPress={() => router.push('/(tabs)/book')} />
+              <Button
+                label={t('home.bookService')}
+                variant="accent"
+                gradient
+                onPress={() => {
+                  trackFunnel('booking_started', { source: 'member_empty_cases' });
+                  router.push('/(tabs)/book');
+                }}
+              />
             </View>
           </Card>
         )}

@@ -14,6 +14,7 @@
   "cta": {
     "getStarted": "Get Started",
     "bookNow": "Book Now",
+    "bookAService": "Book a Service",
     "learnMore": "Learn More"
   },
   "trust": {
@@ -90,8 +91,9 @@
     "termsOfService": "Terms of service",
     "deleteAccount": "Delete account",
     "deleteAccountTitle": "Delete your account?",
-    "deleteAccountMessage": "To delete your SiamEZ account and associated data, contact support. We’ll verify it’s you and complete the request.",
+    "deleteAccountMessage": "You can request permanent deletion of your SiamEZ account and personal data on our website. You can also contact support if you need help.",
     "contactSupport": "Contact support",
+    "openDeletionPage": "Open deletion page",
     "chatWithSiamEZSubtitle": "Message our support team in the app"
   },
   "support": {
@@ -257,22 +259,24 @@
     "passwordTooShort": "Password must be at least 8 characters."
   },
   "home": {
-    "badge": "Professional Thai Services",
-    "title": "Expert Thai Services",
-    "subtitle": "Your trusted partner for marriage registration, translations, driver's licenses, police clearance, and more.",
-    "findService": "Find your service",
+    "badge": "SiamEZ",
+    "title": "Making Life in Thailand EZ",
+    "subtitle": "Professional assistance for life's paperwork, services, vehicles, and property in Thailand.",
+    "findService": "Find the service you need",
+    "categoriesSubtitle": "Browse by category — then book in a few taps.",
     "searchServices": "Search services",
-    "bookService": "Book Now",
+    "bookService": "Book a Service",
+    "askConcierge": "Ask SiamEZ Concierge",
     "details": "Details",
     "preferences": "Preferences",
     "preferencesSubtitle": "Choose your theme and language for this device.",
     "popularServices": "Popular Services",
-    "popularServicesSubtitle": "Selected services most requested by our clients.",
+    "popularServicesSubtitle": "Choose a service, book online, and we'll handle the rest.",
     "viewService": "View service",
     "viewAllServices": "View all services",
     "browseServices": "Browse services",
-    "readyTitle": "Ready when you are",
-    "readySubtitle": "Explore the full catalog, book a service, or find a trusted freelancer.",
+    "readyTitle": "Not sure what you need?",
+    "readySubtitle": "Book a service or ask SiamEZ Concierge — we'll point you to the right path.",
     "howItWorks": {
       "title": "How it works",
       "subtitle": "Three simple steps from need to done.",
@@ -286,7 +290,7 @@
     "hub": {
       "badge": "Your hub",
       "greeting": "Welcome back, %{name}",
-      "subtitle": "Pick up where you left off, check cases that need you, and jump to what matters.",
+      "subtitle": "Pick up where you left off, check cases that need you, and book your next service.",
       "needsAttention": "Needs your attention",
       "needsAttentionSubtitle": "Items waiting on you right now.",
       "pendingDocuments": "%{count} documents pending review",
@@ -490,6 +494,8 @@
     "serviceSummary": "Service summary",
     "quoteNote": "Final price confirmed after we review your case.",
     "pricingQuote": "Starting from a custom quote — we’ll confirm after review",
+    "selectServiceTitle": "Choose a service",
+    "selectServiceSubtitle": "Pick what you need — then we’ll collect a few details.",
     "changeService": "Change service",
     "documents": "Documents (optional)",
     "uploadFromFilesOrCamera": "Add files now if you have them handy.",
@@ -934,13 +940,17 @@
       "specialMember": "Special member",
       "fromRate": "From %{amount}/hr",
       "directory": {
-        "title": "Find freelancers",
-        "subtitle": "Browse verified specialists for visas, translation, and more.",
+        "title": "Freelancers",
+        "subtitle": "Connect with independent professionals who help make life in Thailand easier.",
         "loading": "Loading freelancers...",
-        "loadError": "Unable to load freelancers.",
-        "empty": "No freelancers match your search.",
-        "searchPlaceholder": "Search by name, title, or skill",
-        "skillPlaceholder": "Filter by exact skill (optional)"
+        "loadError": "Could not load freelancers. Please try again.",
+        "empty": "No public freelancers yet",
+        "emptyDescription": "Try a different search, or check back soon as more professionals join.",
+        "searchPlaceholder": "Search by name, title, or skill…",
+        "allSkills": "All",
+        "resultsCount": "%{count} freelancers",
+        "resultsCountZero": "No freelancers",
+        "freelancerBadge": "Freelancer"
       },
       "detail": {
         "loading": "Loading profile...",

@@ -33,21 +33,21 @@ export type ThemeColors = {
  */
 export const themeColors: Record<ResolvedTheme, ThemeColors> = {
   light: {
-    background: '#ffffff',
-    foreground: '#0f172a',
+    background: '#F4F7FC',
+    foreground: '#15213A',
     card: '#ffffff',
-    cardForeground: '#0f172a',
-    text: '#0f172a',
+    cardForeground: '#15213A',
+    text: '#15213A',
     primary: siam.blue.DEFAULT,
-    mutedText: '#64748b',
-    muted: '#64748b',
-    border: '#e8ebf0',
+    mutedText: '#68758D',
+    muted: '#68758D',
+    border: '#E2E8F4',
     danger: '#dc2626',
     success: '#16a34a',
     headerBg: '#ffffff',
-    headerBorder: '#e8ebf0',
-    headerText: '#0f172a',
-    headerTextMuted: '#64748b',
+    headerBorder: '#E2E8F4',
+    headerText: '#15213A',
+    headerTextMuted: '#68758D',
   },
   dark: {
     // Near-black, OLED-friendly surfaces that make blue + gold vivid.

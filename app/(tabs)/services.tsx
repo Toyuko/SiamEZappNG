@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Keyboard, Pressable, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,8 +8,6 @@ import type { CategoryFilterId } from '../../components/services/CategoryChips';
 import { FeaturedServiceCarousel } from '../../components/services/FeaturedServiceCarousel';
 import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
 import { ServicesScreenHeader } from '../../components/services/ServicesScreenHeader';
-import { MockAdPanel } from '../../components/ui/MockAdPanel';
-import { DEFAULT_MOCK_AD, getImageAdHeight, getMockAdForCategory } from '../../features/ads/mock-ads';
 import { nextFeaturedVisit } from '../../features/services/featured-visit';
 import { filterServicesByQuery, getCategoryLabel } from '../../features/services/service-display';
 import { getActiveServices } from '../../features/services/services.data';
@@ -68,7 +66,6 @@ export default function ServicesScreen() {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const softLaunch = useSoftLaunch();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const language = useLanguageStore((state) => state.language);
   const { category: categoryParam } = useLocalSearchParams<{ category?: string | string[] }>();
   const initialCategory = readCategoryParam(categoryParam);
@@ -139,11 +136,6 @@ export default function ServicesScreen() {
     activeCategory === 'all'
       ? t('services.allServices')
       : getCategoryLabel(activeCategory);
-
-  const mockAd = activeCategory !== 'all' ? getMockAdForCategory(activeCategory) : DEFAULT_MOCK_AD;
-  const adWidth = windowWidth;
-  const naturalAdHeight = mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || 96 : 96;
-  const adHeight = Math.min(naturalAdHeight, windowHeight < 760 ? 76 : 100);
 
   const clearCategoryFilter = () => {
     setActiveCategory('all');
@@ -261,9 +253,6 @@ export default function ServicesScreen() {
                   </Pressable>
                 ) : null}
               </View>
-            }
-            belowFeature={
-              <MockAdPanel key={activeCategory} width={adWidth} height={adHeight} ad={mockAd} />
             }
           />
         </View>

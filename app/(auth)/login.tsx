@@ -137,7 +137,7 @@ export default function LoginScreen() {
                 label={t('auth.continueAsGuest')}
                 onPress={() => {
                   void continueAsGuest().then(() => {
-                    router.replace('/(tabs)/services');
+                    router.replace('/(tabs)/home');
                   });
                 }}
               />
@@ -147,7 +147,7 @@ export default function LoginScreen() {
                   label={t('auth.tryAiMatching')}
                   onPress={() => {
                     void continueAsGuest().then(() => {
-                      router.replace('/(tabs)/services');
+                      router.replace('/(tabs)/home');
                       router.push('/smart-match');
                     });
                   }}

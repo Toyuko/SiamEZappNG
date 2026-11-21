@@ -22,6 +22,7 @@ import { useAuth } from '../hooks/use-auth';
 import { LaunchAnimationProvider } from '../hooks/use-launch-animation';
 import { useSoftLaunch } from '../hooks/use-soft-launch';
 import { useAutoUpdate } from '../hooks/useAutoUpdate';
+import { trackFunnel } from '../lib/analytics/funnel';
 import { isCorporateRole } from '../lib/auth/role';
 import { SOFT_LAUNCH_DEFERRED_ROUTES } from '../lib/soft-launch';
 import { installDefaultFont } from '../lib/theme/install-default-font';
@@ -66,7 +67,7 @@ function RootNavigator() {
     if (launchComplete || !isReady) {
       return;
     }
-    const fallbackMs = launchVariant === 'brief' ? 4_000 : 8_000;
+    const fallbackMs = launchVariant === 'brief' ? 1_200 : 2_000;
     const timeout = setTimeout(() => setLaunchComplete(true), fallbackMs);
     return () => clearTimeout(timeout);
   }, [isReady, launchComplete, launchVariant]);
@@ -74,6 +75,10 @@ function RootNavigator() {
   useEffect(() => {
     void bootstrapSession();
   }, [bootstrapSession]);
+
+  useEffect(() => {
+    trackFunnel('app_opened');
+  }, []);
 
   useEffect(() => {
     if (!launchComplete) {
@@ -140,7 +145,7 @@ function RootNavigator() {
       return;
     }
     if (deferredSoftLaunchRoute) {
-      router.replace('/(tabs)/services');
+      router.replace('/(tabs)/home');
       return;
     }
     if (isAuthenticated && userRole === 'client' && (topLevel === 'freelancer' || tabRoute === 'freelancer')) {
@@ -161,7 +166,7 @@ function RootNavigator() {
       } else if (isFreelancer) {
         router.replace('/(tabs)/freelancer');
       } else {
-        router.replace('/(tabs)/services');
+        router.replace('/(tabs)/home');
       }
       return;
     }

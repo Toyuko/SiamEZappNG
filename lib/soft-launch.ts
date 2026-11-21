@@ -4,9 +4,12 @@
  * Prefer hiding unfinished product areas over deleting infrastructure.
  * Runtime: `/api/v1/feature-flags` → `soft_launch` (default true).
  * Offline/startup fallback: `EXPO_PUBLIC_SOFT_LAUNCH` (default enabled unless "false").
+ *
+ * Conversion IA (soft launch): Home / Services / Book are primary tabs.
+ * Vehicles, property, and freelancers stay reachable via More + Home shortcuts.
  */
 export const softLaunchDefaults = {
-  /** When true, primary IA focuses on Services / Vehicles / RE / Concierge. */
+  /** When true, primary IA focuses on booking conversion. */
   enabled: process.env.EXPO_PUBLIC_SOFT_LAUNCH !== 'false',
 
   /** Seller listing management stays on (vehicles + RE are launch surfaces). */
@@ -28,10 +31,14 @@ export const softLaunchDefaults = {
   showSmartMatch: false,
 } as const;
 
-/** Tab/route names deferred during soft launch (still exist for deep links / legacy roles). */
+/**
+ * Tabs deferred from the bottom bar during soft launch (still exist for deep links).
+ * Home + Book stay visible — they are the conversion funnel.
+ * Marketplace tabs move under More to keep the bar focused on booking.
+ */
 export const SOFT_LAUNCH_HIDDEN_TABS = [
-  'home',
-  'book',
+  'sales',
+  'real-estate',
   'goals',
   'life-events',
   'workflows',
@@ -43,7 +50,6 @@ export const SOFT_LAUNCH_DEFERRED_ROUTES = new Set([
   'life-events',
   'workflows',
   'saved',
-  'freelancers',
   'smart-match',
 ]);
 

@@ -1,24 +1,25 @@
 /**
- * Design tokens aligned with SiamEZ web (globals.css + tailwind.config).
- * Source: https://github.com/Toyuko/SiamEZwebNG
+ * Design tokens aligned with SiamEZ brand assets + website (siam-ez.com).
+ * Visual source of truth: royal blue / gold elephant identity.
  */
 
 export const siam = {
   blue: {
-    DEFAULT: '#2C54C6',
-    light: '#3D5FCE',
-    dark: '#2344B0',
-    bright: '#5B76E0',
+    DEFAULT: '#2454D8',
+    light: '#3979FF',
+    dark: '#153DAE',
+    bright: '#3979FF',
+    navy: '#102B72',
   },
   yellow: {
-    DEFAULT: '#FFCE2D',
-    light: '#FFD84D',
-    dark: '#E6B828',
+    DEFAULT: '#FFD329',
+    light: '#FFE566',
+    dark: '#FFB900',
   },
   gray: {
     DEFAULT: '#374151',
-    light: '#6b7280',
-    dark: '#1f2937',
+    light: '#68758D',
+    dark: '#15213A',
   },
 } as const;
 
@@ -50,7 +51,7 @@ export const radius = {
 } as const;
 
 /** Foreground used on gold/accent surfaces (matches web yellow CTA text). */
-export const accentForeground = '#1f2937';
+export const accentForeground = '#15213A';
 
 export type ShadowStyle = {
   shadowColor: string;
@@ -111,9 +112,9 @@ export const shadows = {
 
 export type CardShadowLevel = 'default' | 'medium' | 'strong';
 
-/** Hero gradient — matches web HeroSection `from-siam-blue via-siam-blue-light to-siam-blue` */
+/** Hero gradient — royal blue depth matching brand banners */
 export const heroGradient = {
-  colors: [siam.blue.dark, siam.blue.light, siam.blue.DEFAULT] as const,
+  colors: [siam.blue.navy, siam.blue.dark, siam.blue.DEFAULT] as const,
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 };
