@@ -19,12 +19,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import * as WebBrowser from 'expo-web-browser';
 
+import { BookingStepper } from '../../components/booking/BookingStepper';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Section } from '../../components/ui/Section';
 import { SelectField } from '../../components/ui/SelectField';
+import { radius, shadows, siam } from '../../lib/theme/tokens';
 import {
   getBookingFieldsForSlug,
   getServiceStartingPriceLine,
@@ -117,15 +119,14 @@ export default function BookScreen() {
     () => (selectedService ? getServiceStartingPriceLine(selectedService, t) : ''),
     [selectedService],
   );
-  const progressPercent = `${(step / 3) * 100}%` as const;
-
   useEffect(() => {
     if (selectedService) {
       trackFunnel('booking_started', { slug: selectedService.slug, source: 'book_tab' });
     }
   }, [selectedService?.slug]);
 
-  const stepTitle = step === 1 ? t('book.clientDetails') : step === 2 ? t('book.serviceRequirements') : t('book.reviewConfirm');
+  /** Map wizard steps onto Service → Details → Confirm for the visual stepper. */
+  const visualStep: 1 | 2 | 3 = !selectedService ? 1 : step === 1 || step === 2 ? 2 : 3;
 
   useEffect(() => {
     let cancelled = false;
@@ -157,7 +158,7 @@ export default function BookScreen() {
           setStep(1);
           setFullName(isGuest ? guestProfile?.name ?? '' : user?.name ?? '');
           setEmail(isGuest ? guestProfile?.email ?? '' : user?.email ?? '');
-          setPhone(isGuest ? guestProfile?.phone ?? '' : '');
+          setPhone(isGuest ? guestProfile?.phone ?? '' : user?.phone ?? '');
           setNotes('');
           setReq({});
         }
@@ -165,7 +166,7 @@ export default function BookScreen() {
         setStep(1);
         setFullName(isGuest ? guestProfile?.name ?? '' : user?.name ?? '');
         setEmail(isGuest ? guestProfile?.email ?? '' : user?.email ?? '');
-        setPhone(isGuest ? guestProfile?.phone ?? '' : '');
+        setPhone(isGuest ? guestProfile?.phone ?? '' : user?.phone ?? '');
         setNotes('');
         setReq({});
         setUploadedDocuments([]);
@@ -183,8 +184,8 @@ export default function BookScreen() {
     }
     setFullName((v) => v || (isGuest ? guestProfile?.name ?? '' : user?.name ?? '') || v);
     setEmail((v) => v || (isGuest ? guestProfile?.email ?? '' : user?.email ?? '') || v);
-    setPhone((v) => v || (isGuest ? guestProfile?.phone ?? '' : '') || v);
-  }, [draftReady, selectedService, isGuest, guestProfile?.name, guestProfile?.email, guestProfile?.phone, user?.name, user?.email]);
+    setPhone((v) => v || (isGuest ? guestProfile?.phone ?? '' : user?.phone ?? '') || v);
+  }, [draftReady, selectedService, isGuest, guestProfile?.name, guestProfile?.email, guestProfile?.phone, user?.name, user?.email, user?.phone]);
 
   useEffect(() => {
     if (!draftReady || submitted || !selectedService) {
@@ -506,7 +507,7 @@ export default function BookScreen() {
 
   const renderServicePicker = () => (
     <Section title={t('book.selectServiceTitle')} subtitle={t('book.selectServiceSubtitle')}>
-      <View className="gap-2">
+      <View className="gap-2.5">
         {activeServices.map((item) => (
           <Pressable
             key={item.slug}
@@ -517,21 +518,29 @@ export default function BookScreen() {
               router.setParams({ serviceSlug: item.slug });
             }}
             style={({ pressed }) => ({
-              paddingVertical: 14,
-              paddingHorizontal: 14,
-              borderRadius: 14,
+              paddingVertical: 16,
+              paddingHorizontal: 16,
+              borderRadius: radius.lg,
               borderWidth: 1,
               borderColor: colors.border,
               backgroundColor: colors.card,
               opacity: pressed ? 0.88 : 1,
+              ...shadows.cardLight,
             })}
           >
-            <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
-              {getServiceTitle(item, language)}
-            </Text>
-            <Text className="mt-1 text-sm" numberOfLines={2} style={{ color: colors.mutedText }}>
-              {language === 'th' ? item.descriptionTh : item.descriptionEn}
-            </Text>
+            <View className="flex-row items-start justify-between gap-3">
+              <View className="min-w-0 flex-1">
+                <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
+                  {getServiceTitle(item, language)}
+                </Text>
+                <Text className="mt-1 text-sm leading-5" numberOfLines={2} style={{ color: colors.mutedText }}>
+                  {language === 'th' ? item.descriptionTh : item.descriptionEn}
+                </Text>
+              </View>
+              <Text className="text-lg font-bold" style={{ color: siam.blue.DEFAULT }}>
+                →
+              </Text>
+            </View>
           </Pressable>
         ))}
       </View>
@@ -806,24 +815,19 @@ export default function BookScreen() {
           automaticallyAdjustKeyboardInsets
         >
           {!submitted ? (
-            selectedService ? (
-              <>
-                <PageHeader
-                  title={t('book.title')}
-                  subtitle={`${t('book.stepProgress', { step, total: 3 })} · ${stepTitle}`}
-                />
-                <Card className="py-3">
-                  <View className="h-2 w-full overflow-hidden rounded-full" style={{ backgroundColor: colors.border }}>
-                    <View
-                      className="h-2 rounded-full"
-                      style={{ width: progressPercent, backgroundColor: colors.primary }}
-                    />
-                  </View>
-                </Card>
-              </>
-            ) : (
-              <PageHeader title={t('book.title')} subtitle={t('book.selectServiceSubtitle')} />
-            )
+            <>
+              <PageHeader
+                title={t('book.title')}
+                subtitle={
+                  selectedService
+                    ? t('book.stepProgress', { step: visualStep, total: 3 })
+                    : t('book.selectServiceSubtitle')
+                }
+              />
+              <Card className="py-3">
+                <BookingStepper step={visualStep} />
+              </Card>
+            </>
           ) : (
             <PageHeader title={t('book.title')} subtitle={t('book.confirmation')} />
           )}
@@ -854,7 +858,7 @@ export default function BookScreen() {
               <View className="flex-1">
                 {step < 3 ? (
                   <Button
-                    label={primaryLabel}
+                    label={`${primaryLabel} →`}
                     variant="accent"
                     gradient
                     onPress={() => {

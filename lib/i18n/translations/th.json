@@ -15,7 +15,8 @@
     "getStarted": "เริ่มต้นใช้งาน",
     "bookNow": "จองเลย",
     "bookAService": "จองบริการ",
-    "learnMore": "เรียนรู้เพิ่มเติม"
+    "learnMore": "เรียนรู้เพิ่มเติม",
+    "bookThisService": "จองบริการนี้"
   },
   "trust": {
     "happyClients": "ลูกค้าที่ไว้วางใจ",
@@ -94,7 +95,8 @@
     "deleteAccountMessage": "คุณสามารถขอให้ลบบัญชี SiamEZ และข้อมูลส่วนบุคคลอย่างถาวรได้บนเว็บไซต์ของเรา หรือติดต่อฝ่ายสนับสนุนหากต้องการความช่วยเหลือ",
     "contactSupport": "ติดต่อฝ่ายสนับสนุน",
     "openDeletionPage": "เปิดหน้าลบบัญชี",
-    "chatWithSiamEZSubtitle": "แชทกับทีมสนับสนุนในแอป"
+    "chatWithSiamEZSubtitle": "แชทกับทีมสนับสนุนในแอป",
+    "logOut": "ออกจากระบบ"
   },
   "support": {
     "chatWithSiamEZ": "แชทกับ SiamEZ",
@@ -115,7 +117,7 @@
     "book": "จอง",
     "contact": "ติดต่อ",
     "dashboard": "แดชบอร์ด",
-    "cases": "เคส",
+    "cases": "บริการของฉัน",
     "documents": "เอกสาร",
     "profile": "โปรไฟล์",
     "more": "เพิ่มเติม",
@@ -261,7 +263,7 @@
   "home": {
     "badge": "SiamEZ",
     "title": "ทำให้ชีวิตในไทยเป็นเรื่องง่าย",
-    "subtitle": "บริการมืออาชีพด้านเอกสาร บริการ ยานพาหนะ และอสังหาริมทรัพย์ในประเทศไทย",
+    "subtitle": "พันธมิตรที่คุณไว้ใจสำหรับบริการในไทย เราทำให้เรื่องยุ่งยากเป็นเรื่องง่าย",
     "findService": "ค้นหาบริการที่ต้องการ",
     "categoriesSubtitle": "เลือกตามหมวดหมู่ แล้วจองได้ในไม่กี่ขั้นตอน",
     "searchServices": "ค้นหาบริการ",
@@ -304,6 +306,30 @@
       "shortcuts": "ทางลัด",
       "shortcutsSubtitle": "ไปยังจุดหมายที่ใช้บ่อย",
       "freelancers": "ฟรีแลนซ์"
+    },
+    "whatDoYouNeed": "คุณต้องการความช่วยเหลือเรื่องอะไร?",
+    "chooseServiceHint": "เลือกบริการเพื่อเริ่มต้น",
+    "moreServices": "บริการอื่นๆ",
+    "moreServicesHint": "ดูแคตตาล็อกทั้งหมด",
+    "header": {
+      "notifications": "การแจ้งเตือน",
+      "profile": "โปรไฟล์"
+    },
+    "trustStrip": {
+      "easyBooking": "จองง่าย",
+      "localExperts": "ผู้เชี่ยวชาญท้องถิ่น",
+      "trusted": "น่าเชื่อถือ",
+      "support": "ดูแลส่วนตัว"
+    },
+    "promoBanner": {
+      "title": "ต้องการความช่วยเหลือในไทย?",
+      "subtitle": "จองออนไลน์ได้ในไม่กี่นาที เราดูแลต่อให้",
+      "cta": "เริ่มจอง →"
+    },
+    "trackBanner": {
+      "title": "มีเคสอยู่แล้ว?",
+      "subtitle": "ติดตามสถานะและขั้นตอนถัดไปได้ที่นี่",
+      "cta": "ติดตามเลย →"
     }
   },
   "services": {
@@ -356,7 +382,9 @@
     "viewDetails": "รายละเอียด",
     "moreDetails": "รายละเอียดเพิ่มเติม",
     "moreInfo": "ข้อมูลเพิ่มเติม",
-    "featuredServiceLabel": "%{title} %{current} จาก %{total}"
+    "featuredServiceLabel": "%{title} %{current} จาก %{total}",
+    "filterAll": "ทั้งหมด",
+    "noResults": "ไม่พบบริการที่ตรงกัน"
   },
   "search": {
     "title": "ค้นหาบริการ",
@@ -404,13 +432,15 @@
     "activityUpdates": "อัปเดตล่าสุด %{count} รายการจากพื้นที่ Platform ของคุณ"
   },
   "cases": {
-    "title": "เคสของฉัน",
-    "subtitle": "ติดตามสถานะ ความคืบหน้า และเอกสารของแต่ละเคส",
+    "title": "บริการของฉัน",
+    "subtitle": "ติดตามสถานะ อัปเดต และเอกสารของแต่ละเคส",
     "loading": "กำลังโหลดเคส...",
     "loadError": "ไม่สามารถโหลดเคสได้",
     "empty": "ไม่พบเคสที่กำลังดำเนินการ",
     "status": "สถานะ",
-    "lastUpdated": "อัปเดตล่าสุด"
+    "lastUpdated": "อัปเดตล่าสุด",
+    "tabActive": "กำลังดำเนินการ (%{count})",
+    "tabCompleted": "เสร็จสิ้น"
   },
   "documents": {
     "title": "เอกสาร",
@@ -664,6 +694,11 @@
         "commercial": "เชิงพาณิชย์",
         "villa": "วิลล่า"
       }
+    },
+    "steps": {
+      "service": "บริการ",
+      "details": "รายละเอียด",
+      "confirm": "ยืนยัน"
     }
   },
   "sales": {

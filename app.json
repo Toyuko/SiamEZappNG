@@ -18,7 +18,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#102C76"
     },
     "ios": {
       "bundleIdentifier": "com.siamez.app",
@@ -193,7 +193,7 @@
         "expo-notifications",
         {
           "icon": "./assets/android-icon-monochrome.png",
-          "color": "#2C54C6",
+          "color": "#2450C4",
           "sounds": ["./assets/sounds/ez_notification.wav"]
         }
       ],
@@ -226,7 +226,6 @@
           ]
         }
       ],
-      "expo-video",
       "expo-secure-store",
       "expo-localization",
       "expo-web-browser",

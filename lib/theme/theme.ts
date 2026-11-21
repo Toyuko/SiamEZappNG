@@ -1,6 +1,6 @@
 import { useColorScheme } from 'react-native';
 
-import { siam } from './tokens';
+import { siam, surfaces } from './tokens';
 import { useThemeStore } from './useThemeStore';
 
 export type ThemeMode = 'light' | 'dark' | 'night' | 'system';
@@ -20,6 +20,7 @@ export type ThemeColors = {
   border: string;
   danger: string;
   success: string;
+  warning: string;
   headerBg: string;
   headerBorder: string;
   headerText: string;
@@ -27,30 +28,29 @@ export type ThemeColors = {
 };
 
 /**
- * Modern SiamEZ theme: a crisp white light mode and a striking near-black dark
- * mode. Both are tuned so the brand blue + gold pop cleanly against the neutral
- * background.
+ * SiamEZ theme: crisp blue-tinted light mode; OLED dark / midnight night.
+ * Brand blue + gold stay vivid on every surface.
  */
 export const themeColors: Record<ResolvedTheme, ThemeColors> = {
   light: {
-    background: '#F4F7FC',
-    foreground: '#15213A',
-    card: '#ffffff',
-    cardForeground: '#15213A',
-    text: '#15213A',
+    background: surfaces.background,
+    foreground: surfaces.textPrimary,
+    card: surfaces.card,
+    cardForeground: surfaces.textPrimary,
+    text: surfaces.textPrimary,
     primary: siam.blue.DEFAULT,
-    mutedText: '#68758D',
-    muted: '#68758D',
+    mutedText: surfaces.textSecondary,
+    muted: surfaces.textSecondary,
     border: '#E2E8F4',
-    danger: '#dc2626',
-    success: '#16a34a',
-    headerBg: '#ffffff',
+    danger: surfaces.error,
+    success: surfaces.success,
+    warning: surfaces.warning,
+    headerBg: surfaces.card,
     headerBorder: '#E2E8F4',
-    headerText: '#15213A',
-    headerTextMuted: '#68758D',
+    headerText: surfaces.textPrimary,
+    headerTextMuted: surfaces.textSecondary,
   },
   dark: {
-    // Near-black, OLED-friendly surfaces that make blue + gold vivid.
     background: '#0a0a0c',
     foreground: '#f4f4f5',
     card: '#161619',
@@ -62,13 +62,13 @@ export const themeColors: Record<ResolvedTheme, ThemeColors> = {
     border: '#27272b',
     danger: '#f87171',
     success: '#22c55e',
+    warning: '#fbbf24',
     headerBg: '#0a0a0c',
     headerBorder: '#27272b',
     headerText: '#f4f4f5',
     headerTextMuted: '#a1a1aa',
   },
   night: {
-    // Deep midnight blue — a softer, bluer alternative to the neutral dark.
     background: '#0a0f1f',
     foreground: '#e7ecf7',
     card: '#141d33',
@@ -80,6 +80,7 @@ export const themeColors: Record<ResolvedTheme, ThemeColors> = {
     border: '#26314f',
     danger: '#f87171',
     success: '#34d399',
+    warning: '#fbbf24',
     headerBg: '#0a0f1f',
     headerBorder: '#26314f',
     headerText: '#e7ecf7',

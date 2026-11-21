@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { Calendar, ChevronRight } from 'lucide-react-native';
 import { Image, Text, View } from 'react-native';
 
 import { accentForeground, heroGradient, radius, shadows, siam, spacing } from '../../lib/theme/tokens';
@@ -18,7 +19,7 @@ type HomeHeroProps = {
 };
 
 /**
- * Compact conversion hero — brand first, gold BOOK CTA second.
+ * Conversion hero — brand first, gold BOOK CTA dominant.
  */
 export function HomeHero({
   badge,
@@ -29,6 +30,9 @@ export function HomeHero({
   secondaryLabel,
   onSecondaryPress,
 }: HomeHeroProps) {
+  const titleParts = title.split(' EZ');
+  const hasEzSplit = titleParts.length > 1 && title.toUpperCase().includes('EZ');
+
   return (
     <FadeInView delay={0} distance={18}>
       <LinearGradient
@@ -36,11 +40,12 @@ export function HomeHero({
         start={heroGradient.start}
         end={heroGradient.end}
         style={{
-          borderRadius: radius.xl,
+          borderRadius: radius.hero,
           paddingHorizontal: spacing.cardPadding,
           paddingTop: spacing.cardPadding,
-          paddingBottom: spacing.cardPadding + 4,
+          paddingBottom: spacing.cardPadding + 6,
           overflow: 'hidden',
+          minHeight: 220,
           ...shadows.cardMedium,
         }}
       >
@@ -48,57 +53,74 @@ export function HomeHero({
           pointerEvents="none"
           style={{
             position: 'absolute',
-            right: -36,
-            top: -28,
-            width: 140,
-            height: 140,
-            borderRadius: 70,
-            backgroundColor: 'rgba(255, 211, 41, 0.12)',
+            right: -40,
+            top: -32,
+            width: 160,
+            height: 160,
+            borderRadius: 80,
+            backgroundColor: 'rgba(255, 211, 47, 0.14)',
           }}
         />
         <View
           pointerEvents="none"
           style={{
             position: 'absolute',
-            left: -20,
-            bottom: -40,
-            width: 160,
-            height: 90,
-            borderTopLeftRadius: 80,
-            borderTopRightRadius: 80,
-            backgroundColor: 'rgba(16, 43, 114, 0.45)',
+            left: -28,
+            bottom: -48,
+            width: 180,
+            height: 110,
+            borderTopLeftRadius: 90,
+            borderTopRightRadius: 90,
+            backgroundColor: 'rgba(16, 44, 118, 0.5)',
           }}
         />
 
         <View className="flex-row items-center gap-3">
-          <Image source={LOGO} style={{ width: 48, height: 48, borderRadius: 24 }} />
+          <Image source={LOGO} style={{ width: 52, height: 52, borderRadius: 26 }} />
           <View className="min-w-0 flex-1">
             {badge ? (
               <Text
                 className="text-[11px] font-semibold uppercase"
-                style={{ color: siam.yellow.DEFAULT, letterSpacing: 0.6 }}
+                style={{ color: siam.yellow.DEFAULT, letterSpacing: 0.7 }}
               >
                 {badge}
               </Text>
             ) : null}
-            <Text className="text-2xl font-bold tracking-tight" style={{ color: '#FFFFFF' }}>
-              {title}
-            </Text>
+            {hasEzSplit ? (
+              <Text className="text-[28px] font-bold tracking-tight leading-8" style={{ color: '#FFFFFF' }}>
+                {titleParts[0]}{' '}
+                <Text style={{ color: siam.yellow.DEFAULT }}>EZ</Text>
+                {titleParts.slice(1).join(' EZ')}
+              </Text>
+            ) : (
+              <Text className="text-[28px] font-bold tracking-tight leading-8" style={{ color: '#FFFFFF' }}>
+                {title}
+              </Text>
+            )}
           </View>
         </View>
 
-        <Text className="mt-3 text-sm leading-5" style={{ color: 'rgba(255,255,255,0.88)' }}>
+        <Text className="mt-3 text-[15px] leading-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
           {subtitle}
         </Text>
 
-        <View className="mt-4 gap-2.5">
+        <View className="mt-5 gap-2.5">
           <Button
             label={primaryLabel}
             variant="accent"
             gradient
-            onPress={onPrimaryPress}
+            minHeight={56}
             textColor={accentForeground}
-          />
+            onPress={onPrimaryPress}
+          >
+            <View className="flex-row items-center gap-2">
+              <Calendar size={18} color={accentForeground} strokeWidth={2.4} />
+              <Text className="text-[17px] font-semibold" style={{ color: accentForeground }}>
+                {primaryLabel}
+              </Text>
+              <ChevronRight size={18} color={accentForeground} strokeWidth={2.4} />
+            </View>
+          </Button>
           {secondaryLabel && onSecondaryPress ? (
             <Button
               label={secondaryLabel}

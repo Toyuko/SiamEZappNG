@@ -10,6 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { motion } from '../../lib/theme/motion';
 import { heroGradient, siam } from '../../lib/theme/tokens';
 
 const LOGO = require('../../assets/brand/siamez-logo-circle.png');
@@ -28,7 +29,7 @@ type LaunchAnimationProps = {
 };
 
 /**
- * Lightweight branded splash — gradient + logo (no 5MB video on cold start).
+ * Lightweight branded splash — gradient + logo (no video on cold start).
  */
 export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationProps) {
   const isFull = variant === 'full';
@@ -46,12 +47,16 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
   const overlay = useSharedValue(1);
   const logoScale = useSharedValue(0.88);
   const logoOpacity = useSharedValue(0);
+  const wordmarkOpacity = useSharedValue(0);
+  const accentOpacity = useSharedValue(0);
   const exitStarted = useRef(false);
 
   useEffect(() => {
     logoOpacity.value = withTiming(1, { duration: 280, easing: Easing.out(Easing.cubic) });
-    logoScale.value = withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) });
-  }, [logoOpacity, logoScale]);
+    logoScale.value = withTiming(1, { duration: motion.heroEntrance - 100, easing: Easing.out(Easing.cubic) });
+    wordmarkOpacity.value = withDelay(160, withTiming(1, { duration: 280 }));
+    accentOpacity.value = withDelay(280, withTiming(1, { duration: 240 }));
+  }, [accentOpacity, logoOpacity, logoScale, wordmarkOpacity]);
 
   useEffect(() => {
     if (!ready || exitStarted.current) {
@@ -86,6 +91,14 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
     transform: [{ scale: logoScale.value }],
   }));
 
+  const wordmarkStyle = useAnimatedStyle(() => ({
+    opacity: wordmarkOpacity.value,
+  }));
+
+  const accentStyle = useAnimatedStyle(() => ({
+    opacity: accentOpacity.value,
+  }));
+
   return (
     <Animated.View
       style={[StyleSheet.absoluteFill, styles.root, overlayStyle]}
@@ -100,8 +113,9 @@ export function LaunchAnimation({ ready, variant, onComplete }: LaunchAnimationP
       <View style={styles.wave} pointerEvents="none" />
       <Animated.View style={[styles.content, logoStyle]}>
         <Image source={LOGO} style={styles.logo} accessibilityIgnoresInvertColors />
-        <Text style={styles.wordmark}>SiamEZ</Text>
-        <Text style={styles.tagline}>Making life in Thailand EZ</Text>
+        <Animated.Text style={[styles.wordmark, wordmarkStyle]}>SiamEZ</Animated.Text>
+        <Animated.Text style={[styles.tagline, accentStyle]}>Making life in Thailand EZ</Animated.Text>
+        <Animated.View style={[styles.accentBar, accentStyle]} />
       </Animated.View>
     </Animated.View>
   );
@@ -121,7 +135,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '28%',
-    backgroundColor: 'rgba(16, 43, 114, 0.55)',
+    backgroundColor: 'rgba(16, 44, 118, 0.55)',
     borderTopLeftRadius: 48,
     borderTopRightRadius: 48,
   },
@@ -147,5 +161,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: siam.yellow.DEFAULT,
     textAlign: 'center',
+  },
+  accentBar: {
+    marginTop: 16,
+    width: 48,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: siam.yellow.DEFAULT,
   },
 });

@@ -17,7 +17,8 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -28,7 +29,7 @@ import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { isCorporateRole } from '../../lib/auth/role';
 import { t } from '../../lib/i18n/i18n';
 import { useTheme } from '../../lib/theme/theme';
-import { siam } from '../../lib/theme/tokens';
+import { accentForeground, radius, shadows, siam } from '../../lib/theme/tokens';
 import { useAuthStore } from '../../store/auth-store';
 
 const TAB_ICON_SIZE = 24;
@@ -53,11 +54,11 @@ function TabBarIcon({
   const { isDark } = useTheme();
   const tint = accent
     ? isDark
-      ? 'rgba(255, 211, 41, 0.22)'
-      : 'rgba(255, 211, 41, 0.28)'
+      ? 'rgba(255, 211, 47, 0.22)'
+      : 'rgba(255, 211, 47, 0.28)'
     : isDark
-      ? 'rgba(57, 121, 255, 0.28)'
-      : 'rgba(36, 84, 216, 0.14)';
+      ? 'rgba(53, 103, 246, 0.28)'
+      : 'rgba(36, 80, 196, 0.14)';
   const color = focused ? (accent ? siam.blue.navy : activeColor) : inactiveColor;
 
   return (
@@ -75,6 +76,47 @@ function TabBarIcon({
     >
       <Icon size={TAB_ICON_SIZE} color={color} strokeWidth={2} />
     </View>
+  );
+}
+
+/** Raised gold Book action — always the most visible path to booking. */
+function BookTabButton({ accessibilityState, onPress, onLongPress }: BottomTabBarButtonProps) {
+  const focused = Boolean(accessibilityState?.selected);
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={accessibilityState}
+      accessibilityLabel={t('tabs.book')}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', top: -14 }}
+    >
+      <View
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: radius.full,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: focused ? siam.yellow.dark : siam.yellow.DEFAULT,
+          borderWidth: 3,
+          borderColor: '#FFFFFF',
+          ...shadows.cardMedium,
+        }}
+      >
+        <Calendar size={26} color={accentForeground} strokeWidth={2.4} />
+      </View>
+      <Text
+        style={{
+          marginTop: 4,
+          fontSize: 10,
+          fontWeight: '700',
+          color: focused ? siam.blue.DEFAULT : siam.gray.DEFAULT,
+        }}
+      >
+        {t('tabs.book')}
+      </Text>
+    </Pressable>
   );
 }
 
@@ -203,17 +245,11 @@ export default function TabsLayout() {
         name="book"
         options={{
           title: t('tabs.book'),
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon
-              focused={focused}
-              Icon={Calendar}
-              activeColor={colors.primary}
-              inactiveColor={colors.mutedText}
-              compact={compactTabs}
-              accent
-            />
-          ),
-          ...hideMemberTabsForCorporate,
+          tabBarLabel: () => null,
+          tabBarIcon: () => null,
+          tabBarButton: (props) => <BookTabButton {...props} />,
+          /** Book stays visible for guests + members; corporate portal replaces it. */
+          ...hideForCorporate,
         }}
       />
       <Tabs.Screen

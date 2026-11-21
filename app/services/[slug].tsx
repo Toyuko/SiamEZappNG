@@ -73,9 +73,14 @@ export default function ServiceDetailScreen() {
     await Linking.openURL(url);
   };
 
+  const bookService = () => {
+    trackFunnel('booking_started', { slug: service.slug, source: 'service_detail' });
+    router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } });
+  };
+
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 + VOICE_FAB_SCROLL_EXTRA }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 110 + VOICE_FAB_SCROLL_EXTRA }}>
         <Card>
           <Button label={t('serviceDetail.backToServicesLower')} variant="secondary" size="md" fullWidth={false} onPress={() => router.back()} />
         </Card>
@@ -236,15 +241,6 @@ export default function ServiceDetailScreen() {
           </Card>
         ) : null}
 
-        <Button
-          label={t('home.bookService')}
-          variant="accent"
-          gradient
-          onPress={() => {
-            trackFunnel('booking_started', { slug: service.slug, source: 'service_detail' });
-            router.push({ pathname: '/(tabs)/book', params: { service: service.title, serviceSlug: service.slug } });
-          }}
-        />
         <SupportChatButton
           variant="secondary"
           label={t('support.askAboutService')}
@@ -263,6 +259,23 @@ export default function ServiceDetailScreen() {
         <Button label={t('serviceDetail.contactUs')} variant="secondary" onPress={() => void openContact()} />
         <Button label={t('serviceDetail.viewWebsite')} variant="secondary" onPress={() => void openWebsiteService()} />
       </ScrollView>
+
+      <View
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          paddingHorizontal: 16,
+          paddingTop: 10,
+          paddingBottom: 16,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.card,
+        }}
+      >
+        <Button label={t('cta.bookThisService')} variant="accent" gradient minHeight={56} onPress={bookService} />
+      </View>
     </SafeAreaView>
   );
 }

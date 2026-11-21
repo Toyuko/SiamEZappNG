@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { motion } from '../../lib/theme/motion';
 import { accentForeground, brandGradient, goldGradient, radius, siam } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
@@ -54,10 +55,10 @@ export function Button({
 
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const onPressIn = useCallback(() => {
-    scale.value = withTiming(0.96, { duration: 90 });
+    scale.value = withTiming(motion.buttonPressScale, { duration: motion.buttonPress });
   }, [scale]);
   const onPressOut = useCallback(() => {
-    scale.value = withTiming(1, { duration: 160 });
+    scale.value = withTiming(1, { duration: motion.buttonPress + 40 });
   }, [scale]);
 
   const borderRadius = rounded ? radius.button : radius.md;

@@ -5,28 +5,28 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#ffffff',
-        foreground: '#1f2937',
-        muted: '#6b7280',
+        background: '#F5F8FF',
+        foreground: '#15234D',
+        muted: '#64748B',
         border: '#e5e7eb',
         card: '#ffffff',
         siam: {
           blue: {
-            DEFAULT: '#2454D8',
-            light: '#3979FF',
-            dark: '#153DAE',
-            bright: '#3979FF',
-            navy: '#102B72',
+            DEFAULT: '#2450C4',
+            light: '#3567F6',
+            dark: '#163A9D',
+            bright: '#3567F6',
+            navy: '#102C76',
           },
           yellow: {
-            DEFAULT: '#FFD329',
+            DEFAULT: '#FFD32F',
             light: '#FFE566',
-            dark: '#FFB900',
+            dark: '#FFC928',
           },
           gray: {
-            DEFAULT: '#374151',
-            light: '#68758D',
-            dark: '#15213A',
+            DEFAULT: '#64748B',
+            light: '#94A3B8',
+            dark: '#15234D',
           },
         },
       },

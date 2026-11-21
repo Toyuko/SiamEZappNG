@@ -282,7 +282,13 @@ export default function ProfileScreen() {
                 />
               </View>
               <View className="mt-4">
-                <Button label="Logout" variant="secondary" onPress={() => void handleLogout()} />
+                <Button
+                  label={t('profile.logOut')}
+                  variant="secondary"
+                  borderColor={colors.danger}
+                  textColor={colors.danger}
+                  onPress={() => void handleLogout()}
+                />
               </View>
             </Card>
           </>

@@ -1,40 +1,43 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, Pressable, Text, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  FlatList,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { CategoryFilterId } from '../../components/services/CategoryChips';
-import { FeaturedServiceCarousel } from '../../components/services/FeaturedServiceCarousel';
-import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
-import { ServicesScreenHeader } from '../../components/services/ServicesScreenHeader';
-import { nextFeaturedVisit } from '../../features/services/featured-visit';
-import { filterServicesByQuery, getCategoryLabel } from '../../features/services/service-display';
+import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
+import { Button } from '../../components/ui/Button';
+import { ServiceSearchBar } from '../../components/services/ServiceSearchBar';
+import {
+  filterServicesByQuery,
+  getCategoryLabel,
+  getServiceDescription,
+  getServiceTitle,
+} from '../../features/services/service-display';
 import { getActiveServices } from '../../features/services/services.data';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import type { ServiceCategoryId, ServiceItem } from '../../features/services/services.types';
-import { useSoftLaunch } from '../../hooks/use-soft-launch';
-import type { AppLanguage } from '../../lib/i18n/i18n';
+import { trackFunnel } from '../../lib/analytics/funnel';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
-import { radius, spacing } from '../../lib/theme/tokens';
+import { radius, shadows, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
-type FeaturedVisit = {
-  id: number;
-  services: ServiceItem[];
-};
+type CategoryFilterId = ServiceCategoryId | 'all';
 
-function withAlpha(hex: string, alpha: number): string {
-  const raw = hex.replace('#', '');
-  if (raw.length !== 6) {
-    return hex;
-  }
-  const red = Number.parseInt(raw.slice(0, 2), 16);
-  const green = Number.parseInt(raw.slice(2, 4), 16);
-  const blue = Number.parseInt(raw.slice(4, 6), 16);
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-}
+const CATEGORY_PILLS: CategoryFilterId[] = [
+  'all',
+  'immigration-legal',
+  'driving-vehicle',
+  'translation-documents',
+  'home-property',
+];
 
 function isServiceCategoryId(value: string): value is ServiceCategoryId {
   return SERVICE_CATEGORIES.some((item) => item.id === value);
@@ -48,215 +51,169 @@ function readCategoryParam(value: string | string[] | undefined): CategoryFilter
   return 'all';
 }
 
-function visibleSlugSet(
-  services: ServiceItem[],
-  category: CategoryFilterId,
-  query: string,
-  language: AppLanguage,
-): Set<string> | null {
-  if (category === 'all' && query.trim().length === 0) {
-    return null;
-  }
-  const categoryList = category === 'all' ? services : services.filter((item) => item.category === category);
-  return new Set(filterServicesByQuery(categoryList, query, language).map((item) => item.slug));
+function ServiceListCard({ item }: { item: ServiceItem }) {
+  const router = useRouter();
+  const { colors } = useTheme();
+  const language = useLanguageStore((s) => s.language);
+  const title = getServiceTitle(item, language);
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      onPress={() => {
+        trackFunnel('service_viewed', { slug: item.slug });
+        router.push(`/services/${item.slug}`);
+      }}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        borderRadius: radius.lg,
+        backgroundColor: colors.card,
+        borderWidth: 1,
+        borderColor: colors.border,
+        opacity: pressed ? 0.9 : 1,
+        ...shadows.cardLight,
+      })}
+    >
+      <View
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: radius.md,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: `${siam.blue.DEFAULT}14`,
+        }}
+      >
+        <Ionicons name={(item.icon as keyof typeof Ionicons.glyphMap) || 'grid-outline'} size={22} color={colors.primary} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text className="text-[16px] font-semibold" numberOfLines={1} style={{ color: colors.foreground }}>
+          {title}
+        </Text>
+        <Text className="mt-1 text-sm leading-5" numberOfLines={2} style={{ color: colors.muted }}>
+          {getServiceDescription(item, language)}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+    </Pressable>
+  );
 }
 
 export default function ServicesScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  const softLaunch = useSoftLaunch();
   const language = useLanguageStore((state) => state.language);
   const { category: categoryParam } = useLocalSearchParams<{ category?: string | string[] }>();
-  const initialCategory = readCategoryParam(categoryParam);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<CategoryFilterId>(initialCategory);
-  const filtersRef = useRef({ activeCategory: initialCategory, searchQuery: '', language });
-  filtersRef.current = { activeCategory, searchQuery, language };
-  const hasFocusedOnce = useRef(false);
-  const [visit, setVisit] = useState<FeaturedVisit>(() => {
-    const catalog = getActiveServices();
-    const visible =
-      initialCategory === 'all' ? null : new Set(catalog.filter((item) => item.category === initialCategory).map((item) => item.slug));
-    return { id: 1, services: nextFeaturedVisit(catalog, visible) };
-  });
-
-  const refreshVisit = useCallback(() => {
-    const filters = filtersRef.current;
-    const catalog = getActiveServices();
-    const visible = visibleSlugSet(catalog, filters.activeCategory, filters.searchQuery, filters.language);
-    setVisit((current) => ({
-      id: current.id + 1,
-      services: nextFeaturedVisit(catalog, visible),
-    }));
-  }, []);
-
-  const catalogCount = getActiveServices().length;
-  const awaitingCatalog = useRef(catalogCount === 0);
-
-  useEffect(() => {
-    if (!awaitingCatalog.current || catalogCount === 0) {
-      return;
-    }
-    awaitingCatalog.current = false;
-    refreshVisit();
-  }, [catalogCount, refreshVisit]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!hasFocusedOnce.current) {
-        hasFocusedOnce.current = true;
-        return () => {
-          Keyboard.dismiss();
-        };
-      }
-      refreshVisit();
-      return () => {
-        Keyboard.dismiss();
-      };
-    }, [refreshVisit]),
-  );
+  const [activeCategory, setActiveCategory] = useState<CategoryFilterId>(readCategoryParam(categoryParam));
 
   useEffect(() => {
     const nextCategory = readCategoryParam(categoryParam);
-    if (nextCategory !== 'all') {
+    if (nextCategory !== activeCategory) {
       setActiveCategory(nextCategory);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync from route only
   }, [categoryParam]);
 
-  const filteredServices = useMemo(() => {
-    let list = visit.services;
-    if (activeCategory !== 'all') {
-      list = list.filter((item) => item.category === activeCategory);
-    }
-    return filterServicesByQuery(list, searchQuery, language);
-  }, [activeCategory, language, searchQuery, visit.services]);
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        Keyboard.dismiss();
+      };
+    }, []),
+  );
 
-  const sectionTitle =
-    activeCategory === 'all'
-      ? t('services.allServices')
-      : getCategoryLabel(activeCategory);
-
-  const clearCategoryFilter = () => {
-    setActiveCategory('all');
-    router.replace('/(tabs)/services');
-  };
+  const services = useMemo(() => {
+    const catalog = getActiveServices();
+    const byCategory =
+      activeCategory === 'all' ? catalog : catalog.filter((item) => item.category === activeCategory);
+    return filterServicesByQuery(byCategory, searchQuery, language);
+  }, [activeCategory, language, searchQuery]);
 
   return (
-    <SafeAreaView className="flex-1" edges={['left', 'right']} style={{ backgroundColor: colors.background }}>
-      <View style={{ flex: 1, paddingBottom: spacing.stackSm }}>
-        <View style={{ flex: 1, minHeight: 0 }}>
-          <FeaturedServiceCarousel
-            services={filteredServices}
-            visitKey={visit.id}
-            hideCaption={searchQuery.trim().length > 0}
-            topOverlay={
-              <View
-                pointerEvents="box-none"
-                style={{
-                  paddingTop: insets.top + spacing.stackSm,
-                  paddingHorizontal: spacing.screenPaddingX,
-                  gap: spacing.stackMd,
-                }}
-              >
-                <View pointerEvents="none">
-                  <ServicesScreenHeader title={t('services.title')} subtitle={t('services.subtitle')} />
-                </View>
-                {softLaunch.showSmartMatch ? (
-                  <View
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <FlatList
+        data={services}
+        keyExtractor={(item) => item.slug}
+        contentContainerStyle={{
+          paddingHorizontal: spacing.screenPaddingX,
+          paddingTop: spacing.stackMd,
+          paddingBottom: 100 + VOICE_FAB_SCROLL_EXTRA,
+          gap: 12,
+        }}
+        ListHeaderComponent={
+          <View style={{ gap: 14, marginBottom: 4 }}>
+            <View>
+              <Text className="text-2xl font-bold tracking-tight" style={{ color: colors.foreground }}>
+                {t('services.title')}
+              </Text>
+              <Text className="mt-1 text-sm leading-5" style={{ color: colors.muted }}>
+                {t('services.subtitle')}
+              </Text>
+            </View>
+
+            <ServiceSearchBar value={searchQuery} onChangeText={setSearchQuery} />
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+              {CATEGORY_PILLS.map((item) => {
+                const selected = item === activeCategory;
+                const label = item === 'all' ? t('services.filterAll') : getCategoryLabel(item);
+                return (
+                  <Pressable
+                    key={item}
+                    onPress={() => {
+                      setActiveCategory(item);
+                      if (item === 'all') {
+                        router.replace('/(tabs)/services');
+                      } else {
+                        router.setParams({ category: item });
+                      }
+                    }}
                     style={{
-                      opacity: 0.75,
-                      borderRadius: radius.button,
-                      backgroundColor: colors.primary,
-                      overflow: 'hidden',
+                      paddingHorizontal: 14,
+                      paddingVertical: 8,
+                      borderRadius: radius.full,
+                      backgroundColor: selected ? siam.yellow.DEFAULT : colors.card,
+                      borderWidth: 1,
+                      borderColor: selected ? siam.yellow.dark : colors.border,
                     }}
                   >
-                    <Pressable
-                      onPress={() => router.push('/smart-match')}
-                      accessibilityRole="button"
-                      accessibilityLabel={t('auth.tryAiMatching')}
-                      style={({ pressed }) => ({
-                        opacity: pressed ? 0.9 : 1,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                        minHeight: 44,
-                        paddingHorizontal: 14,
-                        paddingVertical: 10,
-                      })}
+                    <Text
+                      className="text-sm font-semibold"
+                      style={{ color: selected ? siam.blue.navy : colors.foreground }}
                     >
-                      <Text className="text-sm font-semibold" style={{ color: '#ffffff' }}>
-                        {t('services.smartMatchBanner')}
-                      </Text>
-                      <Ionicons name="sparkles-outline" size={16} color="#FFCE2D" />
-                    </Pressable>
-                  </View>
-                ) : null}
-
-                <View pointerEvents="box-none" style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.stackSm }}>
-                  <View collapsable={false} style={{ flex: 1 }}>
-                    <ServiceSearchBar
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                      backgroundColor={withAlpha(colors.card, 0.94)}
-                    />
-                  </View>
-                  <Pressable
-                    onPress={() => router.push('/categories')}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('services.categoriesButton')}
-                    style={({ pressed }) => ({
-                      opacity: pressed ? 0.88 : 1,
-                      height: 52,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 6,
-                      paddingHorizontal: 12,
-                      borderRadius: radius.button,
-                      backgroundColor: colors.card,
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                    })}
-                  >
-                    <Ionicons name="grid-outline" size={18} color={colors.primary} />
-                    <Text className="text-xs font-semibold" style={{ color: colors.primary }}>
-                      {t('services.categoriesButton')}
+                      {label}
                     </Text>
                   </Pressable>
-                </View>
+                );
+              })}
+            </ScrollView>
 
-                <ServiceSearchResults query={searchQuery} />
-
-                {activeCategory !== 'all' ? (
-                  <Pressable
-                    onPress={clearCategoryFilter}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('services.clearCategoryFilter')}
-                    style={({ pressed }) => ({
-                      opacity: pressed ? 0.66 : 0.75,
-                      alignSelf: 'flex-start',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: radius.full,
-                      backgroundColor: colors.primary,
-                    })}
-                  >
-                    <Text className="text-xs font-semibold" style={{ color: '#ffffff' }}>
-                      {sectionTitle}
-                    </Text>
-                    <Ionicons name="close" size={14} color="#ffffff" />
-                  </Pressable>
-                ) : null}
-              </View>
-            }
-          />
-        </View>
-      </View>
+            <Button
+              label={t('home.bookService')}
+              variant="accent"
+              gradient
+              onPress={() => {
+                trackFunnel('booking_started', { source: 'services_header_cta' });
+                router.push('/(tabs)/book');
+              }}
+            />
+          </View>
+        }
+        ListEmptyComponent={
+          <View className="items-center py-10">
+            <Text className="text-sm" style={{ color: colors.muted }}>
+              {t('services.noResults')}
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => <ServiceListCard item={item} />}
+      />
     </SafeAreaView>
   );
 }

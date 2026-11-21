@@ -15,7 +15,8 @@
     "getStarted": "Get Started",
     "bookNow": "Book Now",
     "bookAService": "Book a Service",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "bookThisService": "Book This Service"
   },
   "trust": {
     "happyClients": "Happy Clients",
@@ -94,7 +95,8 @@
     "deleteAccountMessage": "You can request permanent deletion of your SiamEZ account and personal data on our website. You can also contact support if you need help.",
     "contactSupport": "Contact support",
     "openDeletionPage": "Open deletion page",
-    "chatWithSiamEZSubtitle": "Message our support team in the app"
+    "chatWithSiamEZSubtitle": "Message our support team in the app",
+    "logOut": "Log Out"
   },
   "support": {
     "chatWithSiamEZ": "Chat with SiamEZ",
@@ -115,7 +117,7 @@
     "book": "Book",
     "contact": "Contact",
     "dashboard": "Dashboard",
-    "cases": "Cases",
+    "cases": "My Services",
     "documents": "Documents",
     "profile": "Profile",
     "more": "More",
@@ -261,7 +263,7 @@
   "home": {
     "badge": "SiamEZ",
     "title": "Making Life in Thailand EZ",
-    "subtitle": "Professional assistance for life's paperwork, services, vehicles, and property in Thailand.",
+    "subtitle": "Your trusted partner for services in Thailand. We make the complicated simple.",
     "findService": "Find the service you need",
     "categoriesSubtitle": "Browse by category — then book in a few taps.",
     "searchServices": "Search services",
@@ -304,6 +306,30 @@
       "shortcuts": "Shortcuts",
       "shortcutsSubtitle": "Jump to common destinations.",
       "freelancers": "Freelancers"
+    },
+    "whatDoYouNeed": "What do you need help with?",
+    "chooseServiceHint": "Choose a service to get started.",
+    "moreServices": "More Services",
+    "moreServicesHint": "Browse the full catalog.",
+    "header": {
+      "notifications": "Notifications",
+      "profile": "Profile"
+    },
+    "trustStrip": {
+      "easyBooking": "Easy Booking",
+      "localExperts": "Local Experts",
+      "trusted": "Trusted & Reliable",
+      "support": "Personal Support"
+    },
+    "promoBanner": {
+      "title": "Need help with something in Thailand?",
+      "subtitle": "Book online in minutes. We'll take it from there.",
+      "cta": "Start Your Booking →"
+    },
+    "trackBanner": {
+      "title": "Already have a booking?",
+      "subtitle": "Track your service status and next steps here.",
+      "cta": "Track Now →"
     }
   },
   "services": {
@@ -356,7 +382,9 @@
     "viewDetails": "Details",
     "moreDetails": "More Details",
     "moreInfo": "More Info",
-    "featuredServiceLabel": "%{title}, %{current} of %{total}"
+    "featuredServiceLabel": "%{title}, %{current} of %{total}",
+    "filterAll": "All",
+    "noResults": "No matching services."
   },
   "search": {
     "title": "Search services",
@@ -404,13 +432,15 @@
     "activityUpdates": "%{count} recent updates from your Platform workspace."
   },
   "cases": {
-    "title": "My Cases",
-    "subtitle": "Follow status, updates, and documents for each case.",
+    "title": "My Services",
+    "subtitle": "Track status, next steps, and documents for each booking.",
     "loading": "Loading cases...",
     "loadError": "Unable to load cases.",
     "empty": "No active cases found.",
     "status": "Status",
-    "lastUpdated": "Last updated"
+    "lastUpdated": "Last updated",
+    "tabActive": "Active (%{count})",
+    "tabCompleted": "Completed"
   },
   "documents": {
     "title": "Documents",
@@ -664,6 +694,11 @@
         "commercial": "Commercial",
         "villa": "Villa"
       }
+    },
+    "steps": {
+      "service": "Service",
+      "details": "Details",
+      "confirm": "Confirm"
     }
   },
   "sales": {

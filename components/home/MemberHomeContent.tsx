@@ -9,47 +9,20 @@ import { serviceCatalog } from '../../features/services/services.data';
 import { useBookingDrafts } from '../../hooks/use-booking-drafts';
 import { useCases } from '../../hooks/use-cases';
 import { useDocuments } from '../../hooks/use-documents';
-import { useSoftLaunch } from '../../hooks/use-soft-launch';
+import { trackFunnel } from '../../lib/analytics/funnel';
 import { t } from '../../lib/i18n/i18n';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
-import { trackFunnel } from '../../lib/analytics/funnel';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Section } from '../ui/Section';
 import { StatusBadge } from '../ui/status-badge';
+import { BookingPromoBanner } from './BookingPromoBanner';
+import { HomeHeader } from './HomeHeader';
 import { HomeHero } from './HomeHero';
-
-type QuickAction = {
-  key: string;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  href: string;
-};
-
-const QUICK_ACTIONS: QuickAction[] = [
-  { key: 'services', label: 'tabs.services', icon: 'grid-outline', href: '/(tabs)/services' },
-  { key: 'book', label: 'tabs.book', icon: 'calendar-outline', href: '/(tabs)/book' },
-  { key: 'cases', label: 'tabs.cases', icon: 'briefcase-outline', href: '/(tabs)/cases' },
-  { key: 'documents', label: 'tabs.documents', icon: 'document-text-outline', href: '/(tabs)/documents' },
-  { key: 'freelancers', label: 'freelancer.publicProfile.directory.title', icon: 'people-outline', href: '/(tabs)/freelancers' },
-  { key: 'smart-match', label: 'Smart Match', icon: 'sparkles-outline', href: '/smart-match' },
-  { key: 'sales', label: 'tabs.sales', icon: 'car-outline', href: '/(tabs)/sales' },
-  { key: 'real-estate', label: 'tabs.realEstate', icon: 'home-outline', href: '/(tabs)/real-estate' },
-  { key: 'concierge', label: 'tabs.more', icon: 'chatbubbles-outline', href: '/(tabs)/concierge' },
-];
-
-const SOFT_LAUNCH_QUICK_KEYS = new Set([
-  'services',
-  'book',
-  'sales',
-  'real-estate',
-  'cases',
-  'documents',
-  'concierge',
-  'freelancers',
-]);
+import { PopularServicesGrid } from './PopularServicesGrid';
+import { TrustStrip } from './TrustStrip';
 
 function firstName(displayName: string): string {
   const trimmed = displayName.trim();
@@ -88,21 +61,12 @@ function CaseRow({ item }: { item: ClientCase }) {
 
 export function MemberHomeContent() {
   const router = useRouter();
-  const softLaunch = useSoftLaunch();
   const { colors } = useTheme();
   const language = useLanguageStore((state) => state.language);
   const user = useAuthStore((state) => state.user);
   const casesQuery = useCases();
   const documentsQuery = useDocuments();
   const { drafts } = useBookingDrafts(true);
-  const quickActions = QUICK_ACTIONS.filter((action) => {
-    if (action.key === 'smart-match') return softLaunch.showSmartMatch;
-    if (action.key === 'freelancers') return softLaunch.showFreelancers;
-    if (!softLaunch.enabled) {
-      return action.key !== 'real-estate' && action.key !== 'concierge';
-    }
-    return SOFT_LAUNCH_QUICK_KEYS.has(action.key);
-  });
 
   const displayName = user?.name?.trim() || user?.email || t('common.unknownUser');
   const greetingName = firstName(String(displayName));
@@ -129,6 +93,7 @@ export function MemberHomeContent() {
   }, [drafts, language]);
 
   const hasAttention = waitingCases.length > 0 || pendingDocs > 0 || draftItems.length > 0;
+  const hasActiveBooking = recentCases.length > 0 || draftItems.length > 0;
 
   useEffect(() => {
     trackFunnel('home_viewed', { audience: 'member' });
@@ -136,6 +101,8 @@ export function MemberHomeContent() {
 
   return (
     <>
+      <HomeHeader />
+
       <HomeHero
         badge={t('home.hub.badge')}
         title={t('home.hub.greeting', { name: greetingName })}
@@ -148,6 +115,8 @@ export function MemberHomeContent() {
         secondaryLabel={t('home.browseServices')}
         onSecondaryPress={() => router.push('/(tabs)/services')}
       />
+
+      <TrustStrip />
 
       {hasAttention ? (
         <Section title={t('home.hub.needsAttention')} subtitle={t('home.hub.needsAttentionSubtitle')}>
@@ -203,6 +172,14 @@ export function MemberHomeContent() {
         </Section>
       ) : null}
 
+      <PopularServicesGrid title={t('home.whatDoYouNeed')} subtitle={t('home.chooseServiceHint')} />
+
+      {hasActiveBooking ? (
+        <BookingPromoBanner variant="track" />
+      ) : (
+        <BookingPromoBanner variant="promo" />
+      )}
+
       <Section
         title={t('home.hub.recentCases')}
         subtitle={
@@ -242,43 +219,6 @@ export function MemberHomeContent() {
             </View>
           </Card>
         )}
-      </Section>
-
-      <Section title={t('home.hub.shortcuts')} subtitle={t('home.hub.shortcutsSubtitle')}>
-        <View className="flex-row flex-wrap" style={{ gap: 10 }}>
-          {quickActions.map((action) => (
-            <Pressable
-              key={action.key}
-              onPress={() => router.push(action.href as never)}
-              accessibilityRole="button"
-              accessibilityLabel={
-                action.key === 'concierge' ? 'Ask SiamEZ' : action.key === 'smart-match' ? 'SiamEZ Smart Match' : t(action.label)
-              }
-              className="items-center justify-center"
-              style={({ pressed }) => ({
-                width: '31%',
-                flexGrow: 1,
-                minWidth: 96,
-                paddingVertical: 14,
-                paddingHorizontal: 8,
-                borderRadius: 14,
-                borderWidth: 1,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Ionicons name={action.icon} size={22} color={colors.primary} />
-              <Text
-                className="mt-2 text-center text-xs font-semibold"
-                numberOfLines={2}
-                style={{ color: colors.foreground }}
-              >
-                {action.key === 'concierge' ? 'Ask SiamEZ' : action.key === 'smart-match' ? 'Smart Match' : t(action.label)}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
       </Section>
     </>
   );
