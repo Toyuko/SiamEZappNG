@@ -5,7 +5,7 @@ import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryChips, type CategoryFilterId } from '../../components/services/CategoryChips';
-import { FeaturedServicesStrip } from '../../components/services/FeaturedServicesStrip';
+import { PopularServices } from '../../components/services/PopularServices';
 import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
 import { ServicesDirectory } from '../../components/services/ServicesDirectory';
 import { ServicesPageHeader } from '../../components/services/ServicesPageHeader';
@@ -68,6 +68,12 @@ export default function ServicesScreen() {
     return filterServicesByQuery(byCategory, searchQuery, language);
   }, [activeCategory, catalog, language, searchQuery]);
 
+  const popular = useMemo(() => {
+    const featuredSlugs = new Set(featured.map((item) => item.slug));
+    const preferred = filtered.filter((item) => featuredSlugs.has(item.slug));
+    return (preferred.length > 0 ? preferred : filtered).slice(0, 6);
+  }, [featured, filtered]);
+
   const searching = searchQuery.trim().length > 0;
   const showGroupedDirectory = !searching && activeCategory === 'all';
 
@@ -82,7 +88,7 @@ export default function ServicesScreen() {
 
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ServicesPageHeader />
+      <ServicesPageHeader compact />
 
       <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
         <ScrollView
@@ -90,12 +96,12 @@ export default function ServicesScreen() {
           keyboardDismissMode="on-drag"
           contentContainerStyle={{
             paddingHorizontal: spacing.medium,
-            paddingTop: spacing.standard,
+            paddingTop: spacing.stackMd,
             paddingBottom: 100 + VOICE_FAB_SCROLL_EXTRA,
-            gap: spacing.stackLg,
+            gap: spacing.stackMd,
           }}
         >
-          <View className="flex-row items-center" style={{ gap: 10 }}>
+          <View className="flex-row items-center" style={{ gap: 8 }}>
             <View style={{ flex: 1 }}>
               <ServiceSearchBar
                 value={searchQuery}
@@ -110,8 +116,8 @@ export default function ServicesScreen() {
               style={({ pressed }) => ({
                 opacity: pressed ? 0.88 : 1,
                 height: 48,
-                minWidth: 88,
-                paddingHorizontal: 12,
+                minWidth: 80,
+                paddingHorizontal: 10,
                 borderRadius: 16,
                 borderWidth: 1,
                 borderColor: colors.border,
@@ -122,7 +128,7 @@ export default function ServicesScreen() {
                 ...shadows.cardLight,
               })}
             >
-              <Ionicons name="grid-outline" size={17} color={colors.primary} />
+              <Ionicons name="grid-outline" size={16} color={colors.primary} />
               <Text className="text-[10px] font-semibold" style={{ color: colors.primary }}>
                 {t('services.categoriesButton')}
               </Text>
@@ -131,19 +137,11 @@ export default function ServicesScreen() {
 
           <ServiceSearchResults query={searchQuery} />
 
-          <View style={{ gap: spacing.stackSm }}>
-            <Text className="text-sm font-semibold" style={{ color: colors.foreground }}>
-              {t('services.browseByCategory')}
-            </Text>
-            <CategoryChips activeCategory={activeCategory} onSelect={onSelectCategory} />
-          </View>
+          <CategoryChips activeCategory={activeCategory} onSelect={onSelectCategory} />
 
           {!searching ? (
             <>
-              {activeCategory === 'all' ? <FeaturedServicesStrip services={featured} /> : null}
-
-              {activeCategory === 'all' ? <MockAdPanel height={108} /> : null}
-
+              {/* Directory first — browseable services above the fold */}
               <ServicesDirectory
                 services={filtered}
                 groupByCategory={showGroupedDirectory}
@@ -151,6 +149,12 @@ export default function ServicesScreen() {
                 subtitle={t('services.directorySubtitle')}
                 source="services_directory"
               />
+
+              {activeCategory === 'all' && popular.length > 0 ? (
+                <PopularServices services={popular} />
+              ) : null}
+
+              {activeCategory === 'all' ? <MockAdPanel height={96} /> : null}
             </>
           ) : (
             <ServicesDirectory

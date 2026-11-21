@@ -10,10 +10,15 @@ import { useAuthStore } from '../../store/auth-store';
 
 const LOGO = require('../../assets/brand/siamez-logo-circle.png');
 
+type ServicesPageHeaderProps = {
+  /** Tighter header so the service directory can sit above the fold. */
+  compact?: boolean;
+};
+
 /**
  * Branded blue Services header — logo, notifications, profile, title.
  */
-export function ServicesPageHeader() {
+export function ServicesPageHeader({ compact = false }: ServicesPageHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isGuest = useAuthStore((s) => s.isGuest);
@@ -26,8 +31,8 @@ export function ServicesPageHeader() {
       start={heroGradient.start}
       end={heroGradient.end}
       style={{
-        paddingTop: insets.top + spacing.compact,
-        paddingBottom: spacing.cardPadding,
+        paddingTop: insets.top + (compact ? spacing.micro : spacing.compact),
+        paddingBottom: compact ? spacing.small : spacing.cardPadding,
         paddingHorizontal: spacing.medium,
         overflow: 'hidden',
       }}
@@ -45,9 +50,9 @@ export function ServicesPageHeader() {
         }}
       />
 
-      <View className="flex-row items-center justify-between" style={{ minHeight: 44 }}>
+      <View className="flex-row items-center justify-between" style={{ minHeight: compact ? 40 : 44 }}>
         <View className="flex-row items-center gap-2.5">
-          <Image source={LOGO} style={{ width: 36, height: 36, borderRadius: 18 }} />
+          <Image source={LOGO} style={{ width: compact ? 32 : 36, height: compact ? 32 : 36, borderRadius: 18 }} />
           <Text className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
             SiamEZ
           </Text>
@@ -88,10 +93,16 @@ export function ServicesPageHeader() {
         </View>
       </View>
 
-      <Text className="mt-4 text-[28px] font-bold tracking-tight" style={{ color: '#FFFFFF' }}>
+      <Text
+        className={`font-bold tracking-tight ${compact ? 'mt-2 text-[22px]' : 'mt-4 text-[28px]'}`}
+        style={{ color: '#FFFFFF' }}
+      >
         {t('services.title')}
       </Text>
-      <Text className="mt-1.5 text-[15px] leading-5" style={{ color: 'rgba(255,255,255,0.88)' }}>
+      <Text
+        className={`leading-5 ${compact ? 'mt-0.5 text-[13px]' : 'mt-1.5 text-[15px]'}`}
+        style={{ color: 'rgba(255,255,255,0.88)' }}
+      >
         {t('services.subtitle')}
       </Text>
     </LinearGradient>

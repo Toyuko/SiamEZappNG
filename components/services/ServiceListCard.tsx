@@ -69,8 +69,8 @@ export function ServiceListCard({ service, source = 'services_directory' }: Serv
         {
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 12,
-          paddingVertical: 11,
+          gap: 10,
+          paddingVertical: 10,
           paddingHorizontal: 12,
           borderRadius: radius.lg,
           backgroundColor: colors.card,
@@ -82,18 +82,18 @@ export function ServiceListCard({ service, source = 'services_directory' }: Serv
     >
       <View
         style={{
-          width: 42,
-          height: 42,
+          width: 40,
+          height: 40,
           borderRadius: radius.md,
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: tint,
         }}
       >
-        <Ionicons name={service.icon} size={20} color={accent} accessibilityIgnoresInvertColors />
+        <Ionicons name={service.icon} size={19} color={accent} accessibilityIgnoresInvertColors />
       </View>
 
-      <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+      <View style={{ flex: 1, minWidth: 0, gap: 1 }}>
         <Text
           className="text-[14px] font-bold leading-5"
           numberOfLines={1}
@@ -102,15 +102,15 @@ export function ServiceListCard({ service, source = 'services_directory' }: Serv
           {title}
         </Text>
         <Text
-          className="text-[12px] leading-[16px]"
-          numberOfLines={2}
+          className="text-[12px] leading-[15px]"
+          numberOfLines={1}
           style={{ color: colors.muted }}
         >
           {description}
         </Text>
       </View>
 
-      <Ionicons name="chevron-forward" size={18} color={colors.muted} style={{ marginLeft: spacing.micro }} />
+      <Ionicons name="chevron-forward" size={16} color={colors.muted} style={{ marginLeft: spacing.micro }} />
     </AnimatedPressable>
   );
 }

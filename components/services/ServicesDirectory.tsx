@@ -74,15 +74,15 @@ export function ServicesDirectory({
   return (
     <View style={{ gap: spacing.stackMd }}>
       {title ? (
-        <View style={{ gap: 4 }}>
+        <View style={{ gap: 2 }}>
           <View className="flex-row items-center gap-2">
-            <View style={{ width: 4, height: 18, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
-            <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
+            <View style={{ width: 4, height: 16, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
+            <Text className="text-base font-bold" style={{ color: colors.foreground }}>
               {title}
             </Text>
           </View>
           {subtitle ? (
-            <Text className="text-sm leading-5" style={{ color: colors.muted }}>
+            <Text className="text-xs leading-4" style={{ color: colors.muted }}>
               {subtitle}
             </Text>
           ) : null}
@@ -91,7 +91,7 @@ export function ServicesDirectory({
 
       {grouped ? (
         grouped.map((group) => (
-          <View key={group.categoryId} style={{ gap: spacing.stackSm }}>
+          <View key={group.categoryId} style={{ gap: 6 }}>
             <CategorySectionHeader categoryId={group.categoryId} count={group.items.length} />
             {group.items.map((service) => (
               <ServiceListCard key={service.slug} service={service} source={source} />
@@ -99,7 +99,7 @@ export function ServicesDirectory({
           </View>
         ))
       ) : (
-        <View style={{ gap: spacing.stackSm }}>
+        <View style={{ gap: 6 }}>
           {services.map((service) => (
             <ServiceListCard key={service.slug} service={service} source={source} />
           ))}
