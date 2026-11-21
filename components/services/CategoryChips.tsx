@@ -1,9 +1,10 @@
-import { Pressable, ScrollView, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import type { ServiceCategoryId } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
-import { spacing } from '../../lib/theme/tokens';
+import { radius, siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
 export type CategoryFilterId = ServiceCategoryId | 'all';
@@ -13,8 +14,16 @@ type CategoryChipsProps = {
   onSelect: (category: CategoryFilterId) => void;
 };
 
-const CHIP_HEIGHT = 38;
-const CHIP_PADDING_H = 14;
+const CATEGORY_ICONS: Partial<Record<CategoryFilterId, keyof typeof Ionicons.glyphMap>> = {
+  all: 'apps-outline',
+  'immigration-legal': 'airplane-outline',
+  'driving-vehicle': 'car-outline',
+  'translation-documents': 'document-text-outline',
+  'business-services': 'business-outline',
+  'home-property': 'home-outline',
+  'transport-private-driver': 'bus-outline',
+  'events-lifestyle': 'sparkles-outline',
+};
 
 const FILTER_OPTIONS: { id: CategoryFilterId; labelKey: string }[] = [
   { id: 'all', labelKey: 'services.allCategory' },
@@ -32,6 +41,7 @@ export function CategoryChips({ activeCategory, onSelect }: CategoryChipsProps) 
     >
       {FILTER_OPTIONS.map((item) => {
         const selected = activeCategory === item.id;
+        const icon = CATEGORY_ICONS[item.id] ?? 'ellipse-outline';
         return (
           <Pressable
             key={item.id}
@@ -40,17 +50,23 @@ export function CategoryChips({ activeCategory, onSelect }: CategoryChipsProps) 
             accessibilityState={{ selected }}
             style={({ pressed }) => ({
               opacity: pressed ? 0.88 : 1,
-              height: CHIP_HEIGHT,
-              paddingHorizontal: CHIP_PADDING_H,
-              borderRadius: CHIP_HEIGHT / 2,
+              minHeight: 40,
+              paddingHorizontal: 14,
+              paddingVertical: 8,
+              borderRadius: radius.full,
+              flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: selected ? colors.primary : colors.card,
-              borderColor: colors.border,
-              borderWidth: selected ? 0 : 1,
+              gap: 6,
+              backgroundColor: selected ? siam.yellow.DEFAULT : colors.card,
+              borderColor: selected ? siam.yellow.dark : colors.border,
+              borderWidth: 1,
             })}
           >
-            <Text className="text-xs font-semibold" style={{ color: selected ? '#ffffff' : colors.foreground }}>
+            <Ionicons name={icon} size={15} color={selected ? siam.blue.navy : colors.primary} />
+            <Text
+              className="text-xs font-semibold"
+              style={{ color: selected ? siam.blue.navy : colors.foreground }}
+            >
               {t(item.labelKey)}
             </Text>
           </Pressable>

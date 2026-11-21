@@ -13,14 +13,11 @@ const ITEMS = [
   { key: 'support', Icon: Headset },
 ] as const;
 
-/**
- * Compact trust strip — keeps social proof without pushing services down.
- */
 export function TrustStrip() {
   const { colors, isDark } = useTheme();
 
   return (
-    <FadeInView delay={60} distance={10}>
+    <FadeInView delay={50} distance={8}>
       <View
         className="flex-row"
         style={{
@@ -33,16 +30,19 @@ export function TrustStrip() {
           ...shadows.cardLight,
         }}
       >
-        {ITEMS.map(({ key, Icon }) => (
-          <View key={key} className="min-w-0 flex-1 items-center px-0.5">
-            <View
-              className="mb-1.5 h-8 w-8 items-center justify-center rounded-full"
-              style={{ backgroundColor: isDark ? 'rgba(53,103,246,0.2)' : `${siam.blue.DEFAULT}14` }}
-            >
-              <Icon size={16} color={colors.primary} strokeWidth={2.2} />
-            </View>
+        {ITEMS.map(({ key, Icon }, index) => (
+          <View
+            key={key}
+            className="min-w-0 flex-1 items-center px-0.5"
+            style={
+              index < ITEMS.length - 1
+                ? { borderRightWidth: 1, borderRightColor: isDark ? colors.border : siam.blue.tint }
+                : undefined
+            }
+          >
+            <Icon size={18} color={colors.primary} strokeWidth={2} />
             <Text
-              className="text-center text-[10px] font-semibold leading-3"
+              className="mt-1.5 text-center text-[10px] font-semibold leading-3"
               numberOfLines={2}
               style={{ color: colors.foreground }}
             >

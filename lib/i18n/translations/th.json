@@ -224,7 +224,7 @@
   },
   "auth": {
     "welcome": "ยินดีต้อนรับกลับสู่ SiamEZ",
-    "welcomeSubtitle": "จัดการเคส เอกสาร และการชำระเงินของคุณได้ในที่เดียว",
+    "welcomeSubtitle": "จัดการบัญชีและการตั้งค่าของคุณ",
     "createAccount": "สร้างบัญชี",
     "loginFailed": "เข้าสู่ระบบไม่สำเร็จ",
     "loginFailedMessage": "กรุณาตรวจสอบอีเมลและรหัสผ่านแล้วลองอีกครั้ง",
@@ -247,7 +247,7 @@
     "creatingAccount": "กำลังสร้างบัญชี...",
     "continueAsGuest": "ใช้งานแบบผู้เยี่ยมชม",
     "tryAiMatching": "ลองจับคู่อัจฉริยะ",
-    "guestAccountHint": "สร้างบัญชีหรือเข้าสู่ระบบเพื่อติดตามเคส อัปโหลดเอกสาร และจัดการบริการของคุณ",
+    "guestAccountHint": "ลงชื่อเข้าใช้เพื่อติดตามเคส อัปโหลดเอกสาร และรับการอัปเดต — คุณยังจองบริการได้โดยไม่ต้องมีบัญชี",
     "quickAccess": "ทางลัด",
     "backToLogin": "กลับไปหน้าเข้าสู่ระบบ",
     "email": "อีเมล",
@@ -258,7 +258,8 @@
     "accountTypeCustomer": "ลูกค้า",
     "accountTypeFreelancer": "ฟรีแลนซ์",
     "accountTypeCorporate": "องค์กร",
-    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"
+    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+    "guestAccountTitle": "ติดตามเคสและเอกสารของคุณ"
   },
   "home": {
     "badge": "SiamEZ",
@@ -334,7 +335,7 @@
   },
   "services": {
     "title": "บริการ",
-    "subtitle": "เลือกบริการที่ตรงกับความต้องการของคุณ",
+    "subtitle": "ค้นหาบริการที่เหมาะกับคุณ",
     "searchPlaceholder": "ค้นหาบริการ...",
     "smartMatchBanner": "Smart Match · ลองจับคู่อัจฉริยะ",
     "allCategory": "ทั้งหมด",
@@ -384,7 +385,13 @@
     "moreInfo": "ข้อมูลเพิ่มเติม",
     "featuredServiceLabel": "%{title} %{current} จาก %{total}",
     "filterAll": "ทั้งหมด",
-    "noResults": "ไม่พบบริการที่ตรงกัน"
+    "noResults": "ไม่พบบริการที่ตรงกัน",
+    "featuredBadge": "บริการแนะนำ",
+    "easyFastReliable": "ง่าย · เร็ว · เชื่อถือได้",
+    "popularTitle": "บริการยอดนิยม",
+    "popularSubtitle": "บริการที่ลูกค้าใช้มากที่สุด",
+    "viewAll": "ดูทั้งหมด →",
+    "browseByCategory": "หมวดหมู่"
   },
   "search": {
     "title": "ค้นหาบริการ",
@@ -699,7 +706,9 @@
       "service": "บริการ",
       "details": "รายละเอียด",
       "confirm": "ยืนยัน"
-    }
+    },
+    "continueToDetails": "ไปที่รายละเอียด",
+    "confirmBooking": "ยืนยันการจอง"
   },
   "sales": {
     "title": "สินค้าขาย",

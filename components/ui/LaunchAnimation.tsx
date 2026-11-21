@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   root: {
     zIndex: 9999,
     elevation: 9999,
-    backgroundColor: siam.blue.navy,
+    backgroundColor: '#052A70',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,10 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
+import { BrandHeader } from '../../components/ui/BrandHeader';
 import { Card } from '../../components/ui/Card';
-import { PageHeader } from '../../components/ui/PageHeader';
+import { MenuRow } from '../../components/ui/MenuRow';
 import { publicFreelancerDirectoryHref } from '../../features/freelancer/public-directory-route';
 import { useSoftLaunch } from '../../hooks/use-soft-launch';
 import { isCorporateRole } from '../../lib/auth/role';
@@ -14,138 +15,91 @@ import { useTheme } from '../../lib/theme/theme';
 import { useAuthStore } from '../../store/auth-store';
 
 type MoreLink = {
-  label: string;
+  title: string;
   subtitle: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: Parameters<typeof MenuRow>[0]['icon'];
   path:
-    | '/(tabs)/dashboard'
-    | '/(tabs)/documents'
-    | '/(tabs)/goals'
-    | '/(tabs)/life-events'
-    | '/(tabs)/saved'
     | '/(tabs)/concierge'
-    | '/(tabs)/workflows'
-    | '/(tabs)/search'
-    | '/(tabs)/seller'
-    | '/(tabs)/services'
     | '/(tabs)/sales'
     | '/(tabs)/real-estate'
+    | '/(tabs)/search'
     | '/(tabs)/book'
     | '/(tabs)/contact'
+    | '/(tabs)/documents'
+    | '/(tabs)/dashboard'
     | '/(tabs)/profile'
     | '/freelancers'
-    | '/freelancers/settings'
     | '/smart-match';
-  /** Soft-launch visibility — default true when omitted. */
   softLaunch?: boolean;
-  guestOnly?: boolean;
   memberOnly?: boolean;
 };
 
 const MORE_LINKS: MoreLink[] = [
   {
-    label: 'Ask SiamEZ',
-    subtitle: 'AI Concierge for services, vehicles, and property',
+    title: 'Ask SiamEZ',
+    subtitle: 'Get help finding the right service',
     icon: 'chatbubbles-outline',
     path: '/(tabs)/concierge',
   },
   {
-    label: 'Vehicles',
-    subtitle: 'Buy and sell cars & motorcycles',
+    title: 'Book a Service',
+    subtitle: 'Start a booking in a few taps',
+    icon: 'calendar-outline',
+    path: '/(tabs)/book',
+  },
+  {
+    title: 'Vehicles',
+    subtitle: 'Cars and motorcycles for sale',
     icon: 'car-outline',
     path: '/(tabs)/sales',
   },
   {
-    label: 'Property',
-    subtitle: 'Homes, condos, and rentals across Thailand',
+    title: 'Property',
+    subtitle: 'Homes, condos, and rentals',
     icon: 'home-outline',
     path: '/(tabs)/real-estate',
   },
   {
-    label: 'Freelancers',
+    title: 'Freelancers',
     subtitle: 'Browse public freelancer profiles',
     icon: 'people-outline',
     path: '/freelancers',
   },
   {
-    label: 'SiamEZ Smart Match',
-    subtitle: 'AI job ↔ freelancer matching (demo)',
-    icon: 'sparkles-outline',
-    path: '/smart-match',
+    title: 'Search',
+    subtitle: 'Services, vehicles, and property',
+    icon: 'search-outline',
+    path: '/(tabs)/search',
   },
   {
-    label: 'Dashboard',
+    title: 'Documents',
+    subtitle: 'Upload and manage case files',
+    icon: 'document-text-outline',
+    path: '/(tabs)/documents',
+    memberOnly: true,
+  },
+  {
+    title: 'Dashboard',
     subtitle: 'Overview of your account',
     icon: 'speedometer-outline',
     path: '/(tabs)/dashboard',
     memberOnly: true,
   },
   {
-    label: 'Search',
-    subtitle: 'Services, vehicles, and property',
-    icon: 'search-outline',
-    path: '/(tabs)/search',
-  },
-  {
-    label: 'Book a service',
-    subtitle: 'Start a booking wizard',
-    icon: 'calendar-outline',
-    path: '/(tabs)/book',
-  },
-  {
-    label: 'Seller listings',
-    subtitle: 'Manage vehicle and property listings',
-    icon: 'storefront-outline',
-    path: '/(tabs)/seller',
-    memberOnly: true,
-  },
-  {
-    label: 'Documents',
-    subtitle: 'Upload and manage files',
-    icon: 'document-text-outline',
-    path: '/(tabs)/documents',
-    memberOnly: true,
-  },
-  {
-    label: 'Goals',
-    subtitle: 'Track goals synced with the Platform',
-    icon: 'flag-outline',
-    path: '/(tabs)/goals',
-    memberOnly: true,
+    title: 'SiamEZ Smart Match',
+    subtitle: 'AI job ↔ freelancer matching',
+    icon: 'sparkles-outline',
+    path: '/smart-match',
     softLaunch: false,
   },
   {
-    label: 'Life Events',
-    subtitle: 'Journeys, checklists, and progress',
-    icon: 'trail-sign-outline',
-    path: '/(tabs)/life-events',
-    memberOnly: true,
-    softLaunch: false,
-  },
-  {
-    label: 'Workflows',
-    subtitle: 'Inspection, viewing, and template runs',
-    icon: 'git-network-outline',
-    path: '/(tabs)/workflows',
-    memberOnly: true,
-    softLaunch: false,
-  },
-  {
-    label: 'Saved & Compare',
-    subtitle: 'Buyer hub + saved searches',
-    icon: 'bookmark-outline',
-    path: '/(tabs)/saved',
-    memberOnly: true,
-    softLaunch: false,
-  },
-  {
-    label: 'Contact',
+    title: 'Contact',
     subtitle: 'Reach our support team',
     icon: 'mail-outline',
     path: '/(tabs)/contact',
   },
   {
-    label: 'Profile',
+    title: 'Profile',
     subtitle: 'Preferences and account settings',
     icon: 'person-outline',
     path: '/(tabs)/profile',
@@ -171,24 +125,22 @@ export default function MoreScreen() {
 
   const links = MORE_LINKS.filter((item) => {
     if (item.memberOnly && !isMember) return false;
-    if (item.guestOnly && !isGuest) return false;
     if (softLaunch.enabled && item.softLaunch === false) return false;
-    if (softLaunch.enabled && item.path === '/(tabs)/seller' && !softLaunch.showSellerListings) {
-      return false;
-    }
-    if (item.path === '/freelancers' && !softLaunch.showFreelancers) {
-      return false;
-    }
-    if (item.path === '/smart-match' && !softLaunch.showSmartMatch) {
-      return false;
-    }
+    if (item.path === '/freelancers' && !softLaunch.showFreelancers) return false;
+    if (item.path === '/smart-match' && !softLaunch.showSmartMatch) return false;
     return true;
   });
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader
+      <ScrollView
+        contentContainerStyle={{
+          padding: spacing.screenPaddingX,
+          gap: spacing.sectionGap,
+          paddingBottom: 32 + VOICE_FAB_SCROLL_EXTRA,
+        }}
+      >
+        <BrandHeader
           title={t('tabs.more')}
           subtitle={
             softLaunch.enabled
@@ -198,35 +150,21 @@ export default function MoreScreen() {
         />
 
         <Card>
-          <View className="gap-2">
-            {links.map((item) => (
-              <Pressable
-                key={item.path}
-                onPress={() =>
-                  router.push(item.path === '/freelancers' ? freelancersHref : item.path)
-                }
-                className="flex-row items-center gap-3 rounded-xl px-3 py-3"
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.75 : 1,
-                  backgroundColor: colors.background,
-                })}
-              >
-                <View
-                  className="h-10 w-10 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}
-                >
-                  <Ionicons name={item.icon} size={18} color={colors.primary} />
-                </View>
-                <View className="min-w-0 flex-1">
-                  <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
-                    {item.label}
-                  </Text>
-                  <Text className="mt-0.5 text-xs leading-4" style={{ color: colors.muted }}>
-                    {item.subtitle}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.muted} />
-              </Pressable>
+          <View>
+            {links.map((item, index) => (
+              <View key={item.path}>
+                {index > 0 ? (
+                  <View style={{ height: 1, backgroundColor: colors.border }} />
+                ) : null}
+                <MenuRow
+                  icon={item.icon}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  onPress={() =>
+                    router.push(item.path === '/freelancers' ? freelancersHref : item.path)
+                  }
+                />
+              </View>
             ))}
           </View>
         </Card>

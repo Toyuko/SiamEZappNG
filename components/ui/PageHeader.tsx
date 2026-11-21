@@ -2,9 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { useOscillation } from '../../lib/anim/use-oscillation';
 import { accentForeground, heroGradient, radius, siam, spacing } from '../../lib/theme/tokens';
 import { Button } from './Button';
 
@@ -17,89 +15,19 @@ export type PageHeaderCta = {
 type PageHeaderProps = {
   title: string;
   subtitle?: string | ReactNode;
-  /** Optional pill label (web: “Professional Thai Services”) */
+  /** Optional pill label */
   badge?: string;
   onBack?: () => void;
   backLabel?: string;
   rightSlot?: ReactNode;
-  /** Primary — full-width CTA on gradient (white pill) */
   primaryCta?: PageHeaderCta;
   secondaryCta?: PageHeaderCta;
 };
 
-const ctaShadow = {
-  shadowColor: '#0f172a',
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.22,
-  shadowRadius: 14,
-  elevation: 8,
-} as const;
-
-/** Slowly drifting decorative orb that gives the hero some life. */
-function FloatingOrb({
-  size,
-  color,
-  top,
-  bottom,
-  left,
-  right,
-  range,
-  phaseOffset,
-  duration,
-}: {
-  size: number;
-  color: string;
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-  range: number;
-  phaseOffset: number;
-  duration: number;
-}) {
-  const t = useOscillation(duration, phaseOffset);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.55 + t.value * 0.45,
-    transform: [
-      { translateY: t.value * range },
-      { translateX: t.value * (range * 0.5) },
-      { scale: 1 + t.value * 0.22 },
-    ],
-  }));
-
-  return (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        {
-          position: 'absolute',
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: color,
-          top,
-          bottom,
-          left,
-          right,
-        },
-        animatedStyle,
-      ]}
-    />
-  );
-}
-
-/** Subtle infinite pulse to keep the primary CTA feeling alive. */
-function PulseView({ children, style }: { children: ReactNode; style?: object }) {
-  const p = useOscillation(1500);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + p.value * 0.05 }] }));
-
-  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
-}
-
+/**
+ * Shared branded header — static decorative orbs (no continuous loops).
+ */
 export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlot, primaryCta, secondaryCta }: PageHeaderProps) {
-  const singlePrimary = Boolean(primaryCta && !secondaryCta);
-
   return (
     <LinearGradient
       colors={[...heroGradient.colors]}
@@ -111,9 +39,31 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
         overflow: 'hidden',
       }}
     >
-      <FloatingOrb size={170} color="rgba(255,206,45,0.55)" top={-52} right={-30} range={52} phaseOffset={0} duration={3400} />
-      <FloatingOrb size={124} color="rgba(255,255,255,0.30)" bottom={-40} left={-28} range={-46} phaseOffset={0.33} duration={4200} />
-      <FloatingOrb size={80} color="rgba(255,206,45,0.42)" top={38} left={26} range={40} phaseOffset={0.66} duration={5000} />
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          width: 150,
+          height: 150,
+          borderRadius: 75,
+          backgroundColor: 'rgba(21, 89, 214, 0.35)',
+          top: -48,
+          right: -28,
+        }}
+      />
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          width: 100,
+          height: 100,
+          borderRadius: 50,
+          backgroundColor: 'rgba(5, 42, 112, 0.45)',
+          bottom: -36,
+          left: -24,
+        }}
+      />
+
       {onBack ? (
         <Pressable
           onPress={onBack}
@@ -146,55 +96,50 @@ export function PageHeader({ title, subtitle, badge, onBack, backLabel, rightSlo
             paddingHorizontal: spacing.stackMd + 2,
             paddingVertical: 6,
             borderRadius: radius.full,
-            ...ctaShadow,
-            shadowOpacity: 0.18,
+            marginBottom: spacing.stackMd,
           }}
         >
           <Text style={{ color: accentForeground, fontSize: 13, fontWeight: '700' }}>{badge}</Text>
         </View>
       ) : null}
 
-      <View className="flex-row items-start justify-between gap-3" style={{ marginTop: badge ? spacing.stackMd : 0 }}>
+      <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1">
           <Text className="text-3xl font-bold tracking-tight" style={{ color: '#ffffff' }}>
             {title}
           </Text>
-          {subtitle ? (
-            <Text className="mt-2.5 text-base leading-6" style={{ color: 'rgba(255,255,255,0.92)' }}>
+          {typeof subtitle === 'string' ? (
+            <Text className="mt-2 text-sm leading-5" style={{ color: 'rgba(255,255,255,0.88)' }}>
               {subtitle}
             </Text>
-          ) : null}
+          ) : (
+            subtitle
+          )}
         </View>
         {rightSlot}
       </View>
 
       {primaryCta || secondaryCta ? (
-        <View style={{ marginTop: spacing.stackLg + 4, gap: spacing.stackMd }}>
+        <View className="mt-4 gap-2.5">
           {primaryCta ? (
-            <PulseView style={singlePrimary ? { borderRadius: radius.button, ...ctaShadow } : undefined}>
-              <Button
-                label={primaryCta.label}
-                onPress={primaryCta.onPress}
-                variant={primaryCta.variant ?? 'accent'}
-                gradient={primaryCta.variant !== 'secondary'}
-                rounded
-                fullWidth
-                backgroundColor={primaryCta.variant === 'secondary' ? '#ffffff' : undefined}
-                textColor={primaryCta.variant === 'secondary' ? siam.blue.dark : accentForeground}
-                borderColor={primaryCta.variant === 'secondary' ? 'transparent' : undefined}
-              />
-            </PulseView>
+            <Button
+              label={primaryCta.label}
+              variant={primaryCta.variant === 'secondary' ? 'secondary' : 'accent'}
+              gradient={primaryCta.variant !== 'secondary'}
+              onPress={primaryCta.onPress}
+              textColor={primaryCta.variant === 'secondary' ? '#FFFFFF' : accentForeground}
+              backgroundColor={primaryCta.variant === 'secondary' ? 'rgba(255,255,255,0.12)' : undefined}
+              borderColor={primaryCta.variant === 'secondary' ? 'rgba(255,255,255,0.35)' : undefined}
+            />
           ) : null}
           {secondaryCta ? (
             <Button
               label={secondaryCta.label}
-              onPress={secondaryCta.onPress}
               variant="secondary"
-              rounded
-              fullWidth
-              backgroundColor="transparent"
-              textColor="#ffffff"
-              borderColor="rgba(255,255,255,0.85)"
+              onPress={secondaryCta.onPress}
+              backgroundColor="rgba(255,255,255,0.12)"
+              borderColor="rgba(255,255,255,0.35)"
+              textColor="#FFFFFF"
             />
           ) : null}
         </View>

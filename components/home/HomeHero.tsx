@@ -19,7 +19,7 @@ type HomeHeroProps = {
 };
 
 /**
- * Conversion hero — brand first, gold BOOK CTA dominant.
+ * Conversion hero — matches screenshot: deep blue card, yellow Book CTA, white secondary.
  */
 export function HomeHero({
   badge,
@@ -34,7 +34,7 @@ export function HomeHero({
   const hasEzSplit = titleParts.length > 1 && title.toUpperCase().includes('EZ');
 
   return (
-    <FadeInView delay={0} distance={18}>
+    <FadeInView delay={0} distance={16}>
       <LinearGradient
         colors={[...heroGradient.colors]}
         start={heroGradient.start}
@@ -43,45 +43,45 @@ export function HomeHero({
           borderRadius: radius.hero,
           paddingHorizontal: spacing.cardPadding,
           paddingTop: spacing.cardPadding,
-          paddingBottom: spacing.cardPadding + 6,
+          paddingBottom: spacing.cardPadding + 4,
           overflow: 'hidden',
-          minHeight: 220,
           ...shadows.cardMedium,
         }}
       >
+        {/* Soft lighter-blue orb — screenshot decorative circle */}
         <View
           pointerEvents="none"
           style={{
             position: 'absolute',
-            right: -40,
-            top: -32,
-            width: 160,
-            height: 160,
-            borderRadius: 80,
-            backgroundColor: 'rgba(255, 211, 47, 0.14)',
+            right: -48,
+            top: -40,
+            width: 180,
+            height: 180,
+            borderRadius: 90,
+            backgroundColor: 'rgba(21, 89, 214, 0.35)',
           }}
         />
         <View
           pointerEvents="none"
           style={{
             position: 'absolute',
-            left: -28,
-            bottom: -48,
-            width: 180,
-            height: 110,
-            borderTopLeftRadius: 90,
-            borderTopRightRadius: 90,
-            backgroundColor: 'rgba(16, 44, 118, 0.5)',
+            left: -36,
+            bottom: -56,
+            width: 160,
+            height: 100,
+            borderTopLeftRadius: 80,
+            borderTopRightRadius: 80,
+            backgroundColor: 'rgba(5, 42, 112, 0.55)',
           }}
         />
 
         <View className="flex-row items-center gap-3">
-          <Image source={LOGO} style={{ width: 52, height: 52, borderRadius: 26 }} />
+          <Image source={LOGO} style={{ width: 44, height: 44, borderRadius: 22 }} />
           <View className="min-w-0 flex-1">
             {badge ? (
               <Text
                 className="text-[11px] font-semibold uppercase"
-                style={{ color: siam.yellow.DEFAULT, letterSpacing: 0.7 }}
+                style={{ color: siam.yellow.DEFAULT, letterSpacing: 0.8 }}
               >
                 {badge}
               </Text>
@@ -100,22 +100,22 @@ export function HomeHero({
           </View>
         </View>
 
-        <Text className="mt-3 text-[15px] leading-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
+        <Text className="mt-3 text-[14px] leading-5" style={{ color: 'rgba(255,255,255,0.92)' }}>
           {subtitle}
         </Text>
 
-        <View className="mt-5 gap-2.5">
+        <View className="mt-4 gap-2.5">
           <Button
             label={primaryLabel}
             variant="accent"
             gradient
-            minHeight={56}
+            minHeight={54}
             textColor={accentForeground}
             onPress={onPrimaryPress}
           >
             <View className="flex-row items-center gap-2">
               <Calendar size={18} color={accentForeground} strokeWidth={2.4} />
-              <Text className="text-[17px] font-semibold" style={{ color: accentForeground }}>
+              <Text className="text-[16px] font-semibold" style={{ color: accentForeground }}>
                 {primaryLabel}
               </Text>
               <ChevronRight size={18} color={accentForeground} strokeWidth={2.4} />
@@ -126,8 +126,8 @@ export function HomeHero({
               label={secondaryLabel}
               variant="secondary"
               onPress={onSecondaryPress}
-              backgroundColor="rgba(255,255,255,0.12)"
-              borderColor="rgba(255,255,255,0.35)"
+              backgroundColor="rgba(5, 42, 112, 0.45)"
+              borderColor="rgba(255,255,255,0.28)"
               textColor="#FFFFFF"
             />
           ) : null}

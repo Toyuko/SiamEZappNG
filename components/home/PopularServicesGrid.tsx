@@ -37,14 +37,14 @@ const HOME_TILES: Array<{
   accent: string;
   labelKey?: string;
 }> = [
-  { slug: 'visa-services', icon: Plane, accent: '#2450C4' },
+  { slug: 'visa-services', icon: Plane, accent: '#0645B5' },
   { slug: 'marriage-registration', icon: Heart, accent: '#DB2777' },
   { slug: 'driver-license', icon: Car, accent: '#EA580C' },
   { slug: 'translation-services', icon: FileText, accent: '#7C3AED' },
   { slug: 'police-clearance', icon: ShieldCheck, accent: '#059669' },
   { slug: 'vehicle-registration', icon: Wrench, accent: '#0D9488' },
   { slug: 'construction-handyman', icon: Home, accent: '#C026D3' },
-  { slug: null, icon: LayoutGrid, accent: '#3567F6', labelKey: 'home.moreServices' },
+  { slug: null, icon: LayoutGrid, accent: '#1559D6', labelKey: 'home.moreServices' },
 ];
 
 function ServiceTile({

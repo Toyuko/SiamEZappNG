@@ -9,24 +9,15 @@ import { useAuthStore } from '../../store/auth-store';
 
 const LOGO = require('../../assets/brand/siamez-logo-circle.png');
 
-type HomeHeaderProps = {
-  /** When true, render on blue hero (white icons/text). */
-  onBrand?: boolean;
-};
-
 /**
- * Compact branded header — logo + wordmark left; notifications + profile right.
+ * Compact white header — logo + wordmark left; outline notification + profile right.
  */
-export function HomeHeader({ onBrand = false }: HomeHeaderProps) {
+export function HomeHeader() {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const isGuest = useAuthStore((s) => s.isGuest);
   const accessToken = useAuthStore((s) => s.accessToken);
   const isMember = Boolean(accessToken) && !isGuest;
-
-  const iconColor = onBrand ? '#FFFFFF' : colors.foreground;
-  const mutedColor = onBrand ? 'rgba(255,255,255,0.78)' : colors.muted;
-  const chipBg = onBrand ? 'rgba(255,255,255,0.16)' : isDark ? 'rgba(255,255,255,0.08)' : `${siam.blue.DEFAULT}12`;
 
   const openProfile = () => {
     if (isMember) {
@@ -47,23 +38,20 @@ export function HomeHeader({ onBrand = false }: HomeHeaderProps) {
   return (
     <View
       className="flex-row items-center justify-between"
-      style={{ minHeight: 56, paddingVertical: spacing.compact }}
+      style={{ minHeight: 52, paddingVertical: spacing.compact }}
     >
       <View className="flex-row items-center gap-2.5">
         <Image
           source={LOGO}
-          style={{ width: 36, height: 36, borderRadius: 18 }}
+          style={{ width: 34, height: 34, borderRadius: 17 }}
           accessibilityIgnoresInvertColors
         />
-        <Text
-          className="text-xl font-bold tracking-tight"
-          style={{ color: onBrand ? '#FFFFFF' : colors.foreground }}
-        >
+        <Text className="text-[20px] font-bold tracking-tight" style={{ color: colors.foreground }}>
           SiamEZ
         </Text>
       </View>
 
-      <View className="flex-row items-center gap-2">
+      <View className="flex-row items-center gap-1.5">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('home.header.notifications')}
@@ -75,11 +63,10 @@ export function HomeHeader({ onBrand = false }: HomeHeaderProps) {
             borderRadius: radius.full,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: chipBg,
-            opacity: pressed ? 0.85 : 1,
+            opacity: pressed ? 0.7 : 1,
           })}
         >
-          <Bell size={20} color={iconColor} strokeWidth={2.2} />
+          <Bell size={22} color={colors.foreground} strokeWidth={1.8} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -92,11 +79,10 @@ export function HomeHeader({ onBrand = false }: HomeHeaderProps) {
             borderRadius: radius.full,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: chipBg,
-            opacity: pressed ? 0.85 : 1,
+            opacity: pressed ? 0.7 : 1,
           })}
         >
-          <UserRound size={20} color={onBrand ? siam.yellow.DEFAULT : mutedColor} strokeWidth={2.2} />
+          <UserRound size={22} color={siam.blue.DEFAULT} strokeWidth={1.8} />
         </Pressable>
       </View>
     </View>

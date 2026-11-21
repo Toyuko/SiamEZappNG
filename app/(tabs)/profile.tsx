@@ -4,12 +4,11 @@ import { type ReactNode } from 'react';
 import { Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandHeader } from '../../components/ui/BrandHeader';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { LanguageToggle } from '../../components/ui/LanguageToggle';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { ThemePicker } from '../../components/ui/ThemePicker';
-import { TrustStats } from '../../components/ui/TrustStats';
 import { publicFreelancerDirectoryHref } from '../../features/freelancer/public-directory-route';
 import { SupportChatButton, isChatwootEnabled } from '../../features/support';
 import { useAuth } from '../../hooks/use-auth';
@@ -125,20 +124,10 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: spacing.sectionGap, paddingBottom: 32 }}>
-        <PageHeader
+        <BrandHeader
           title={t('tabs.profile')}
           subtitle={isGuest ? t('profile.guestSubtitle') : t('profile.heroSubtitle')}
-          primaryCta={
-            isGuest
-              ? { label: t('cta.getStarted'), onPress: () => router.replace('/(auth)/signup') }
-              : { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') }
-          }
-          secondaryCta={
-            isGuest ? { label: t('cta.bookNow'), onPress: () => router.push('/(tabs)/book') } : undefined
-          }
         />
-
-        {!isGuest ? <TrustStats /> : null}
 
         {isGuest ? (
           <Card>

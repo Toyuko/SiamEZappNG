@@ -1,78 +1,82 @@
-# SiamEZ Redesign — Implementation Report
+# SiamEZ Unified Redesign — Implementation Report
 
 **Date:** 21 November 2026  
-**Audit:** [APP_AUDIT.md](./APP_AUDIT.md)
+**Screenshot source of truth:** deep royal `#0645B5` + conversion yellow `#FFD500` + background `#F3F7FF`  
+**Website:** https://siam-ez.com/
 
-## 1. Design changes
+## A. Audit findings
 
-- Centralized brand tokens (`#2450C4` / `#FFD32F` / `#102C76` / `#F5F8FF`) in `lib/theme/tokens.ts`, mirrored in Tailwind + runtime theme.
-- Motion constants in `lib/theme/motion.ts`; button press uses shared timings.
-- **Home:** branded header, conversion hero with gold BOOK CTA, trust strip, popular service grid (1-tap book), promo/track banners.
-- **Services:** searchable list + category pills + header Book CTA (replaces full-bleed carousel).
-- **Service detail:** sticky bottom **Book This Service** bar.
-- **Book:** visual Service → Details → Confirm stepper; richer service picker cards; member phone prefill.
-- **My Services (Cases):** Active / Completed tabs; empty-state Book CTA.
-- **Profile:** red-outlined Log Out.
-- **Tabs:** raised gold center **Book** action.
-- **Splash:** navy native splash + staged logo/wordmark/gold accent launch animation.
+The app mixed prior blue/gold values with older gray/marketing layouts. Secondary screens (More, Account, Profile) still used dense list chrome and animated headers that did not match the new Home. Guest home still carried extra conversion noise after the primary CTA.
 
-## 2. Booking improvements
+## B. Removed / demoted
 
-- Home service tiles and hero/tab Book all enter `/(tabs)/book` (often with `serviceSlug`) — **1 tap** to start.
-- Stepper clarifies progress; Continue labeled with →.
-- Sticky Continue/Confirm bar unchanged; API payload, drafts, guest checkout preserved.
-- Competing Sales/RE CTAs removed from guest home closing card.
-
-## 3. Features removed (safe)
-
-- `assets/launch-intro.mp4` (already deleted) + `expo-video` dependency/plugin (unused).
-- Unused `CategoryGrid` / `PopularServicesRow` (replaced by PopularServicesGrid).
-- Guest home Sales/RE buttons and long testimonial/how-it-works blocks (demoted noise).
-
-## 4. Features preserved
-
-- Auth (email/OAuth/guest), booking API, drafts, document upload rules, cases, documents, Soft Launch, freelancer/corporate portals, Smart Match (flagged off), Chatwoot, marketplace routes via More.
-
-## 5. Performance
-
-- Removed 5MB+ launch video path and `expo-video`.
-- Home/list prefer icons over remote poster carousels.
-- Splash exits as soon as bootstrap is ready (no artificial delay beyond short branded hold).
-
-## 6. Important files
-
-| Area | Paths |
+| Item | Why |
 | --- | --- |
-| Audit / report | `docs/APP_AUDIT.md`, `docs/IMPLEMENTATION_REPORT.md` |
-| Tokens | `lib/theme/tokens.ts`, `motion.ts`, `theme.ts`, `tailwind.config.js` |
-| Home | `components/home/*`, `app/(tabs)/home.tsx` |
-| Tabs | `app/(tabs)/_layout.tsx` |
-| Services / detail | `app/(tabs)/services.tsx`, `app/services/[slug].tsx` |
-| Booking | `app/(tabs)/book.tsx`, `components/booking/BookingStepper.tsx` |
-| Cases / profile | `app/(tabs)/cases.tsx`, `app/(tabs)/profile.tsx` |
-| Splash | `components/ui/LaunchAnimation.tsx`, `app.json` |
+| Guest home “ready” card + concierge/sales noise | Diluted Book CTA |
+| Soft-launch More entries for Goals / Life Events / Workflows / Saved | Deferred features; clutter |
+| PageHeader continuous FloatingOrb / Pulse loops | Perf + visual consistency |
+| Prior launch video / expo-video | Already removed |
 
-## 7. Test results
+## C. Improved
+
+- Design tokens to screenshot palette
+- Home header / hero / trust / service grid
+- Services list + yellow filter chips
+- Booking stepper + specific CTA labels
+- My Services Active/Completed tabs
+- More + Account branded headers + MenuRow
+- Profile BrandHeader
+- Raised Book tab with **blue** calendar on yellow
+- Sticky service-detail Book CTA
+
+## D. New design system
+
+Centralized in `lib/theme/tokens.ts` + `theme.ts` + `tailwind.config.js` + `motion.ts`.  
+Shared: `Button`, `Card`, `BrandHeader`, `MenuRow`, `Section` (yellow bar), `PageHeader`, home primitives.
+
+## E. Booking conversion
+
+- Home tiles → `/(tabs)/book?serviceSlug=`
+- Hero + raised tab + sticky detail CTA
+- Labels: Continue to Details → Review Booking → Confirm Booking
+- Guest booking + drafts preserved
+
+## F. Performance
+
+| Metric | Notes |
+| --- | --- |
+| Before/after cold start (device) | **Not measured in this environment** — do not invent numbers |
+| Code changes | Removed continuous header animations; lighter guest home; no launch video |
+
+## G. Testing
 
 | Command | Result |
 | --- | --- |
 | `npm test` | **Pass** — 33 files, 143 tests |
 | `npm run typecheck` | **Pass** — exit 0 |
-| Native iOS/Android builds | Not run in this environment |
-| Device visual QA | Recommended next |
+| Native builds | Not run here |
 
-## 8. Remaining issues
+## H. Key files
 
-- Guest post-booking tracking still requires login (backend guest lookup not in app).
-- `book.tsx` still a large monolith — extract step components later.
-- Smart Match / voice FAB still in the bundle (gated, not deleted).
-- Production funnel analytics still `__DEV__`-only.
-- Profile still has several “coming soon” rows (intentional; not fake toggles).
+`lib/theme/*`, `tailwind.config.js`, `components/home/*`, `components/ui/{BrandHeader,MenuRow,PageHeader,LaunchAnimation}.tsx`, `app/(tabs)/{more,account,services,book,profile,_layout}.tsx`, `docs/*`
 
-## 9. Next priorities
+### Services marketplace redesign (follow-up)
 
-1. Device QA of raised Book tab + home → book on small phones.
-2. Wire production analytics for booking funnel events.
-3. Guest case lookup by email/case number if backend supports it.
-4. Compress `assets/brand/siamez-logo-circle.png` if cold start still heavy.
-5. Extract booking wizard steps into `components/booking/*`.
+| New / updated | Role |
+| --- | --- |
+| `app/(tabs)/services.tsx` | Full marketplace layout |
+| `components/services/ServicesPageHeader.tsx` | Blue branded header |
+| `components/services/FeaturedPromoCard.tsx` | ~500px immersive featured card |
+| `components/services/FeaturedPromoCarousel.tsx` | Swipeable featured campaigns |
+| `components/services/PopularServicesGrid.tsx` | 2-column popular grid |
+| `components/services/CategoryChips.tsx` | Yellow active chips + icons |
+
+Booking: Featured **Book Now** → `/(tabs)/book?serviceSlug=`; **More Info** → `/services/[slug]`.  
+Reused: `ServicePosterHero`, `ServiceSearchBar`, `MockAdPanel`, catalog APIs.
+
+## I. Risks / next
+
+1. Device visual QA vs screenshot on mid-range Android  
+2. Guest case lookup after booking  
+3. Compress brand logo PNG if cold start still heavy  
+4. Leave freelancer uncommitted diffs out of redesign commits  

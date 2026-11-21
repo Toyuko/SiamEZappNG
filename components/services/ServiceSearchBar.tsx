@@ -40,13 +40,14 @@ export function ServiceSearchBar({ value, onChangeText, placeholder, backgroundC
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          minHeight: 52,
-          borderRadius: radius.button,
+          minHeight: 54,
+          borderRadius: 18,
           borderWidth: 1,
           borderColor: colors.border,
           backgroundColor: backgroundColor ?? colors.card,
           paddingHorizontal: 14,
           gap: 8,
+          ...shadows.cardLight,
         }}
       >
         <Ionicons name="search" size={20} color={colors.muted} />

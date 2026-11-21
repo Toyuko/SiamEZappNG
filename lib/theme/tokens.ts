@@ -1,40 +1,43 @@
 /**
- * Design tokens — SiamEZ brand (siam-ez.com + mobile UI concept).
- * Royal blue dominant, gold for actions, white content surfaces.
+ * Design tokens — SiamEZ screenshot source of truth + siam-ez.com.
+ * Deep royal blue dominant, yellow for conversion CTAs only.
  */
 
 export const siam = {
   blue: {
     /** Primary brand blue */
-    DEFAULT: '#2450C4',
-    /** Vibrant / interactive blue */
-    light: '#3567F6',
-    bright: '#3567F6',
-    /** Dark blue */
-    dark: '#163A9D',
-    /** Deep navy */
-    navy: '#102C76',
+    DEFAULT: '#0645B5',
+    /** Interactive / bright */
+    light: '#1559D6',
+    bright: '#1559D6',
+    /** Primary dark */
+    dark: '#06358E',
+    /** Primary deep / navy */
+    navy: '#052A70',
+    /** Soft tint for chips / icon wells */
+    tint: '#EEF4FF',
   },
   yellow: {
-    /** Primary gold CTA */
-    DEFAULT: '#FFD32F',
-    light: '#FFE566',
-    /** Gold highlight */
-    dark: '#FFC928',
+    /** Primary conversion yellow (Services marketplace CTA) */
+    DEFAULT: '#FFD400',
+    light: '#FFDF32',
+    dark: '#F0BF00',
   },
   gray: {
-    DEFAULT: '#64748B',
-    light: '#94A3B8',
-    dark: '#15234D',
+    DEFAULT: '#5C7395',
+    light: '#A5B5CC',
+    dark: '#102858',
   },
 } as const;
 
 /** Semantic surfaces (light-mode defaults; runtime theme may override). */
 export const surfaces = {
-  background: '#F5F8FF',
+  background: '#F3F7FF',
   card: '#FFFFFF',
-  textPrimary: '#15234D',
-  textSecondary: '#64748B',
+  textPrimary: '#102858',
+  textSecondary: '#5C7395',
+  border: '#DCE6F7',
+  disabled: '#A5B5CC',
   success: '#16A34A',
   warning: '#F59E0B',
   error: '#DC2626',
@@ -52,35 +55,28 @@ export const spacing = {
   large: 32,
   hero: 40,
   major: 48,
-  /** Between major sections (default) */
   sectionGap: 24,
-  /** Between major sections — home & marketing screens */
-  sectionGapLg: 32,
-  /** Screen horizontal inset */
+  sectionGapLg: 28,
   screenPaddingX: 16,
-  /** Default card body padding */
-  cardPadding: 20,
-  /** Dense cards */
+  cardPadding: 18,
   cardPaddingCompact: 14,
-  /** Inline stacks */
   stackSm: 8,
   stackMd: 12,
   stackLg: 16,
 } as const;
 
 export const radius = {
-  sm: 10,
-  md: 12,
+  sm: 12,
+  md: 14,
   lg: 16,
   xl: 22,
   hero: 26,
-  /** Primary CTAs */
   button: 16,
   full: 9999,
 } as const;
 
-/** Foreground used on gold/accent surfaces */
-export const accentForeground = '#15234D';
+/** Foreground on yellow/accent surfaces */
+export const accentForeground = '#102858';
 
 export type ShadowStyle = {
   shadowColor: string;
@@ -92,25 +88,25 @@ export type ShadowStyle = {
 
 export const shadows = {
   cardLight: {
-    shadowColor: '#102C76',
+    shadowColor: '#052A70',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.05,
     shadowRadius: 12,
-    elevation: 3,
+    elevation: 2,
   } satisfies ShadowStyle,
   cardMedium: {
-    shadowColor: '#102C76',
+    shadowColor: '#052A70',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.09,
     shadowRadius: 18,
-    elevation: 6,
+    elevation: 5,
   } satisfies ShadowStyle,
   cardStrong: {
-    shadowColor: '#102C76',
+    shadowColor: '#052A70',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.14,
-    shadowRadius: 24,
-    elevation: 10,
+    shadowOpacity: 0.12,
+    shadowRadius: 22,
+    elevation: 8,
   } satisfies ShadowStyle,
   cardDark: {
     shadowColor: '#000000',
@@ -138,29 +134,27 @@ export const shadows = {
 export type CardShadowLevel = 'default' | 'medium' | 'strong';
 
 export const typography = {
-  hero: { fontSize: 32, fontWeight: '700' as const, lineHeight: 38 },
-  section: { fontSize: 22, fontWeight: '700' as const, lineHeight: 28 },
+  hero: { fontSize: 30, fontWeight: '700' as const, lineHeight: 36 },
+  section: { fontSize: 20, fontWeight: '700' as const, lineHeight: 26 },
   cardTitle: { fontSize: 16, fontWeight: '600' as const, lineHeight: 22 },
   body: { fontSize: 15, fontWeight: '400' as const, lineHeight: 22 },
   supporting: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
-  button: { fontSize: 17, fontWeight: '600' as const, lineHeight: 22 },
+  button: { fontSize: 16, fontWeight: '600' as const, lineHeight: 22 },
 } as const;
 
-/** Hero gradient — royal blue depth */
+/** Hero gradient — deep → dark → primary */
 export const heroGradient = {
   colors: [siam.blue.navy, siam.blue.dark, siam.blue.DEFAULT] as const,
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 };
 
-/** Gold gradient for accent CTAs */
 export const goldGradient = {
   colors: [siam.yellow.light, siam.yellow.DEFAULT, siam.yellow.dark] as const,
   start: { x: 0, y: 0 },
   end: { x: 1, y: 1 },
 };
 
-/** Brighter blue gradient for primary CTAs */
 export const brandGradient = {
   colors: [siam.blue.bright, siam.blue.DEFAULT, siam.blue.dark] as const,
   start: { x: 0, y: 0 },

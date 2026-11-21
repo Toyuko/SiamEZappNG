@@ -11,7 +11,7 @@ export type ThemeColors = {
   foreground: string;
   card: string;
   cardForeground: string;
-  /** @deprecated Prefer `foreground` — kept for existing screens */
+  /** @deprecated Prefer `foreground` */
   text: string;
   primary: string;
   /** @deprecated Prefer `muted` */
@@ -27,10 +27,6 @@ export type ThemeColors = {
   headerTextMuted: string;
 };
 
-/**
- * SiamEZ theme: crisp blue-tinted light mode; OLED dark / midnight night.
- * Brand blue + gold stay vivid on every surface.
- */
 export const themeColors: Record<ResolvedTheme, ThemeColors> = {
   light: {
     background: surfaces.background,
@@ -41,12 +37,12 @@ export const themeColors: Record<ResolvedTheme, ThemeColors> = {
     primary: siam.blue.DEFAULT,
     mutedText: surfaces.textSecondary,
     muted: surfaces.textSecondary,
-    border: '#E2E8F4',
+    border: surfaces.border,
     danger: surfaces.error,
     success: surfaces.success,
     warning: surfaces.warning,
     headerBg: surfaces.card,
-    headerBorder: '#E2E8F4',
+    headerBorder: surfaces.border,
     headerText: surfaces.textPrimary,
     headerTextMuted: surfaces.textSecondary,
   },

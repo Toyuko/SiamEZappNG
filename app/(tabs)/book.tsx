@@ -790,7 +790,11 @@ export default function BookScreen() {
   };
 
   const primaryLabel =
-    step === 1 ? t('book.continue') : step === 2 ? t('book.reviewBooking') : t('book.confirmSubmit');
+    step === 1
+      ? t('book.continueToDetails')
+      : step === 2
+        ? t('book.reviewBooking')
+        : t('book.confirmBooking');
 
   const showWizardActions = draftReady && !submitted && Boolean(selectedService);
 

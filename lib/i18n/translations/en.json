@@ -224,7 +224,7 @@
   },
   "auth": {
     "welcome": "Welcome back to SiamEZ",
-    "welcomeSubtitle": "Manage your cases, documents, and payments from one place.",
+    "welcomeSubtitle": "Manage your account and preferences.",
     "createAccount": "Create account",
     "loginFailed": "Login failed",
     "loginFailedMessage": "Please check your credentials and try again.",
@@ -247,7 +247,7 @@
     "creatingAccount": "Creating account...",
     "continueAsGuest": "Continue as Guest",
     "tryAiMatching": "Try AI Matching",
-    "guestAccountHint": "Create an account or sign in to track cases, upload documents, and manage your services.",
+    "guestAccountHint": "Sign in to track cases, upload documents, and get updates. You can still book a service without an account.",
     "quickAccess": "Quick access",
     "backToLogin": "Back to Login",
     "email": "Email",
@@ -258,7 +258,8 @@
     "accountTypeCustomer": "Customer",
     "accountTypeFreelancer": "Freelancer",
     "accountTypeCorporate": "Corporate",
-    "passwordTooShort": "Password must be at least 8 characters."
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "guestAccountTitle": "Track bookings and documents"
   },
   "home": {
     "badge": "SiamEZ",
@@ -334,7 +335,7 @@
   },
   "services": {
     "title": "Services",
-    "subtitle": "Find the right service for your needs",
+    "subtitle": "Find the right service for your needs.",
     "searchPlaceholder": "Search services...",
     "smartMatchBanner": "Smart Match · Try AI Matching",
     "allCategory": "All",
@@ -384,7 +385,13 @@
     "moreInfo": "More Info",
     "featuredServiceLabel": "%{title}, %{current} of %{total}",
     "filterAll": "All",
-    "noResults": "No matching services."
+    "noResults": "No matching services.",
+    "featuredBadge": "Featured Services",
+    "easyFastReliable": "Easy • Fast • Reliable",
+    "popularTitle": "Popular Services",
+    "popularSubtitle": "Explore the services our customers use most",
+    "viewAll": "View All →",
+    "browseByCategory": "Categories"
   },
   "search": {
     "title": "Search services",
@@ -537,7 +544,7 @@
     "editRequirements": "Edit requirements",
     "submitBooking": "Confirm & submit",
     "continue": "Continue",
-    "reviewBooking": "Review booking",
+    "reviewBooking": "Review Booking",
     "confirmSubmit": "Confirm & submit",
     "submitting": "Submitting...",
     "bookingSubmitted": "You’re all set",
@@ -699,7 +706,9 @@
       "service": "Service",
       "details": "Details",
       "confirm": "Confirm"
-    }
+    },
+    "continueToDetails": "Continue to Details",
+    "confirmBooking": "Confirm Booking"
   },
   "sales": {
     "title": "Sales Inventory",
