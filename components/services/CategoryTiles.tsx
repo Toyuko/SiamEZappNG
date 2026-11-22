@@ -5,7 +5,7 @@ import { Pressable, ScrollView, Text } from 'react-native';
 import { getServicesByCategory } from '../../features/services/services.data';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
-import { radius, siam, spacing } from '../../lib/theme/tokens';
+import { siam, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 import type { CategoryFilterId } from './CategoryChips';
 
@@ -25,7 +25,6 @@ const CATEGORY_ICONS: Partial<Record<CategoryFilterId, keyof typeof Ionicons.gly
   'events-lifestyle': 'sparkles-outline',
 };
 
-/** Chip labels — short enough for one-thumb horizontal browsing. */
 const SHORT_LABEL_KEYS: Partial<Record<CategoryFilterId, string>> = {
   all: 'services.allCategory',
   'immigration-legal': 'services.categoryShort.immigration',
@@ -37,7 +36,6 @@ const SHORT_LABEL_KEYS: Partial<Record<CategoryFilterId, string>> = {
   'events-lifestyle': 'services.categoryShort.events',
 };
 
-/** Prompt order: All → Immigration → Driving → Translation → Property → Transport → Business → Events */
 const PREFERRED_ORDER: CategoryFilterId[] = [
   'all',
   'immigration-legal',
@@ -65,10 +63,7 @@ export function CategoryTiles({ activeCategory, onSelect }: CategoryTilesProps) 
       const config = SERVICE_CATEGORIES.find((item) => item.id === id);
       if (!config) continue;
       if (getServicesByCategory(id).length === 0) continue;
-      next.push({
-        id,
-        labelKey: SHORT_LABEL_KEYS[id] ?? config.labelKey,
-      });
+      next.push({ id, labelKey: SHORT_LABEL_KEYS[id] ?? config.labelKey });
     }
     return next;
   }, []);
@@ -77,7 +72,7 @@ export function CategoryTiles({ activeCategory, onSelect }: CategoryTilesProps) 
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: spacing.stackSm, paddingVertical: 1, paddingRight: spacing.stackSm }}
+      contentContainerStyle={{ gap: spacing.stackSm, paddingRight: spacing.stackSm }}
     >
       {options.map((item) => {
         const selected = activeCategory === item.id;
@@ -90,21 +85,29 @@ export function CategoryTiles({ activeCategory, onSelect }: CategoryTilesProps) 
             accessibilityState={{ selected }}
             style={({ pressed }) => ({
               opacity: pressed ? 0.88 : 1,
-              height: 36,
-              paddingHorizontal: 12,
-              borderRadius: radius.full,
+              height: 38,
+              paddingHorizontal: 14,
+              borderRadius: 19,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 5,
-              backgroundColor: selected ? siam.yellow.DEFAULT : colors.card,
+              gap: 6,
+              backgroundColor: selected ? siam.yellow.DEFAULT : '#FFFFFF',
               borderColor: selected ? siam.yellow.dark : colors.border,
-              borderWidth: 1,
+              borderWidth: selected ? 1.5 : 1,
+              shadowColor: '#052A70',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: selected ? 0.12 : 0.04,
+              shadowRadius: 6,
+              elevation: selected ? 3 : 1,
             })}
           >
-            <Ionicons name={icon} size={14} color={selected ? siam.blue.navy : colors.primary} />
+            <Ionicons name={icon} size={15} color={selected ? siam.blue.navy : siam.blue.DEFAULT} />
             <Text
-              className="text-[12px] font-semibold"
-              style={{ color: selected ? siam.blue.navy : colors.foreground }}
+              style={{
+                fontSize: 12,
+                fontWeight: '700',
+                color: selected ? siam.blue.navy : colors.foreground,
+              }}
             >
               {t(item.labelKey)}
             </Text>

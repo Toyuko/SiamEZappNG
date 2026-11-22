@@ -4,14 +4,13 @@ import { Pressable, Text, View } from 'react-native';
 
 import {
   getServiceDescription,
-  getServiceTitle,
+  getServiceShortTitle,
 } from '../../features/services/service-display';
 import type { ServiceItem } from '../../features/services/services.types';
 import { trackFunnel } from '../../lib/analytics/funnel';
 import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
-import { radius, shadows, spacing } from '../../lib/theme/tokens';
+import { radius, shadows } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
-import { SERVICE_ICON_SURFACE } from './service-icon-surface';
 
 const CATEGORY_ACCENT: Record<ServiceItem['category'], string> = {
   'driving-vehicle': '#0645B5',
@@ -26,18 +25,19 @@ const CATEGORY_ACCENT: Record<ServiceItem['category'], string> = {
 type ServiceDiscoveryCardProps = {
   service: ServiceItem;
   source: string;
+  /** Explicit pixel width from parent grid — avoids % width collapse on native. */
+  width: number;
 };
 
 /**
- * Compact 2-column marketplace tile — icon beside title (not stacked).
+ * Marketplace popular tile — fixed width, icon + title + short copy.
  */
-export function ServiceDiscoveryCard({ service, source }: ServiceDiscoveryCardProps) {
+export function ServiceDiscoveryCard({ service, source, width }: ServiceDiscoveryCardProps) {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const language = useLanguageStore((state) => state.language);
-  const title = getServiceTitle(service, language);
+  const title = getServiceShortTitle(service, language);
   const description = getServiceDescription(service, language);
-  const tint = SERVICE_ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
   const accent = CATEGORY_ACCENT[service.category];
 
   return (
@@ -49,51 +49,44 @@ export function ServiceDiscoveryCard({ service, source }: ServiceDiscoveryCardPr
         router.push(`/services/${service.slug}`);
       }}
       style={({ pressed }) => ({
-        width: '48.5%',
-        minHeight: 92,
-        paddingHorizontal: 12,
-        paddingVertical: 12,
+        width,
+        minHeight: 128,
+        padding: 12,
         borderRadius: radius.lg,
         backgroundColor: colors.card,
         borderWidth: 1,
         borderColor: colors.border,
-        opacity: pressed ? 0.9 : 1,
+        opacity: pressed ? 0.92 : 1,
         ...shadows.cardLight,
       })}
     >
-      <View className="flex-row items-start" style={{ gap: 10 }}>
-        <View
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 10,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: tint,
-          }}
-        >
-          <Ionicons name={service.icon} size={17} color={accent} />
-        </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <View className="flex-row items-start justify-between" style={{ gap: 4 }}>
-            <Text
-              className="flex-1 text-[13px] font-bold leading-4"
-              numberOfLines={2}
-              style={{ color: colors.foreground }}
-            >
-              {title}
-            </Text>
-            <Ionicons name="chevron-forward" size={14} color={colors.muted} style={{ marginTop: 1 }} />
-          </View>
-          <Text
-            className="mt-1 text-[11px] leading-[14px]"
-            numberOfLines={2}
-            style={{ color: colors.muted }}
-          >
-            {description}
-          </Text>
-        </View>
+      <View
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: `${accent}18`,
+          marginBottom: 10,
+        }}
+      >
+        <Ionicons name={service.icon} size={20} color={accent} />
       </View>
+
+      <Text
+        style={{ fontSize: 14, fontWeight: '700', lineHeight: 18, color: colors.foreground }}
+        numberOfLines={2}
+      >
+        {title}
+      </Text>
+      <Text
+        style={{ marginTop: 4, fontSize: 11, lineHeight: 14, color: colors.muted, flexGrow: 1 }}
+        numberOfLines={2}
+      >
+        {description}
+      </Text>
+      <Text style={{ marginTop: 8, fontSize: 13, fontWeight: '700', color: accent }}>→</Text>
     </Pressable>
   );
 }
