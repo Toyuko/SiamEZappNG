@@ -14,7 +14,7 @@ type PopularServicesGridProps = {
 };
 
 /**
- * Compact 2-column popular / filtered service discovery grid.
+ * Compact 2-column popular service tiles.
  */
 export function PopularServicesGrid({
   services,
@@ -29,7 +29,7 @@ export function PopularServicesGrid({
       return null;
     }
     return (
-      <View className="items-center py-8" style={{ gap: 6 }}>
+      <View className="items-center py-6" style={{ gap: 6 }}>
         <Text className="text-base font-semibold" style={{ color: colors.foreground }}>
           {t('services.emptyTitle')}
         </Text>
@@ -44,28 +44,23 @@ export function PopularServicesGrid({
     <View style={{ gap: spacing.stackMd }}>
       <View className="flex-row items-end justify-between gap-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
-          <View style={{ width: 4, height: 18, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
-          <Text className="text-xl font-bold" style={{ color: colors.foreground }}>
+          <View style={{ width: 4, height: 16, borderRadius: 999, backgroundColor: siam.yellow.DEFAULT }} />
+          <Text className="text-lg font-bold" style={{ color: colors.foreground }}>
             {title ?? t('services.popularTitle')}
           </Text>
         </View>
         {onViewAll ? (
           <Pressable onPress={onViewAll} hitSlop={8} accessibilityRole="button">
-            <Text className="text-sm font-semibold" style={{ color: colors.primary }}>
+            <Text className="text-[13px] font-semibold" style={{ color: colors.primary }}>
               {t('services.viewAll')}
             </Text>
           </Pressable>
         ) : null}
       </View>
 
-      <View className="flex-row flex-wrap justify-between" style={{ gap: 10 }}>
+      <View className="flex-row flex-wrap justify-between" style={{ gap: 8 }}>
         {services.map((service) => (
-          <ServiceDiscoveryCard
-            key={service.slug}
-            service={service}
-            source="popular_grid"
-            showDescription
-          />
+          <ServiceDiscoveryCard key={service.slug} service={service} source="popular_grid" />
         ))}
       </View>
     </View>

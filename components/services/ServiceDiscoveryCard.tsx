@@ -4,7 +4,6 @@ import { Pressable, Text, View } from 'react-native';
 
 import {
   getServiceDescription,
-  getServiceShortTitle,
   getServiceTitle,
 } from '../../features/services/service-display';
 import type { ServiceItem } from '../../features/services/services.types';
@@ -27,27 +26,16 @@ const CATEGORY_ACCENT: Record<ServiceItem['category'], string> = {
 type ServiceDiscoveryCardProps = {
   service: ServiceItem;
   source: string;
-  /** Show a short description under the title. */
-  showDescription?: boolean;
-  /** Prefer shortTitle for denser accordion tiles. */
-  useShortTitle?: boolean;
 };
 
 /**
- * Compact marketplace service tile — 2-column discovery grids & accordions.
+ * Compact 2-column marketplace tile — icon beside title (not stacked).
  */
-export function ServiceDiscoveryCard({
-  service,
-  source,
-  showDescription = true,
-  useShortTitle = false,
-}: ServiceDiscoveryCardProps) {
+export function ServiceDiscoveryCard({ service, source }: ServiceDiscoveryCardProps) {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const language = useLanguageStore((state) => state.language);
-  const displayTitle = useShortTitle
-    ? getServiceShortTitle(service, language)
-    : getServiceTitle(service, language);
+  const title = getServiceTitle(service, language);
   const description = getServiceDescription(service, language);
   const tint = SERVICE_ICON_SURFACE[service.category][isDark ? 'dark' : 'light'];
   const accent = CATEGORY_ACCENT[service.category];
@@ -55,16 +43,16 @@ export function ServiceDiscoveryCard({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={displayTitle}
+      accessibilityLabel={title}
       onPress={() => {
         trackFunnel('service_viewed', { slug: service.slug, source });
         router.push(`/services/${service.slug}`);
       }}
       style={({ pressed }) => ({
-        width: '48%',
-        minHeight: showDescription ? 108 : 72,
-        paddingHorizontal: spacing.small,
-        paddingVertical: spacing.stackMd,
+        width: '48.5%',
+        minHeight: 92,
+        paddingHorizontal: 12,
+        paddingVertical: 12,
         borderRadius: radius.lg,
         backgroundColor: colors.card,
         borderWidth: 1,
@@ -73,33 +61,39 @@ export function ServiceDiscoveryCard({
         ...shadows.cardLight,
       })}
     >
-      <View className="flex-row items-start justify-between">
+      <View className="flex-row items-start" style={{ gap: 10 }}>
         <View
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: radius.sm,
+            width: 34,
+            height: 34,
+            borderRadius: 10,
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: tint,
           }}
         >
-          <Ionicons name={service.icon} size={18} color={accent} />
+          <Ionicons name={service.icon} size={17} color={accent} />
         </View>
-        <Ionicons name="chevron-forward" size={14} color={colors.muted} />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <View className="flex-row items-start justify-between" style={{ gap: 4 }}>
+            <Text
+              className="flex-1 text-[13px] font-bold leading-4"
+              numberOfLines={2}
+              style={{ color: colors.foreground }}
+            >
+              {title}
+            </Text>
+            <Ionicons name="chevron-forward" size={14} color={colors.muted} style={{ marginTop: 1 }} />
+          </View>
+          <Text
+            className="mt-1 text-[11px] leading-[14px]"
+            numberOfLines={2}
+            style={{ color: colors.muted }}
+          >
+            {description}
+          </Text>
+        </View>
       </View>
-      <Text
-        className="mt-2 text-[13px] font-semibold leading-4"
-        numberOfLines={2}
-        style={{ color: colors.foreground }}
-      >
-        {displayTitle}
-      </Text>
-      {showDescription ? (
-        <Text className="mt-1 text-[11px] leading-[14px]" numberOfLines={2} style={{ color: colors.muted }}>
-          {description}
-        </Text>
-      ) : null}
     </Pressable>
   );
 }

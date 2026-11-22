@@ -21,7 +21,15 @@ import { t } from '../../lib/i18n/i18n';
 import { shadows, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
 
-const POPULAR_LIMIT = 6;
+/** Curated popular tiles — still resolved from live catalog data. */
+const POPULAR_SLUG_ORDER = [
+  'visa-services',
+  'marriage-registration',
+  'driver-license',
+  'translation-services',
+] as const;
+
+const POPULAR_LIMIT = 4;
 
 function getFeaturedPool(): ServiceItem[] {
   const list = getFeaturedServices();
@@ -41,9 +49,20 @@ function readCategoryParam(value: string | string[] | undefined): CategoryFilter
 }
 
 function pickPopularServices(pool: ServiceItem[], limit: number): ServiceItem[] {
-  const withPopularBadge = pool.filter((item) => item.badges.includes('popular'));
-  const preferred = withPopularBadge.length > 0 ? withPopularBadge : pool;
-  return preferred.slice(0, limit);
+  const bySlug = new Map(pool.map((item) => [item.slug, item]));
+  const curated: ServiceItem[] = [];
+  for (const slug of POPULAR_SLUG_ORDER) {
+    const hit = bySlug.get(slug);
+    if (hit) curated.push(hit);
+  }
+  if (curated.length >= limit) {
+    return curated.slice(0, limit);
+  }
+  const used = new Set(curated.map((item) => item.slug));
+  const fillers = pool.filter(
+    (item) => !used.has(item.slug) && (item.badges.includes('popular') || item.featured),
+  );
+  return [...curated, ...fillers].slice(0, limit);
 }
 
 export default function ServicesScreen() {
@@ -92,15 +111,6 @@ export default function ServicesScreen() {
     [categoryFiltered],
   );
 
-  const featuredSlugs = useMemo(() => new Set(featuredOrder.map((item) => item.slug)), [featuredOrder]);
-  const popularSlugs = useMemo(() => new Set(popular.map((item) => item.slug)), [popular]);
-  const deprioritizeSlugs = useMemo(() => {
-    const merged = new Set<string>();
-    for (const slug of featuredSlugs) merged.add(slug);
-    for (const slug of popularSlugs) merged.add(slug);
-    return merged;
-  }, [featuredSlugs, popularSlugs]);
-
   const searching = searchQuery.trim().length > 0;
 
   const onSelectCategory = (category: CategoryFilterId) => {
@@ -115,6 +125,7 @@ export default function ServicesScreen() {
 
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
+      {/* —— LOCKED TOP HALF —— */}
       <ServicesPageHeader />
 
       <SafeAreaView className="flex-1" edges={['left', 'right', 'bottom']}>
@@ -125,7 +136,7 @@ export default function ServicesScreen() {
             paddingHorizontal: spacing.medium,
             paddingTop: spacing.standard,
             paddingBottom: 100 + VOICE_FAB_SCROLL_EXTRA,
-            gap: spacing.section,
+            gap: spacing.stackLg,
           }}
         >
           <View className="flex-row items-center" style={{ gap: 10 }}>
@@ -162,40 +173,32 @@ export default function ServicesScreen() {
             </Pressable>
           </View>
 
-          {searching ? (
-            <ServiceSearchResults query={searchQuery} />
-          ) : (
-            <>
-              {activeCategory === 'all' ? <FeaturedPromoCarousel services={featuredOrder} /> : null}
+          {searching ? <ServiceSearchResults query={searchQuery} /> : null}
 
+          {/* Featured carousel — locked visual; only hidden while searching or when a category chip filters. */}
+          {!searching && activeCategory === 'all' ? (
+            <FeaturedPromoCarousel services={featuredOrder} />
+          ) : null}
+
+          {/* —— REDESIGNED LOWER HALF (below featured) —— */}
+          {!searching ? (
+            <View style={{ gap: spacing.stackLg }}>
               <CategoryTiles activeCategory={activeCategory} onSelect={onSelectCategory} />
 
-              {activeCategory === 'all' ? (
-                <>
-                  <PopularServicesGrid
-                    services={popular}
-                    onViewAll={() => router.push('/all-services')}
-                    emptyMessage
-                  />
+              <PopularServicesGrid
+                services={popular}
+                onViewAll={() => router.push('/all-services')}
+                emptyMessage
+              />
 
-                  <ExpandableCategorySections
-                    services={categoryFiltered}
-                    activeCategory={activeCategory}
-                    deprioritizeSlugs={deprioritizeSlugs}
-                  />
-                </>
-              ) : (
-                <PopularServicesGrid
-                  services={categoryFiltered}
-                  onViewAll={() => router.push('/all-services')}
-                  title={t('services.allServices')}
-                  emptyMessage
-                />
-              )}
+              <ExpandableCategorySections
+                services={activeCategory === 'all' ? catalog : categoryFiltered}
+                activeCategory={activeCategory}
+              />
 
-              <MockAdPanel height={120} />
-            </>
-          )}
+              <MockAdPanel height={112} />
+            </View>
+          ) : null}
         </ScrollView>
       </SafeAreaView>
     </View>
