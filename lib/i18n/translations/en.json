@@ -392,7 +392,19 @@
     "popularSubtitle": "Explore the services our customers use most",
     "viewAll": "View All →",
     "browseByCategory": "Categories",
-    "directorySubtitle": "Everything you need, all in one place"
+    "quickCategories": "Quick categories",
+    "browseCategoriesTitle": "Browse by category",
+    "browseCategoriesSubtitle": "Tap a category to expand — no endless scrolling.",
+    "directorySubtitle": "Everything you need, all in one place",
+    "categoryShort": {
+      "immigration": "Immigration",
+      "driving": "Driving",
+      "translation": "Translation",
+      "business": "Business",
+      "property": "Property",
+      "transport": "Transport",
+      "events": "Events"
+    }
   },
   "search": {
     "title": "Search services",

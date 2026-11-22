@@ -1,25 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { CategoryFilterId } from '../../components/services/CategoryChips';
 import { CategoryTiles } from '../../components/services/CategoryTiles';
+import { ExpandableCategorySections } from '../../components/services/ExpandableCategorySections';
 import { FeaturedPromoCarousel } from '../../components/services/FeaturedPromoCarousel';
 import { PopularServicesGrid } from '../../components/services/PopularServicesGrid';
 import { ServiceSearchBar, ServiceSearchResults } from '../../components/services/ServiceSearchBar';
 import { ServicesPageHeader } from '../../components/services/ServicesPageHeader';
 import { MockAdPanel } from '../../components/ui/MockAdPanel';
 import { VOICE_FAB_SCROLL_EXTRA } from '../../components/voice/voice-fab-layout';
-import { filterServicesByQuery } from '../../features/services/service-display';
+import { nextFeaturedVisit } from '../../features/services/featured-visit';
 import { getActiveServices, getFeaturedServices } from '../../features/services/services.data';
 import { SERVICE_CATEGORIES } from '../../features/services/services.types';
-import type { ServiceCategoryId } from '../../features/services/services.types';
+import type { ServiceCategoryId, ServiceItem } from '../../features/services/services.types';
 import { t } from '../../lib/i18n/i18n';
-import { useLanguageStore } from '../../lib/i18n/useLanguageStore';
 import { shadows, spacing } from '../../lib/theme/tokens';
 import { useTheme } from '../../lib/theme/theme';
+
+const POPULAR_LIMIT = 6;
+
+function getFeaturedPool(): ServiceItem[] {
+  const list = getFeaturedServices();
+  return list.length > 0 ? list : getActiveServices().slice(0, 6);
+}
 
 function isServiceCategoryId(value: string): value is ServiceCategoryId {
   return SERVICE_CATEGORIES.some((item) => item.id === value);
@@ -33,10 +40,15 @@ function readCategoryParam(value: string | string[] | undefined): CategoryFilter
   return 'all';
 }
 
+function pickPopularServices(pool: ServiceItem[], limit: number): ServiceItem[] {
+  const withPopularBadge = pool.filter((item) => item.badges.includes('popular'));
+  const preferred = withPopularBadge.length > 0 ? withPopularBadge : pool;
+  return preferred.slice(0, limit);
+}
+
 export default function ServicesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const language = useLanguageStore((state) => state.language);
   const { category: categoryParam } = useLocalSearchParams<{ category?: string | string[] }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryFilterId>(readCategoryParam(categoryParam));
@@ -49,37 +61,51 @@ export default function ServicesScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sync from route only
   }, [categoryParam]);
 
+  const catalog = useMemo(() => getActiveServices(), []);
+  /** Shuffled once per Services visit — stable across re-renders. */
+  const [featuredOrder, setFeaturedOrder] = useState<ServiceItem[]>(() => nextFeaturedVisit(getFeaturedPool()));
+  const hasFocusedOnce = useRef(false);
+
   useFocusEffect(
     useCallback(() => {
+      if (!hasFocusedOnce.current) {
+        hasFocusedOnce.current = true;
+      } else {
+        // Fresh shuffle when returning to Services; avoid consecutive first-slide repeats.
+        setFeaturedOrder(nextFeaturedVisit(getFeaturedPool()));
+      }
       return () => {
         Keyboard.dismiss();
       };
     }, []),
   );
 
-  const catalog = useMemo(() => getActiveServices(), []);
-  const featured = useMemo(() => {
-    const list = getFeaturedServices();
-    return list.length > 0 ? list : catalog.slice(0, 6);
-  }, [catalog]);
+  const categoryFiltered = useMemo(() => {
+    if (activeCategory === 'all') {
+      return catalog;
+    }
+    return catalog.filter((item) => item.category === activeCategory);
+  }, [activeCategory, catalog]);
 
-  const filtered = useMemo(() => {
-    const byCategory =
-      activeCategory === 'all' ? catalog : catalog.filter((item) => item.category === activeCategory);
-    return filterServicesByQuery(byCategory, searchQuery, language);
-  }, [activeCategory, catalog, language, searchQuery]);
+  const popular = useMemo(
+    () => pickPopularServices(categoryFiltered, POPULAR_LIMIT),
+    [categoryFiltered],
+  );
 
-  const popular = useMemo(() => {
-    const featuredSlugs = new Set(getFeaturedServices().map((item) => item.slug));
-    const preferred = filtered.filter((item) => featuredSlugs.has(item.slug));
-    const pool = preferred.length > 0 ? preferred : filtered;
-    return pool.slice(0, 4);
-  }, [filtered]);
+  const featuredSlugs = useMemo(() => new Set(featuredOrder.map((item) => item.slug)), [featuredOrder]);
+  const popularSlugs = useMemo(() => new Set(popular.map((item) => item.slug)), [popular]);
+  const deprioritizeSlugs = useMemo(() => {
+    const merged = new Set<string>();
+    for (const slug of featuredSlugs) merged.add(slug);
+    for (const slug of popularSlugs) merged.add(slug);
+    return merged;
+  }, [featuredSlugs, popularSlugs]);
 
   const searching = searchQuery.trim().length > 0;
 
   const onSelectCategory = (category: CategoryFilterId) => {
     setActiveCategory(category);
+    setSearchQuery('');
     if (category === 'all') {
       router.replace('/(tabs)/services');
       return;
@@ -136,23 +162,39 @@ export default function ServicesScreen() {
             </Pressable>
           </View>
 
-          <ServiceSearchResults query={searchQuery} />
-
-          {!searching ? (
+          {searching ? (
+            <ServiceSearchResults query={searchQuery} />
+          ) : (
             <>
-              {activeCategory === 'all' ? <FeaturedPromoCarousel services={featured} /> : null}
+              {activeCategory === 'all' ? <FeaturedPromoCarousel services={featuredOrder} /> : null}
 
               <CategoryTiles activeCategory={activeCategory} onSelect={onSelectCategory} />
 
-              <PopularServicesGrid
-                services={popular}
-                onViewAll={() => router.push('/all-services')}
-              />
+              {activeCategory === 'all' ? (
+                <>
+                  <PopularServicesGrid
+                    services={popular}
+                    onViewAll={() => router.push('/all-services')}
+                    emptyMessage
+                  />
 
-              <MockAdPanel height={148} />
+                  <ExpandableCategorySections
+                    services={categoryFiltered}
+                    activeCategory={activeCategory}
+                    deprioritizeSlugs={deprioritizeSlugs}
+                  />
+                </>
+              ) : (
+                <PopularServicesGrid
+                  services={categoryFiltered}
+                  onViewAll={() => router.push('/all-services')}
+                  title={t('services.allServices')}
+                  emptyMessage
+                />
+              )}
+
+              <MockAdPanel height={120} />
             </>
-          ) : (
-            <PopularServicesGrid services={filtered.slice(0, 12)} />
           )}
         </ScrollView>
       </SafeAreaView>

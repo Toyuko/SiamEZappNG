@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   useWindowDimensions,
@@ -19,6 +19,7 @@ const H_PAD = spacing.medium;
 const CARD_ASPECT = 1.08;
 
 type FeaturedPromoCarouselProps = {
+  /** Pre-shuffled visit order from the parent — do not reshuffle here. */
   services: ServiceItem[];
 };
 
@@ -38,6 +39,12 @@ export function FeaturedPromoCarousel({ services }: FeaturedPromoCarouselProps) 
   const listRef = useRef<FlatList<ServiceItem>>(null);
 
   const data = useMemo(() => services.slice(0, 8), [services]);
+  const orderKey = useMemo(() => data.map((item) => item.slug).join('|'), [data]);
+
+  // Keep pagination in sync when the parent supplies a new visit order (FlatList remounts via key).
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [orderKey]);
 
   const settle = useCallback(
     (offsetX: number) => {
@@ -78,6 +85,7 @@ export function FeaturedPromoCarousel({ services }: FeaturedPromoCarouselProps) 
       <View style={{ marginHorizontal: -H_PAD }}>
         <FlatList
           ref={listRef}
+          key={orderKey}
           data={data}
           keyExtractor={(item) => item.slug}
           horizontal

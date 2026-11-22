@@ -392,7 +392,19 @@
     "popularSubtitle": "บริการที่ลูกค้าใช้มากที่สุด",
     "viewAll": "ดูทั้งหมด →",
     "browseByCategory": "หมวดหมู่",
-    "directorySubtitle": "ครบทุกบริการในที่เดียว"
+    "quickCategories": "หมวดหมู่ด่วน",
+    "browseCategoriesTitle": "เรียกดูตามหมวดหมู่",
+    "browseCategoriesSubtitle": "แตะหมวดหมู่เพื่อขยาย — ไม่ต้องเลื่อนยาว",
+    "directorySubtitle": "ครบทุกบริการในที่เดียว",
+    "categoryShort": {
+      "immigration": "วีซ่า/กฎหมาย",
+      "driving": "ใบขับขี่",
+      "translation": "แปลเอกสาร",
+      "business": "ธุรกิจ",
+      "property": "อสังหา",
+      "transport": "ขนส่ง",
+      "events": "อีเวนต์"
+    }
   },
   "search": {
     "title": "ค้นหาบริการ",
