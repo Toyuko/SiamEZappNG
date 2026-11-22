@@ -376,7 +376,17 @@
     "categoryCardHint": "Browse services in this category",
     "categoriesPage": {
       "title": "Categories",
-      "subtitle": "Browse services by category"
+      "subtitle": "Find the service you need"
+    },
+    "categoriesSearchPlaceholder": "Filter categories...",
+    "categoryDescriptions": {
+      "drivingVehicle": "Vehicle registration, licenses and automotive services",
+      "immigrationLegal": "Visas, marriage registration and legal assistance",
+      "translationDocuments": "Certified translation and document support",
+      "homeProperty": "Property, renovations and home services",
+      "transportPrivateDriver": "Airport transfers, tours and private drivers",
+      "eventsLifestyle": "Event planning, venues and lifestyle experiences",
+      "businessServices": "Company setup and professional business support"
     },
     "emptyTitle": "No services found",
     "emptyHint": "Try a different search or clear filters to see all services.",

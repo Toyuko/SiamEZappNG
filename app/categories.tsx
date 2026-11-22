@@ -1,112 +1,114 @@
-import { useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CategoryCarousel } from '../components/services/CategoryCarousel';
-import { ServiceCarousel } from '../components/services/ServiceCarousel';
-import { MockAdPanel } from '../components/ui/MockAdPanel';
-import { DEFAULT_MOCK_AD, getImageAdHeight, getMockAdForCategory } from '../features/ads/mock-ads';
-import { getCategoryLabel } from '../features/services/service-display';
-import { getServicesByCategory } from '../features/services/services.data';
+import { CategoryDiscoveryGrid } from '../components/services/CategoryDiscoveryGrid';
+import { VOICE_FAB_SCROLL_EXTRA } from '../components/voice/voice-fab-layout';
 import type { ServiceCategoryId } from '../features/services/services.types';
+import { trackFunnel } from '../lib/analytics/funnel';
 import { t } from '../lib/i18n/i18n';
-import { radius, spacing } from '../lib/theme/tokens';
+import { radius, shadows, spacing } from '../lib/theme/tokens';
 import { useTheme } from '../lib/theme/theme';
 
-/** Share of screen below the page header reserved for the category carousel row. */
-const CAROUSEL_HEIGHT_FRACTION = 0.38;
-/** Share of screen below the page header reserved for the ad panel. */
-const AD_HEIGHT_FRACTION = 0.30;
-const PAGE_HEADER_HEIGHT = 72;
-
+/**
+ * Dedicated Categories browser — opened from the Services landing Categories button.
+ * Does not alter the approved Services landing page.
+ */
 export default function CategoriesScreen() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-  const [selectedCategory, setSelectedCategory] = useState<ServiceCategoryId | null>(null);
-  const contentHeight = windowHeight - PAGE_HEADER_HEIGHT - 100;
-  const adWidth = windowWidth - spacing.screenPaddingX * 2;
-  const carouselHeight = Math.round(contentHeight * (CAROUSEL_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
-  const gradientAdHeight = Math.round(contentHeight * (AD_HEIGHT_FRACTION / (CAROUSEL_HEIGHT_FRACTION + AD_HEIGHT_FRACTION)));
-  const categoryServices = useMemo(
-    () => (selectedCategory ? getServicesByCategory(selectedCategory) : []),
-    [selectedCategory],
-  );
-  const mockAd = selectedCategory ? getMockAdForCategory(selectedCategory) : DEFAULT_MOCK_AD;
-  const adHeight =
-    mockAd.variant === 'image' ? getImageAdHeight(mockAd, adWidth) || gradientAdHeight : gradientAdHeight;
+  const [query, setQuery] = useState('');
+
+  const openCategory = (categoryId: ServiceCategoryId) => {
+    trackFunnel('service_category_selected', { category: categoryId, source: 'categories_page' });
+    router.push({ pathname: '/all-services', params: { category: categoryId } });
+  };
 
   return (
     <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.background }}>
-      <View style={{ flex: 1, paddingHorizontal: spacing.screenPaddingX }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.stackMd,
+          paddingHorizontal: spacing.medium,
+          paddingTop: spacing.stackSm,
+          paddingBottom: spacing.stackMd,
+        }}
+      >
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          style={({ pressed }) => ({
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: colors.card,
+            borderWidth: 1,
+            borderColor: colors.border,
+            opacity: pressed ? 0.88 : 1,
+          })}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.foreground} />
+        </Pressable>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: colors.foreground }}>
+            {t('services.categoriesPage.title')}
+          </Text>
+          <Text style={{ fontSize: 14, lineHeight: 20, color: colors.muted }}>
+            {t('services.categoriesPage.subtitle')}
+          </Text>
+        </View>
+      </View>
+
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={{
+          paddingHorizontal: spacing.medium,
+          paddingBottom: 40 + VOICE_FAB_SCROLL_EXTRA,
+          gap: spacing.stackLg,
+        }}
+      >
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            gap: spacing.stackMd,
-            paddingTop: spacing.stackSm,
-            paddingBottom: spacing.stackMd,
+            minHeight: 44,
+            borderRadius: radius.lg,
+            borderWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: colors.card,
+            paddingHorizontal: 12,
+            gap: 8,
+            ...shadows.cardLight,
           }}
         >
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel={t('common.back')}
-            style={({ pressed }) => ({
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: colors.card,
-              borderWidth: 1,
-              borderColor: colors.border,
-              opacity: pressed ? 0.88 : 1,
-            })}
-          >
-            <Ionicons name="chevron-back" size={22} color={colors.foreground} />
-          </Pressable>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={{ fontSize: 24, fontWeight: '700', color: colors.foreground }}>{t('services.categoriesPage.title')}</Text>
-            <Text style={{ fontSize: 14, lineHeight: 20, color: colors.muted }}>{t('services.categoriesPage.subtitle')}</Text>
-          </View>
+          <Ionicons name="search" size={18} color={colors.muted} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t('services.categoriesSearchPlaceholder')}
+            placeholderTextColor={colors.muted}
+            accessibilityLabel={t('services.categoriesSearchPlaceholder')}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+            style={{
+              flex: 1,
+              fontSize: 15,
+              color: colors.foreground,
+              paddingVertical: 10,
+            }}
+          />
         </View>
 
-        {selectedCategory ? (
-          <Pressable
-            onPress={() => setSelectedCategory(null)}
-            accessibilityRole="button"
-            accessibilityLabel={t('services.clearCategoryFilter')}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.88 : 1,
-              alignSelf: 'flex-start',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              marginBottom: spacing.stackSm,
-              borderRadius: radius.full,
-              backgroundColor: colors.primary,
-            })}
-          >
-            <Text className="text-xs font-semibold" style={{ color: '#ffffff' }}>
-              {getCategoryLabel(selectedCategory)}
-            </Text>
-            <Ionicons name="close" size={14} color="#ffffff" />
-          </Pressable>
-        ) : null}
-
-        {selectedCategory ? (
-          <ServiceCarousel services={categoryServices} carouselHeight={carouselHeight} />
-        ) : (
-          <CategoryCarousel carouselHeight={carouselHeight} onCategoryPress={setSelectedCategory} />
-        )}
-        <View style={{ height: spacing.stackMd }} />
-        <MockAdPanel key={selectedCategory ?? 'all'} width={adWidth} height={adHeight} ad={mockAd} />
-      </View>
+        <CategoryDiscoveryGrid onSelect={openCategory} query={query} />
+      </ScrollView>
     </SafeAreaView>
   );
 }
