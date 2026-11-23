@@ -13,7 +13,7 @@ account / backend / device / store access.
    - `API_JWT_SECRET` (or `NEXTAUTH_SECRET` fallback) set on Vercel production
    - Social providers configured if store builds show Google/LINE/Facebook buttons
    - `APPLE_TEAM_ID` + `ANDROID_APP_SHA256_CERT_FINGERPRINTS` for Universal / App Links
-5. App production `EXPO_PUBLIC_API_URL` / `EXPO_PUBLIC_WEB_BASE_URL` must be `https://siam-ez.com` (not the Vercel alias).
+5. App production `EXPO_PUBLIC_API_URL` should be `https://siam-ez.com` once DNS works; until nameservers are restored use `https://siam-e-zweb-ng.vercel.app`. Keep `EXPO_PUBLIC_WEB_BASE_URL` as `https://siam-ez.com` for deep links / OAuth when DNS is healthy.
 
 ## Release tooling
 

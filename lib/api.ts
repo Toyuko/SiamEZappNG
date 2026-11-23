@@ -81,17 +81,22 @@ async function parseResponseBody(response: Response) {
 export function toUserFacingNetworkMessage(error: unknown): string {
   const raw = error instanceof Error ? error.message : String(error ?? '');
   const lower = raw.toLowerCase();
+  // Only claim "no internet" when the platform explicitly reported offline — RN's
+  // generic "Network request failed" also covers DNS, TLS, and abort timeouts.
   if (
-    lower.includes('network request failed') ||
-    lower.includes('failed to fetch') ||
-    lower.includes('networkerror') ||
     lower.includes('internet connection appears to be offline') ||
     lower.includes('the internet connection appears to be offline') ||
-    lower.includes('offline')
+    lower === 'offline' ||
+    lower.includes('is offline')
   ) {
     return 'No internet connection. Check your network and try again.';
   }
-  if (lower.includes('timed out') || lower.includes('timeout')) {
+  if (
+    lower.includes('timed out') ||
+    lower.includes('timeout') ||
+    lower.includes('aborted') ||
+    lower.includes('abort')
+  ) {
     return 'Request timed out. Please try again.';
   }
   return 'Unable to reach SiamEZ right now. Please try again.';
@@ -178,7 +183,9 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown, opti
   try {
     response = await fetch(url, init);
   } catch (err) {
-    if (isAbortError(err)) {
+    // React Native often rejects aborted fetches as "Network request failed"
+    // instead of AbortError — treat our own signal as a timeout either way.
+    if (isAbortError(err) || timeout.signal.aborted) {
       throw new ApiError('Request timed out. Please try again.', 0, null);
     }
     throw new ApiError(toUserFacingNetworkMessage(err), 0, null);

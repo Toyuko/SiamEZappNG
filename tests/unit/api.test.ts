@@ -145,8 +145,19 @@ describe('lib/api', () => {
     });
   });
 
-  it('maps offline fetch errors to a clear customer message', async () => {
+  it('maps generic RN network failures without claiming the device is offline', async () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network request failed'));
+    const { api } = await import('../../lib/api');
+    await expect(api.get('/api/cases')).rejects.toMatchObject({
+      status: 0,
+      message: 'Unable to reach SiamEZ right now. Please try again.',
+    });
+  });
+
+  it('maps explicit offline fetch errors to a clear customer message', async () => {
+    vi.mocked(global.fetch).mockRejectedValueOnce(
+      new Error('The Internet connection appears to be offline.'),
+    );
     const { api } = await import('../../lib/api');
     await expect(api.get('/api/cases')).rejects.toMatchObject({
       status: 0,
@@ -169,6 +180,23 @@ describe('lib/api', () => {
     const { api, ApiError } = await import('../../lib/api');
     await expect(api.get('/api/cases', { timeoutMs: 20 })).rejects.toMatchObject({
       name: 'ApiError',
+      status: 0,
+      message: 'Request timed out. Please try again.',
+    });
+  });
+
+  it('treats RN network failures after abort as timeouts', async () => {
+    getTokenMock.mockResolvedValue(null);
+    vi.mocked(global.fetch).mockImplementation((_url, init) => {
+      return new Promise((_, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          reject(new Error('Network request failed'));
+        });
+      });
+    });
+
+    const { api } = await import('../../lib/api');
+    await expect(api.get('/api/cases', { timeoutMs: 20 })).rejects.toMatchObject({
       status: 0,
       message: 'Request timed out. Please try again.',
     });

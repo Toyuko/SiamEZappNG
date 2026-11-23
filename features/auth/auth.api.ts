@@ -35,6 +35,9 @@ function normalizeSignUpPayload(payload: SignUpPayload): SignUpPayload {
   };
 }
 
+/** Auth routes can be slow on cold start (bcrypt + DB wake); stay under Vercel limits. */
+const AUTH_TIMEOUT_MS = 30_000;
+
 export async function loginWithEmail(payload: LoginPayload) {
   const normalizedPayload: LoginPayload = {
     ...payload,
@@ -43,7 +46,7 @@ export async function loginWithEmail(payload: LoginPayload) {
   };
   const data = await api.post<
     LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>
-  >('/api/auth/login', normalizedPayload);
+  >('/api/auth/login', normalizedPayload, { timeoutMs: AUTH_TIMEOUT_MS });
   const normalized = unwrapApiData<LoginResponse | { accessToken: string; user: AuthUser }>(data);
   // Support both {token} and legacy {accessToken}
   if ('accessToken' in normalized) {
@@ -64,7 +67,7 @@ export async function signUpWithEmail(payload: SignUpPayload) {
   const normalizedPayload = normalizeSignUpPayload(payload);
   const data = await api.post<
     LoginResponse | { accessToken: string; user: AuthUser } | ApiEnvelope<LoginResponse | { accessToken: string; user: AuthUser }>
-  >('/api/auth/register', normalizedPayload);
+  >('/api/auth/register', normalizedPayload, { timeoutMs: AUTH_TIMEOUT_MS });
 
   const normalized = unwrapApiData<LoginResponse | { accessToken: string; user: AuthUser }>(data);
   if ('accessToken' in normalized) {

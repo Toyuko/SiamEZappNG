@@ -31,7 +31,11 @@ describe('features/auth/auth.api', () => {
     postMock.mockResolvedValueOnce({ token: 'abc', user: { id: 'u1', email: 'me@example.com' } });
 
     await loginWithEmail({ email: 'me@example.com', password: '  secret  ' });
-    expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
+    expect(postMock).toHaveBeenCalledWith(
+      '/api/auth/login',
+      { email: 'me@example.com', password: 'secret' },
+      { timeoutMs: 30_000 },
+    );
   });
 
   it('normalizes email and uses production login path only', async () => {
@@ -40,7 +44,11 @@ describe('features/auth/auth.api', () => {
 
     const result = await loginWithEmail({ email: '  Me@Example.com ', password: 'secret' });
     expect(postMock).toHaveBeenCalledTimes(1);
-    expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
+    expect(postMock).toHaveBeenCalledWith(
+      '/api/auth/login',
+      { email: 'me@example.com', password: 'secret' },
+      { timeoutMs: 30_000 },
+    );
     expect(result.token).toBe('abc');
   });
 
@@ -52,7 +60,11 @@ describe('features/auth/auth.api', () => {
       status: 404,
     });
     expect(postMock).toHaveBeenCalledTimes(1);
-    expect(postMock).toHaveBeenCalledWith('/api/auth/login', { email: 'me@example.com', password: 'secret' });
+    expect(postMock).toHaveBeenCalledWith(
+      '/api/auth/login',
+      { email: 'me@example.com', password: 'secret' },
+      { timeoutMs: 30_000 },
+    );
   });
 
   it('maps legacy accessToken response shape', async () => {
@@ -68,6 +80,11 @@ describe('features/auth/auth.api', () => {
     const { signUpWithEmail } = await import('../../features/auth/auth.api');
     postMock.mockRejectedValueOnce(new MockApiError('bad', 400, 'Bad Request'));
     await expect(signUpWithEmail({ name: 'A', email: 'a@example.com', password: '12345678' })).rejects.toThrow();
+    expect(postMock).toHaveBeenCalledWith(
+      '/api/auth/register',
+      expect.objectContaining({ email: 'a@example.com', accountType: 'customer' }),
+      { timeoutMs: 30_000 },
+    );
   });
 
   it('calls production getMe path only', async () => {

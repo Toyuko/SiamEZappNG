@@ -8,7 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_API_URL": "https://siam-e-zweb-ng.vercel.app",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://siam-ez.com",
         "EXPO_PUBLIC_ALLOW_MOCKS": "true"
       }
@@ -19,7 +19,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_API_URL": "https://siam-e-zweb-ng.vercel.app",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://siam-ez.com",
         "EXPO_PUBLIC_SOFT_LAUNCH": "true",
         "EXPO_PUBLIC_FREELANCER_MOCK": "false",
@@ -39,7 +39,7 @@
         "credentialsSource": "remote"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://siam-ez.com",
+        "EXPO_PUBLIC_API_URL": "https://siam-e-zweb-ng.vercel.app",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://siam-ez.com",
         "EXPO_PUBLIC_SOFT_LAUNCH": "true",
         "EXPO_PUBLIC_FREELANCER_MOCK": "false",
