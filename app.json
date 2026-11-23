@@ -179,6 +179,7 @@
     },
     "plugins": [
       "./plugins/with-android-release-signing",
+      "./plugins/with-android-optional-features",
       "expo-router",
       "expo-document-picker",
       [
