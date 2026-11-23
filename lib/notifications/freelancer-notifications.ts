@@ -1,5 +1,5 @@
+import type { Notification } from 'expo-notifications';
 import { Alert } from 'react-native';
-import * as Notifications from 'expo-notifications';
 
 import { t } from '../i18n/i18n';
 
@@ -19,7 +19,7 @@ function isJobApprovedPayload(data: Record<string, unknown> | undefined) {
   return type === JOB_APPROVED_NOTIFICATION_TYPE || type === 'job.approved';
 }
 
-export function handleFreelancerNotification(notification: Notifications.Notification) {
+export function handleFreelancerNotification(notification: Notification) {
   try {
     const raw = notification.request.content.data;
     if (!raw || typeof raw !== 'object') {

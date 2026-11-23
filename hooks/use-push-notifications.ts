@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import type { Notification, NotificationResponse } from 'expo-notifications';
 import { useRouter } from 'expo-router';
 
+import { getNotifications } from '../lib/notifications/load-notifications';
 import {
   getNotificationJobId,
   registerPushTokenWithBackend,
@@ -32,9 +33,14 @@ export function usePushNotifications() {
       return;
     }
 
+    const notifications = getNotifications();
+    if (!notifications) {
+      return;
+    }
+
     void registerPushTokenWithBackend().catch(() => undefined);
 
-    const onNotification = (notification: Notifications.Notification) => {
+    const onNotification = (notification: Notification) => {
       try {
         // Android already plays the channel sound via shouldPlaySound.
         if (Platform.OS !== 'android') {
@@ -46,7 +52,7 @@ export function usePushNotifications() {
       }
     };
 
-    const onResponse = (response: Notifications.NotificationResponse) => {
+    const onResponse = (response: NotificationResponse) => {
       try {
         handleFreelancerNotification(response.notification);
 
@@ -70,9 +76,9 @@ export function usePushNotifications() {
       }
     };
 
-    const receivedSubscription = Notifications.addNotificationReceivedListener(onNotification);
+    const receivedSubscription = notifications.addNotificationReceivedListener(onNotification);
     const responseSubscription =
-      Notifications.addNotificationResponseReceivedListener(onResponse);
+      notifications.addNotificationResponseReceivedListener(onResponse);
 
     return () => {
       receivedSubscription.remove();

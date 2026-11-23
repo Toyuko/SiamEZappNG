@@ -1,26 +1,30 @@
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import { EZ_NOTIFICATION_SOUND } from '../lib/audio/play-notification-sound';
 import { api } from '../lib/api';
 import { t } from '../lib/i18n/i18n';
+import { getNotifications, isAndroidExpoGo } from '../lib/notifications/load-notifications';
 
 export const CHAT_MESSAGE_NOTIFICATION_TYPE = 'chat_message';
 export const AUTO_APPROVAL_NOTIFICATION_TYPE = 'auto_approval';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    // Android needs this for the heads-up banner; channel sound is `ez_notification.wav`.
-    // iOS/web: we play the EZ cue ourselves in the received listener / toast helpers.
-    shouldPlaySound: Platform.OS === 'android',
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+const notifications = getNotifications();
+
+if (notifications) {
+  notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      // Android needs this for the heads-up banner; channel sound is `ez_notification.wav`.
+      // iOS/web: we play the EZ cue ourselves in the received listener / toast helpers.
+      shouldPlaySound: Platform.OS === 'android',
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 function canRegisterPushToken() {
   if (Platform.OS === 'web') {
@@ -29,8 +33,9 @@ function canRegisterPushToken() {
   if (!Device.isDevice) {
     return false;
   }
-  const isDevBuild = typeof __DEV__ !== 'undefined' && __DEV__;
-  if (Platform.OS === 'android' && isDevBuild) {
+  // Remote push was removed from Android Expo Go in SDK 53. Importing the
+  // module throws, so registration is limited to dev and release builds.
+  if (isAndroidExpoGo()) {
     return false;
   }
   return true;
@@ -41,9 +46,14 @@ async function ensureAndroidChannel() {
     return;
   }
 
-  await Notifications.setNotificationChannelAsync('default', {
+  const notificationsModule = getNotifications();
+  if (!notificationsModule) {
+    return;
+  }
+
+  await notificationsModule.setNotificationChannelAsync('default', {
     name: t('notifications.channelName'),
-    importance: Notifications.AndroidImportance.HIGH,
+    importance: notificationsModule.AndroidImportance.HIGH,
     sound: EZ_NOTIFICATION_SOUND,
     enableVibrate: true,
   });
@@ -54,11 +64,16 @@ export async function registerPushTokenWithBackend(): Promise<string | null> {
     return null;
   }
 
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  const notificationsModule = getNotifications();
+  if (!notificationsModule) {
+    return null;
+  }
+
+  const { status: existingStatus } = await notificationsModule.getPermissionsAsync();
   let finalStatus = existingStatus;
 
   if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
+    const { status } = await notificationsModule.requestPermissionsAsync();
     finalStatus = status;
   }
 
@@ -82,7 +97,7 @@ export async function registerPushTokenWithBackend(): Promise<string | null> {
 
   let pushToken;
   try {
-    pushToken = await Notifications.getExpoPushTokenAsync({ projectId });
+    pushToken = await notificationsModule.getExpoPushTokenAsync({ projectId });
   } catch (error) {
     if (typeof __DEV__ !== 'undefined' && __DEV__) {
       console.warn('[push] Failed to get Expo push token', error);
