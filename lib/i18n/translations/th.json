@@ -1293,7 +1293,7 @@
       "locationFallback": "ประเทศไทย",
       "noOpenings": "ยังไม่มีตำแหน่งงานที่เปิดอยู่",
       "share": "แชร์โปรไฟล์บริษัท",
-      "shareMessage": "ดู %{name} บน SiamEZ: https://siam-ez.com/companies/%{slug}",
+      "shareMessage": "ดู %{name} บน SiamEZ: %{url}",
       "applyNow": "สมัครเลย",
       "applyTitle": "พร้อมสมัคร",
       "applyMessage": "เปิดฟีดงานฟรีแลนซ์เพื่อรับงานที่ตรงกัน",

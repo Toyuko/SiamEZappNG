@@ -1,16 +1,10 @@
 /**
- * Canonical marketing host. Prefer this once DNS for siam-ez.com is healthy again.
- * Nameservers (nsraidth1.com) are currently unreachable, so API traffic must not
- * depend on resolving that hostname.
+ * Working production origin (Vercel project alias) while siam-ez.com DNS is down.
+ * Used for both API calls and web surfaces the app opens (OAuth, guest checkout,
+ * privacy/terms, share links, service posters). After nameservers are restored,
+ * switch DEFAULT_PUBLIC_ORIGIN back to https://siam-ez.com.
  */
-const DEFAULT_CANONICAL_HOST = 'https://siam-ez.com';
-
-/**
- * Working production API origin (Vercel project alias). Email auth / bookings hit this
- * while the custom domain DNS is broken. Switch DEFAULT_API_URL back to
- * DEFAULT_CANONICAL_HOST after the registrar nameservers are restored.
- */
-const DEFAULT_API_URL = 'https://siam-e-zweb-ng.vercel.app';
+const DEFAULT_PUBLIC_ORIGIN = 'https://siam-e-zweb-ng.vercel.app';
 
 function isStoreReleaseBuild() {
   return typeof __DEV__ !== 'undefined' && __DEV__ === false;
@@ -49,13 +43,13 @@ export const appConfig = {
   // Support both names while we transition env keys.
   apiUrl: resolvePublicBaseUrl(
     process.env.EXPO_PUBLIC_API_URL ?? process.env.EXPO_PUBLIC_API_BASE_URL,
-    DEFAULT_API_URL,
+    DEFAULT_PUBLIC_ORIGIN,
     'API URL',
   ),
-  // OAuth / guest checkout still prefer the canonical host when DNS works.
+  // OAuth, guest checkout, privacy/terms, share URLs, and static web assets.
   webBaseUrl: resolvePublicBaseUrl(
     process.env.EXPO_PUBLIC_WEB_BASE_URL,
-    DEFAULT_CANONICAL_HOST,
+    DEFAULT_PUBLIC_ORIGIN,
     'web base URL',
   ),
   appName: 'SiamEZ',

@@ -13,7 +13,7 @@ account / backend / device / store access.
    - `API_JWT_SECRET` (or `NEXTAUTH_SECRET` fallback) set on Vercel production
    - Social providers configured if store builds show Google/LINE/Facebook buttons
    - `APPLE_TEAM_ID` + `ANDROID_APP_SHA256_CERT_FINGERPRINTS` for Universal / App Links
-5. App production `EXPO_PUBLIC_API_URL` should be `https://siam-ez.com` once DNS works; until nameservers are restored use `https://siam-e-zweb-ng.vercel.app`. Keep `EXPO_PUBLIC_WEB_BASE_URL` as `https://siam-ez.com` for deep links / OAuth when DNS is healthy.
+5. While `siam-ez.com` DNS is down, both `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_WEB_BASE_URL` must be `https://siam-e-zweb-ng.vercel.app` (OAuth, guest checkout, privacy/terms, share links). After nameservers are restored, switch both back to `https://siam-ez.com`.
 
 ## Release tooling
 
@@ -66,8 +66,8 @@ account / backend / device / store access.
 
 ## Store metadata
 
-- Privacy policy URL: `https://siam-ez.com/privacy` (live)
-- Terms URL: `https://siam-ez.com/terms` (live)
+- Privacy policy URL: `https://siam-e-zweb-ng.vercel.app/privacy` (live while custom DNS is down)
+- Terms URL: `https://siam-e-zweb-ng.vercel.app/terms` (live while custom DNS is down)
 - Support contact / WhatsApp in App Store Connect / Play Console
 - Bundle IDs: `com.siamez.app` (already set in `app.json`)
 - Screenshots, age rating, Data Safety / App Privacy nutrition labels

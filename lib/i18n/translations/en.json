@@ -1293,7 +1293,7 @@
       "locationFallback": "Thailand",
       "noOpenings": "No open roles right now.",
       "share": "Share company profile",
-      "shareMessage": "Check out %{name} on SiamEZ: https://siam-ez.com/companies/%{slug}",
+      "shareMessage": "Check out %{name} on SiamEZ: %{url}",
       "applyNow": "Apply Now",
       "applyTitle": "Ready to apply",
       "applyMessage": "Open the freelancer job feed to accept matching work.",

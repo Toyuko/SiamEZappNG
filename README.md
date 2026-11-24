@@ -32,9 +32,12 @@ Set the API base URL (no trailing `/api` required — paths include it):
 
 ```bash
 EXPO_PUBLIC_API_URL=https://siam-e-zweb-ng.vercel.app
+EXPO_PUBLIC_WEB_BASE_URL=https://siam-e-zweb-ng.vercel.app
 ```
 
-Legacy alias `EXPO_PUBLIC_API_BASE_URL` is still read by `lib/config.ts`.
+Legacy alias `EXPO_PUBLIC_API_BASE_URL` is still read by `lib/config.ts`. While
+`siam-ez.com` DNS is down, keep both URL vars on the Vercel alias so OAuth,
+guest checkout, and in-app web links keep working.
 
 Production endpoints use the `/api/...` prefix, for example:
 
@@ -62,6 +65,7 @@ website create identical cases.
 | Variable | Purpose |
 |----------|---------|
 | `EXPO_PUBLIC_API_URL` | Backend base URL |
+| `EXPO_PUBLIC_WEB_BASE_URL` | Web origin for OAuth, checkout, privacy/terms, shares |
 | `EXPO_PUBLIC_SOFT_LAUNCH` | Soft-launch tab IA (`false` to disable) |
 | `EXPO_PUBLIC_PUSHER_KEY` / `EXPO_PUBLIC_PUSHER_CLUSTER` | Real-time job board (optional) |
 

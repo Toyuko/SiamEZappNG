@@ -66,7 +66,7 @@ let mockJobs: CorporateJobPosting[] = [
 
 let mockCampaign: CorporateAdCampaign = {
   id: 'corp-ad-1',
-  targetUrl: 'https://siam-ez.com',
+  targetUrl: 'https://siam-e-zweb-ng.vercel.app',
   totalBudget: 15000,
   dailyLimit: 1500,
   spent: 4200,
@@ -86,7 +86,7 @@ const mockCompany = {
   logoUrl: null,
   bannerUrl: null,
   verified: true,
-  website: 'https://siam-ez.com',
+  website: 'https://siam-e-zweb-ng.vercel.app',
 };
 
 function recomputeMetrics(): CorporateDashboardData['metrics'] {

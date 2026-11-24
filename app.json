@@ -25,6 +25,7 @@
       "supportsTablet": true,
       "buildNumber": "1",
       "associatedDomains": [
+        "applinks:siam-e-zweb-ng.vercel.app",
         "applinks:siam-ez.com",
         "applinks:www.siam-ez.com"
       ],
@@ -130,6 +131,21 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
+            {
+              "scheme": "https",
+              "host": "siam-e-zweb-ng.vercel.app",
+              "pathPrefix": "/freelancers"
+            },
+            {
+              "scheme": "https",
+              "host": "siam-e-zweb-ng.vercel.app",
+              "pathPrefix": "/en/freelancers"
+            },
+            {
+              "scheme": "https",
+              "host": "siam-e-zweb-ng.vercel.app",
+              "pathPrefix": "/th/freelancers"
+            },
             {
               "scheme": "https",
               "host": "siam-ez.com",
